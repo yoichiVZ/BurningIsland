@@ -17,7 +17,6 @@ void Island::Init()
 	_posX = 0; _posY = 0;
 	_rotation = CIRCLE_ROTATE;
 	_distanseFlag = false;
-	_mouseCount_Right = 0;
 	_islandState = GRASS;
 	_fireCount = 0;
 	_burnCount = 0;
@@ -137,11 +136,6 @@ void Island::CrossCheck(Island* island)
 
 }
 
-void Island::GetOnMouseRight(int mouseCount)
-{
-	_mouseCount_Right = mouseCount;
-}
-
 void Island::GetMyNumber(int num)
 {
 	_myNumber = num;
@@ -153,4 +147,48 @@ void Island::Burning()
 	if (_islandState == GRASS) {
 		_islandState = FIRE;
 	}
+}
+
+void Island::Ignition()
+{
+	_fireStartFlag = true;
+}
+
+void Island::SetPosition(int posX, int posY)
+{
+	_posX = posX;
+	_posY = posY;
+}
+
+void Island::Revival()
+{
+	_islandState = GRASS;
+}
+
+bool Island::StateCheck_GRASS()
+{
+	if (_islandState == GRASS)return true;
+	return false;
+}
+
+bool Island::StateCheck_FIRE()
+{
+	if (_islandState == FIRE)return true;
+	return false;
+}
+
+bool Island::StateCheck_BURN()
+{
+	if (_islandState == BURN)return true;
+	return false;
+}
+
+int Island::GetPosX()
+{
+	return _posX;
+}
+
+int Island::GetPosY()
+{
+	return _posY;
 }

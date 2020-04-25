@@ -20,27 +20,13 @@ GameController::GameController()
 
 	int direction = 90;
 
-	_island[0]->_posX = 320;
-	_island[0]->_posY = 320;
-
-	_island[1]->_posX = 320 + direction;
-	_island[1]->_posY = 320 - 30;
-
-	_island[2]->_posX = 320 - 30;
-	_island[2]->_posY = 320 - direction;
-
-	_island[3]->_posX = 320 - direction;
-	_island[3]->_posY = 320 + 30;
-
-	_island[4]->_posX = 320 + 30;
-	_island[4]->_posY = 320 + direction;
-
-	_island[5]->_posX = 320 + direction * 2 - 10;
-	_island[5]->_posY = 320 + 10;
-
-	_island[6]->_posX = 320 + 10;
-	_island[6]->_posY = 320 - direction * 2 + 10;
-
+	_island[0]->SetPosition(320, 320);
+	_island[1]->SetPosition(320 + direction, 320 - 30);
+	_island[2]->SetPosition(320 - 30, 320 - direction);
+	_island[3]->SetPosition(320 - direction, 320 + 30);
+	_island[4]->SetPosition(320 + 30, 320 + direction);
+	_island[5]->SetPosition(320 + direction * 2 - 10, 320 + 10);
+	_island[6]->SetPosition(320 + 10, 320 - direction * 2 + 10);
 	_island[7]->_posX = 320 - direction * 2 + 10;
 	_island[7]->_posY = 320 - 10;
 
@@ -319,7 +305,7 @@ void GameController::GamePlay()
 		for (int j = 0; j < ISLAND_NUM; j++) {
 			if (_island[j]->EnemyStayCheck((int)_enemy[i]->_posX, (int)_enemy[i]->_posY)) {
 				num_e[i] = j;
-				if (_island[j]->_islandState == _island[j]->FIRE) {
+				if (_island[j]->StateCheck_FIRE()) {
 					_enemy[i]->Deth();
 				}
 			}
@@ -349,8 +335,8 @@ void GameController::GamePlay()
 					_island[i]->_posY - CIRCLE_ROTATE < _mousePosY_Left && _mousePosY_Left < _island[i]->_posY + CIRCLE_ROTATE &&
 					!_rope.GetConnectFlag(num_p, i))
 				{
-					if (_island[i]->_islandState == _island[i]->BURN) {
-						_island[i]->_islandState = _island[i]->GRASS;
+					if (_island[i]->StateCheck_BURN()) {
+						_island[i]->Revival();
 						_rope.Minus(50);
 					}
 					_rope.Connect(num_p, i);
@@ -386,13 +372,13 @@ void GameController::GamePlay()
 	for (int i = 0; i < ISLAND_NUM; i++) {
 		for (int j = 0; j < ISLAND_NUM; j++) {
 			if (_rope.GetConnectFlag(i, j)) {
-				if (_island[i]->_islandState == _island[i]->FIRE) {
+				if (_island[i]->StateCheck_FIRE()) {
 					_rope.Burn(i, j);
-					_island[j]->_fireStartFlag = true;
+					_island[j]->Ignition();
 				}
-				if (_island[j]->_islandState == _island[j]->FIRE) {
+				if (_island[j]->StateCheck_FIRE()) {
 					_rope.Burn(i, j);
-					_island[i]->_fireStartFlag = true;
+					_island[i]->Ignition();
 				}
 			}
 		}
