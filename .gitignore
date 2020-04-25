@@ -4,3 +4,11 @@
 *.vcxproj
 *.filters
 *.user
+*.ipch
+*.log
+*.obj
+*.idb
+*.pdb
+*.lastbuildstate
+*.tlog
+Debug/
