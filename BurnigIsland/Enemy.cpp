@@ -1,5 +1,6 @@
 #include "DxLib.h"
 #include "Enemy.h"
+#include "Island.h"
 
 Enemy::Enemy()
 {
@@ -20,28 +21,28 @@ Enemy::~Enemy()
 
 void Enemy::Init()
 {
-	_moveCount = 0;
+	_jumpMoveCount = 0;
 	_posX = 0, _posY = 0;
-	_moveFlag = false;
+	_jumpMoveFlag = false;
 	_liveFlag = false;
-	_ropemode = false;
+	_ropeModeFlag = false;
 	_speedX = 0, _speedY = 0;
 	_ropeMoveCount = 0;
 	_angle = 0;
 	_vertualPosX = 0, _vertualPosY = 0;
 	_deletePosX = 0, _deletePosY = 0;
-	_lastTouchIsland = 0;
+	_lastTouchIslandNumber = 0;
 }
 
 void Enemy::Update()
 {
 	if (!_liveFlag)return;
-	if (!_ropemode)_moveCount++;
-	if (_moveCount >= 180) {
-		_moveFlag = true;
-		_moveCount = 0;
+	if (!_ropeModeFlag)_jumpMoveCount++;
+	if (_jumpMoveCount >= 180) {
+		_jumpMoveFlag = true;
+		_jumpMoveCount = 0;
 	}
-	Move();
+	RopeMove();
 	if ((int)_posX <= 320 + 1 && (int)_posX >= 320 - 1
 		&& (int)_posY <= 320 + 1 && (int)_posY >= 320 - 1) {
 		Deth();
@@ -76,30 +77,84 @@ void Enemy::Instantiate(int px, int py)
 	_liveFlag = true;
 }
 
-void Enemy::Move()
+void Enemy::JumpMove(int posX, int posY)
 {
-	if (!_ropemode)return;
+	_posX = posX;
+	_posY = posY;
+}
+
+void Enemy::SetSpeed(double speedX, double speedY)
+{
+	_speedX = speedX;
+	_speedY = speedY;
+}
+
+void Enemy::SetAngle(double angle)
+{
+	_angle = angle;
+}
+
+void Enemy::SetLastTouchIslandNumber(int lastTouchIslandNumber)
+{
+	if (lastTouchIslandNumber < 0 || lastTouchIslandNumber >= ISLAND_NUM)return;
+	_lastTouchIslandNumber = lastTouchIslandNumber;
+}
+
+void Enemy::OffJumpMoveFlag()
+{
+	_jumpMoveFlag = false;
+}
+
+void Enemy::OnRopeModeFlag()
+{
+	_ropeModeFlag = true;
+}
+
+void Enemy::OffRopeModeFlag()
+{
+	_ropeModeFlag = false;
+}
+
+int Enemy::GetPosX()
+{
+	return _posX;
+}
+
+int Enemy::GetPosY()
+{
+	return _posY;
+}
+
+int Enemy::GetLastTouchIslandNumber()
+{
+	return _lastTouchIslandNumber;
+}
+
+double Enemy::GetAngle()
+{
+	return _angle;
+}
+
+bool Enemy::GetRopeModeFlag()
+{
+	return _ropeModeFlag;
+}
+
+bool Enemy::GetLiveFlag()
+{
+	return _liveFlag;
+}
+
+bool Enemy::GetJumpMoveFlag()
+{
+	return _jumpMoveFlag;
+}
+
+void Enemy::RopeMove()
+{
+	if (!_ropeModeFlag)return;
 	_ropeMoveCount++;
-	//if (_ropeMoveCount % 2 == 1) {
 	if (_ropeMoveCount > 0) {
-		//int num_x, vNum_x, num_y, vNum_y;
-		//double mCheck;
-
-		//num_x = _speedX;
-		//vNum_x = _speedX - 0.5;
-		//mCheck = _speedX - 0.5;
-		//if (num_x == vNum_x && mCheck >= 0) {
-		//	num_x++;
-		//}
-
-
-		//num_y = _speedY;
-		//vNum_y = _speedY - 0.5;
-		//mCheck = _speedY - 0.5;
-		//if (num_y == vNum_y && mCheck >= 0) {
-		//	num_y++;
-		//}
-
 		_vertualPosX += _speedX + _deletePosX;
 		_vertualPosY += _speedY + _deletePosY;
 
@@ -150,27 +205,5 @@ void Enemy::Move()
 			}
 			_posY -= i;
 		}
-
-		//_posX += _speedX;
-		//_posY += _speedY;
-
-		//int num_x, vNum_x, num_y, vNum_y;
-
-		//num_x = _posX;
-		//vNum_x = _posX - 0.5;
-		//if (num_x == vNum_x) {
-		//	_posX++;
-		//}
-
-
-		//num_y = _posY;
-		//vNum_y = _posY - 0.5;
-		//if (num_y == vNum_y) {
-		//	_posY++;
-		//}
-
-		//_ropeMoveCount = 0;
 	}
-	//_posX += _speedX;
-	//_posY += _speedY;
 }
