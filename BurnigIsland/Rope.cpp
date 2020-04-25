@@ -14,7 +14,7 @@ void Rope::Init()
 {
 	for (int i = 0; i < ISLAND_NUM; i++) {
 		for (int j = 0; j < ISLAND_NUM; j++) {
-			_connectData[i][j] = false;
+			_connectFlag[i][j] = false;
 			_fireCount[i][j] = 0;
 			_fireFlag[i][j] = false;
 		}
@@ -32,7 +32,7 @@ void Rope::Update()
 			if (_fireCount[i][j] > 120) {
 				_fireCount[i][j] = 0;
 				_fireFlag[i][j] = false;
-				_connectData[i][j] = false;
+				_connectFlag[i][j] = false;
 			}
 		}
 	}
@@ -53,15 +53,15 @@ void Rope::All()
 void Rope::Connect(int island1, int island2)
 {
 	if (island1 < 0 || island1 >= ISLAND_NUM || island2 < 0 || island2 >= ISLAND_NUM)return;
-	_connectData[island1][island2] = true;
-	_connectData[island2][island1] = true;
+	_connectFlag[island1][island2] = true;
+	_connectFlag[island2][island1] = true;
 }
 
 void Rope::AllDelete()
 {
 	for (int i = 0; i < ISLAND_NUM; i++) {
 		for (int j = 0; j < ISLAND_NUM; j++) {
-			_connectData[i][j] = false;
+			_connectFlag[i][j] = false;
 			_fireCount[i][j] = 0;
 			_fireFlag[i][j] = false;
 		}
@@ -90,10 +90,10 @@ void Rope::Burn(int island1, int island2)
 	_fireFlag[island2][island1] = true;
 }
 
-bool Rope::GetConnectData(int island1, int island2)
+bool Rope::GetConnectFlag(int island1, int island2)
 {
 	if (island1 < 0 || island1 >= ISLAND_NUM || island2 < 0 || island2 >= ISLAND_NUM)return false;
-	if (_connectData[island1][island2] || _connectData[island2][island1]) {
+	if (_connectFlag[island1][island2] || _connectFlag[island2][island1]) {
 		return true;
 	}
 	return false;

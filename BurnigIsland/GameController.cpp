@@ -306,7 +306,7 @@ void GameController::GamePlay()
 
 	int num_p = 0;
 	for (int i = 0; i < ISLAND_NUM; i++) {
-		if (_island[i]->PlayerStayCheck(_player._posX, _player._posY)) {
+		if (_island[i]->PlayerStayCheck(_player.GetPosX(), _player.GetPosY())) {
 			num_p = i;
 			break;
 		}
@@ -326,11 +326,11 @@ void GameController::GamePlay()
 		}
 	}
 	for (int i = 0; i < ISLAND_NUM; i++) {
-		if (_island[i]->DistanseCheck(_player._posX, _player._posY)) {
+		if (_island[i]->DistanseCheck(_player.GetPosX(), _player.GetPosY())) {
 			bool connectCheck = false;
 			for (int j = 0; j < ISLAND_NUM; j++) {
-				if (_rope.GetConnectData(i, j)			// 反対側からもロープをかけられる
-					|| _rope.GetConnectData(num_p, j))	// 自分がいる島と繋がっているか
+				if (_rope.GetConnectFlag(i, j)			// 反対側からもロープをかけられる
+					|| _rope.GetConnectFlag(num_p, j))	// 自分がいる島と繋がっているか
 				{
 					connectCheck = true;
 				}
@@ -344,10 +344,10 @@ void GameController::GamePlay()
 				}
 			}
 			_island[num_p]->CrossCheck(_island[i]);
-			if (_mouseCount_Left == 1) {
+			if (_mouseCount_Left == 1) { // 左クリックした瞬間
 				if (_island[i]->_posX - CIRCLE_ROTATE < _mousePosX_Left && _mousePosX_Left < _island[i]->_posX + CIRCLE_ROTATE &&
 					_island[i]->_posY - CIRCLE_ROTATE < _mousePosY_Left && _mousePosY_Left < _island[i]->_posY + CIRCLE_ROTATE &&
-					!_rope.GetConnectData(num_p, i))
+					!_rope.GetConnectFlag(num_p, i))
 				{
 					if (_island[i]->_islandState == _island[i]->BURN) {
 						_island[i]->_islandState = _island[i]->GRASS;
@@ -360,28 +360,16 @@ void GameController::GamePlay()
 		}
 	}
 
-	if (_mouseCount_Left == 1) {
+	if (_mouseCount_Left == 1) { // 左クリックした瞬間
 		for (int i = 0; i < ISLAND_NUM; i++) {
 			if (_island[i]->_posX - CIRCLE_ROTATE < _mousePosX_Left && _mousePosX_Left < _island[i]->_posX + CIRCLE_ROTATE &&
 				_island[i]->_posY - CIRCLE_ROTATE < _mousePosY_Left && _mousePosY_Left < _island[i]->_posY + CIRCLE_ROTATE)
 			{
-				if (_rope.GetConnectData(num_p, i)) {
-					//if (CheckHitKey(KEY_INPUT_F) && !_fireReloadFlag) {
-					//	_island[i]->Burning();
-					//	_fireReloadFlag = true;
-					//	_rope._ropeLife = ROPELIFE_NUM;
-					//}
-					//else {
-					//	_player._posX = _island[i]->_posX;
-					//	_player._posY = _island[i]->_posY;
-					//}
-				}
-				_player._posX = _island[i]->_posX;
-				_player._posY = _island[i]->_posY;
+				_player.Move(_island[i]->_posX, _island[i]->_posY);
 			}
 		}
 	}
-	if (_mouseCount_Right == 1) {
+	if (_mouseCount_Right == 1) { // 右クリックした瞬間
 		for (int i = 0; i < ISLAND_NUM; i++) {
 			if (_island[i]->_posX - CIRCLE_ROTATE < _mousePosX_Right && _mousePosX_Right < _island[i]->_posX + CIRCLE_ROTATE &&
 				_island[i]->_posY - CIRCLE_ROTATE < _mousePosY_Right && _mousePosY_Right < _island[i]->_posY + CIRCLE_ROTATE)
@@ -397,7 +385,7 @@ void GameController::GamePlay()
 
 	for (int i = 0; i < ISLAND_NUM; i++) {
 		for (int j = 0; j < ISLAND_NUM; j++) {
-			if (_rope.GetConnectData(i, j)) {
+			if (_rope.GetConnectFlag(i, j)) {
 				if (_island[i]->_islandState == _island[i]->FIRE) {
 					_rope.Burn(i, j);
 					_island[j]->_fireStartFlag = true;
@@ -433,7 +421,7 @@ void GameController::GamePlay()
 			if (i == num_e[j])continue;
 			//if (i == _enemy[j]->_lastTouchIsland)continue;
 			if (_island[i]->EnemyDistanseCheck((int)_enemy[j]->_posX, (int)_enemy[j]->_posY)) {
-				if (_rope.GetConnectData(num_e[j], i) && !_enemy[j]->_ropemode) {
+				if (_rope.GetConnectFlag(num_e[j], i) && !_enemy[j]->_ropemode) {
 					//if (i == _enemy[j]->_lastTouchIsland) {
 					//	bool lastCheck = 0;
 					//	for (int k = 0; k < ISLAND_NUM; k++) {
@@ -567,12 +555,12 @@ void GameController::GamePlay()
 			bool lastCheck = 0;
 			for (int k = 0; k < ISLAND_NUM; k++) {
 				if (k == _enemy[j]->_lastTouchIsland)continue;
-				if (_rope.GetConnectData(num_e[j], k)) {
+				if (_rope.GetConnectFlag(num_e[j], k)) {
 					lastCheck = 1;
 					break;
 				}
 			}
-			if (lastCheck == 0 && _rope.GetConnectData(num_e[j], _enemy[j]->_lastTouchIsland) && !_enemy[j]->_ropemode) {
+			if (lastCheck == 0 && _rope.GetConnectFlag(num_e[j], _enemy[j]->_lastTouchIsland) && !_enemy[j]->_ropemode) {
 				_enemy[j]->_angle = atan2(_island[_enemy[j]->_lastTouchIsland]->_posY - _island[num_e[j]]->_posY, _island[_enemy[j]->_lastTouchIsland]->_posX - _island[num_e[j]]->_posX);
 				_enemy[j]->_speedX = cos(_enemy[j]->_angle);
 				_enemy[j]->_speedY = sin(_enemy[j]->_angle);
@@ -613,7 +601,7 @@ void GameController::GamePlay()
 	if (CheckHitKey(KEY_INPUT_R)) {
 		Init();
 	}
-	if (_player._hp <= 0) {
+	if (!_player.GetLive()) {
 		DrawFormatString(100, 10, GetColor(255, 255, 255), "GAMEOVER");
 	}
 }
@@ -626,7 +614,7 @@ void GameController::Draw()
 {
 	for (int i = 0; i < ISLAND_NUM; i++) {
 		for (int j = 0; j < ISLAND_NUM; j++) {
-			if (_rope.GetConnectData(i, j)) {
+			if (_rope.GetConnectFlag(i, j)) {
 				if (_rope.GetFireFlag(i, j)) {
 					DrawLine(_island[i]->_posX, _island[i]->_posY, _island[j]->_posX, _island[j]->_posY, GetColor(255, 0, 0), 3);
 				}
@@ -637,7 +625,7 @@ void GameController::Draw()
 			DrawFormatString(_island[i]->_posX, _island[i]->_posY, GetColor(0, 0, 0), "%d", i);
 		}
 	}
-	DrawFormatString(10, 10, GetColor(255, 255, 255), "hp : %d", _player._hp);
+	DrawFormatString(10, 10, GetColor(255, 255, 255), "hp : %d", _player.GetHP());
 	if (!_fireReloadFlag) {
 		DrawFormatString(10, 30, GetColor(255, 255, 255), "撃てる");
 	}

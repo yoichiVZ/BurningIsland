@@ -5,7 +5,7 @@
 
 class Rope {
 private:
-	bool _connectData[ISLAND_NUM][ISLAND_NUM];
+	bool _connectFlag[ISLAND_NUM][ISLAND_NUM];
 	int _fireCount[ISLAND_NUM][ISLAND_NUM];
 	bool _fireFlag[ISLAND_NUM][ISLAND_NUM];
 	int _ropeLife;
@@ -33,9 +33,9 @@ public:
 	// 以下 Get関数
 
 	// 繋がっているか
-	bool GetConnectData(int island1, int island2);
+	bool GetConnectFlag(int island1, int island2);
 	// 燃えているか
 	bool GetFireFlag(int island1, int island2);
-	// ロープライフ
+	// ロープライフ取得
 	int GetRopeLife();
 };

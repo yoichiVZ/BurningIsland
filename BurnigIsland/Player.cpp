@@ -39,3 +39,30 @@ void Player::Damage()
 {
 	_hp--;
 }
+
+void Player::Move(int posX, int posY)
+{
+	_posX = posX;
+	_posY = posY;
+}
+
+int Player::GetPosX()
+{
+	return _posX;
+}
+
+int Player::GetPosY()
+{
+	return _posY;
+}
+
+int Player::GetHP()
+{
+	return _hp;
+}
+
+bool Player::GetLive()
+{
+	if (_hp <= 0)return false;
+	return true;
+}
