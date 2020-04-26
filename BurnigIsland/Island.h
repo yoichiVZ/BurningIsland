@@ -1,7 +1,7 @@
 #pragma once
 
 #define CIRCLE_ROTATE 20
-#define ISLAND_NUM 33
+#define ISLAND_NUM 41
 
 class Island {
 private:

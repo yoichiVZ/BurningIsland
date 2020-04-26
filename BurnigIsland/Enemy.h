@@ -19,6 +19,7 @@ private:
 	int _lastTouchIslandNumber;
 
 public:
+	int dis_number;
 	Enemy();
 	Enemy(int posX, int posY);
 	~Enemy();

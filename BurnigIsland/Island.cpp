@@ -1,5 +1,8 @@
 #include <DxLib.h>
 #include "Island.h"
+
+#include "IslandInfo.h"
+
 #include "Player.h"
 
 
@@ -143,7 +146,7 @@ void Island::GetMyNumber(int num)
 
 void Island::Burning()
 {
-	if (_posX == 320 && _posY == 320) return;
+	if (_posX == IslandInfo::Base_Island_PosX && _posY == IslandInfo::Base_Island_PosY) return;
 	if (_islandState == GRASS) {
 		_islandState = FIRE;
 	}

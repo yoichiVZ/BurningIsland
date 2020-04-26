@@ -1,5 +1,8 @@
 #include "DxLib.h"
 #include "Enemy.h"
+
+#include "IslandInfo.h"
+
 #include "Island.h"
 
 Enemy::Enemy()
@@ -13,6 +16,7 @@ Enemy::Enemy(int posX, int posY)
 	_firstPosY = posY;
 	Init();
 	_liveFlag = false;
+	dis_number = 1;
 }
 
 Enemy::~Enemy()
@@ -43,14 +47,10 @@ void Enemy::Update()
 		_jumpMoveCount = 0;
 	}
 	RopeMove();
-	if ((int)_posX <= 320 + 1 && (int)_posX >= 320 - 1
-		&& (int)_posY <= 320 + 1 && (int)_posY >= 320 - 1) {
+	if (_posX <= IslandInfo::Base_Island_PosX + 1 && _posX >= IslandInfo::Base_Island_PosX - 1
+		&& _posY <= IslandInfo::Base_Island_PosY + 1 && _posY >= IslandInfo::Base_Island_PosY - 1) {
 		Deth();
 	}
-	//if (((int)_posX == 320  || (int)_posX == 320 - 1)
-	//	&& ((int)_posY == 320 || (int)_posY == 320 - 1)) {
-	//	Deth();
-	//}
 }
 
 void Enemy::Draw()

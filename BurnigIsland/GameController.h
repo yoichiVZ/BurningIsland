@@ -36,5 +36,5 @@ public:
 	int OnMouseButtonLeft();
 	int OnMouseButtonRight();
 	int LengthCheck(int posX1, int posY1, int posX2, int posY2);
-	void EnemySpawner(Enemy* enemy);
+	void EnemySpawn(Enemy* enemy);
 };

@@ -1,6 +1,8 @@
 #include <DxLib.h>
 #include "Player.h"
 
+#include "IslandInfo.h"
+
 Player::Player()
 {
 	Init();
@@ -12,8 +14,8 @@ Player::~Player()
 
 void Player::Init()
 {
-	_posX = 320;
-	_posY = 320;
+	_posX = IslandInfo::Base_Island_PosX;
+	_posY = IslandInfo::Base_Island_PosY;
 	_rotation = PLAYER_ROTATE;
 	_hp = 3;
 }

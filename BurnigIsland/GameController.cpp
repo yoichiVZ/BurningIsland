@@ -1,117 +1,18 @@
 #include <DxLib.h>
 #include <math.h>
 #include "GameController.h"
+#include "IslandInfo.h"
 
 GameController::GameController()
 {
-	_mouseCount_Left = 0;
 	for (int i = 0; i < ISLAND_NUM; i++) {
 		_island[i] = new Island();
 		_island[i]->GetMyNumber(i);
 	}
-	//_enemy[0] = new Enemy(320, 590);
-	//_enemy[0]->_liveFlag = true;
-	//_enemy[1] = new Enemy(590, 320);
-	//_enemy[2] = new Enemy(320, 50);
-	//_enemy[3] = new Enemy(50, 320);
 	for (int i = 0; i < ENEMY_NUM; i++) {
 		_enemy[i] = new Enemy();
 	}
-
-	int direction = 90;
-
-	_island[0]->SetPosition(320, 320);
-	_island[1]->SetPosition(320 + direction, 320 - 30);
-	_island[2]->SetPosition(320 - 30, 320 - direction);
-	_island[3]->SetPosition(320 - direction, 320 + 30);
-	_island[4]->SetPosition(320 + 30, 320 + direction);
-	_island[5]->SetPosition(320 + direction * 2 - 10, 320 + 10);
-	_island[6]->SetPosition(320 + 10, 320 - direction * 2 + 10);
-	_island[7]->_posX = 320 - direction * 2 + 10;
-	_island[7]->_posY = 320 - 10;
-
-	_island[8]->_posX = 320 - 10;
-	_island[8]->_posY = 320 + direction * 2 - 10;
-
-	_island[9]->_posX = 320 + direction * 3;
-	_island[9]->_posY = 320;
-
-	_island[10]->_posX = 320;
-	_island[10]->_posY = 320 - direction * 3;
-
-	_island[11]->_posX = 320 - direction * 3;
-	_island[11]->_posY = 320;
-
-	_island[12]->_posX = 320;
-	_island[12]->_posY = 320 + direction * 3;
-
-	_island[13]->_posX = 320 + direction - 10;
-	_island[13]->_posY = 320 - direction;
-
-	_island[14]->_posX = 320 - direction;
-	_island[14]->_posY = 320 - direction + 10;
-
-	_island[15]->_posX = 320 - direction + 10;
-	_island[15]->_posY = 320 + direction;
-
-	_island[16]->_posX = 320 + direction;
-	_island[16]->_posY = 320 + direction - 10;
-
-	_island[17]->_posX = 320 + direction * 2;
-	_island[17]->_posY = 320 - direction;
-
-	_island[18]->_posX = 320 + direction * 2;
-	_island[18]->_posY = 320 - direction * 2;
-
-	_island[19]->_posX = 320 + direction;
-	_island[19]->_posY = 320 - direction * 2;
-
-	_island[20]->_posX = 320 - direction;
-	_island[20]->_posY = 320 - direction * 2;
-
-	_island[21]->_posX = 320 - direction * 2;
-	_island[21]->_posY = 320 - direction * 2;
-
-	_island[22]->_posX = 320 - direction * 2;
-	_island[22]->_posY = 320 - direction;
-
-	_island[23]->_posX = 320 - direction * 2;
-	_island[23]->_posY = 320 + direction;
-
-	_island[24]->_posX = 320 - direction * 2;
-	_island[24]->_posY = 320 + direction * 2;
-
-	_island[25]->_posX = 320 - direction;
-	_island[25]->_posY = 320 + direction * 2;
-
-	_island[26]->_posX = 320 + direction;
-	_island[26]->_posY = 320 + direction * 2;
-
-	_island[27]->_posX = 320 + direction * 2;
-	_island[27]->_posY = 320 + direction * 2;
-
-	_island[28]->_posX = 320 + direction * 2;
-	_island[28]->_posY = 320 + direction;
-
-	_island[29]->_posX = 320 + direction * 3 - 10;
-	_island[29]->_posY = 320 - direction * 3 + 10;
-
-	_island[30]->_posX = 320 - direction * 3 + 10;
-	_island[30]->_posY = 320 - direction * 3 + 10;
-
-	_island[31]->_posX = 320 - direction * 3 + 10;
-	_island[31]->_posY = 320 + direction * 3 - 10;
-
-	_island[32]->_posX = 320 + direction * 3 - 10;
-	_island[32]->_posY = 320 + direction * 3 - 10;
-
-	_fireReloadCount = 0;
-	_fireReloadFlag = false;
-
-	_enemyResponCount = 420;
-	_enemyResponFlag = false;
-
-	_time.Init();
+	Init();
 }
 
 GameController::~GameController()
@@ -122,7 +23,6 @@ GameController::~GameController()
 	for (int i = 0; i < ENEMY_NUM; i++) {
 		delete _enemy[i];
 	}
-	//delete _enemy[0];
 }
 
 void GameController::Init()
@@ -143,107 +43,58 @@ void GameController::Init()
 	_enemyResponCount = 420;
 	_enemyResponFlag = false;
 
-	int direction = 90;
+	_mouseCount_Left = 0;
+	_mouseCount_Right = 0;
 
-	_island[0]->_posX = 320;
-	_island[0]->_posY = 320;
+	int direction = 100;
 
-	_island[1]->_posX = 320 + direction;
-	_island[1]->_posY = 320 - 30;
+	_island[0]-> SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY);
 
-	_island[2]->_posX = 320 - 30;
-	_island[2]->_posY = 320 - direction;
+	_island[1]-> SetPosition(IslandInfo::Base_Island_PosX - direction - 9, IslandInfo::Base_Island_PosY - (direction) + 50);
+	_island[2]-> SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 11, IslandInfo::Base_Island_PosY - (direction) + 15);
+	_island[3]-> SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction) - 7);
+	_island[4]-> SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 11, IslandInfo::Base_Island_PosY - (direction) + 15);
+	_island[5]-> SetPosition(IslandInfo::Base_Island_PosX + direction + 9, IslandInfo::Base_Island_PosY - (direction) + 50);
 
-	_island[3]->_posX = 320 - direction;
-	_island[3]->_posY = 320 + 30;
+	_island[6]-> SetPosition(IslandInfo::Base_Island_PosX - direction - 60, IslandInfo::Base_Island_PosY - (direction * 2) + 100);
+	_island[7]-> SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 65, IslandInfo::Base_Island_PosY - (direction * 2) + 50);
+	_island[8]-> SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 15, IslandInfo::Base_Island_PosY - (direction * 2) + 10);
+	_island[9]-> SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 2) - 5);
+	_island[10]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 15, IslandInfo::Base_Island_PosY - (direction * 2) + 10);
+	_island[11]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 65, IslandInfo::Base_Island_PosY - (direction * 2) + 50);
+	_island[12]->SetPosition(IslandInfo::Base_Island_PosX + direction + 60, IslandInfo::Base_Island_PosY - (direction * 2) + 100);
 
-	_island[4]->_posX = 320 + 30;
-	_island[4]->_posY = 320 + direction;
+	_island[13]->SetPosition(IslandInfo::Base_Island_PosX - direction - 110, IslandInfo::Base_Island_PosY - (direction * 3) + 150);
+	_island[14]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 115, IslandInfo::Base_Island_PosY - (direction * 3) + 100);
+	_island[15]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 70, IslandInfo::Base_Island_PosY - (direction * 3) + 45);
+	_island[16]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 15, IslandInfo::Base_Island_PosY - (direction * 3) + 15);
+	_island[17]->SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 3) - 10);
+	_island[18]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 15, IslandInfo::Base_Island_PosY - (direction * 3) + 15);
+	_island[19]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 70, IslandInfo::Base_Island_PosY - (direction * 3) + 45);
+	_island[20]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 115, IslandInfo::Base_Island_PosY - (direction * 3) + 100);
+	_island[21]->SetPosition(IslandInfo::Base_Island_PosX + direction + 110, IslandInfo::Base_Island_PosY - (direction * 3) + 150);
 
-	_island[5]->_posX = 320 + direction * 2 - 10;
-	_island[5]->_posY = 320 + 10;
+	_island[22]->SetPosition(IslandInfo::Base_Island_PosX - direction - 140, IslandInfo::Base_Island_PosY - (direction * 4) + 205);
+	_island[23]->SetPosition(IslandInfo::Base_Island_PosX - direction - 110, IslandInfo::Base_Island_PosY - (direction * 4) + 145);
+	_island[24]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 115, IslandInfo::Base_Island_PosY - (direction * 4) + 100);
+	_island[25]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 70, IslandInfo::Base_Island_PosY - (direction * 4) + 50);
+	_island[26]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 15, IslandInfo::Base_Island_PosY - (direction * 4) + 20);
+	_island[27]->SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 4) - 5);
+	_island[28]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 15, IslandInfo::Base_Island_PosY - (direction * 4) + 20);
+	_island[29]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 70, IslandInfo::Base_Island_PosY - (direction * 4) + 50);
+	_island[30]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 115, IslandInfo::Base_Island_PosY - (direction * 4) + 100);
+	_island[31]->SetPosition(IslandInfo::Base_Island_PosX + direction + 110, IslandInfo::Base_Island_PosY - (direction * 4) + 145);
+	_island[32]->SetPosition(IslandInfo::Base_Island_PosX + direction + 140, IslandInfo::Base_Island_PosY - (direction * 4) + 205);
 
-	_island[6]->_posX = 320 + 10;
-	_island[6]->_posY = 320 - direction * 2 + 10;
+	_island[33]->SetPosition(IslandInfo::Base_Island_PosX - direction - 200, IslandInfo::Base_Island_PosY - (direction * 5) + 200);
+	_island[34]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 163, IslandInfo::Base_Island_PosY - (direction * 5) + 88);
+	_island[35]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 65, IslandInfo::Base_Island_PosY - (direction * 5) + 15);
+	_island[36]->SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 5) - 20);
+	_island[37]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 65, IslandInfo::Base_Island_PosY - (direction * 5) + 15);
+	_island[38]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 163, IslandInfo::Base_Island_PosY - (direction * 5) + 88);
+	_island[39]->SetPosition(IslandInfo::Base_Island_PosX + direction + 200, IslandInfo::Base_Island_PosY - (direction * 5) + 200);
 
-	_island[7]->_posX = 320 - direction * 2 + 10;
-	_island[7]->_posY = 320 - 10;
-
-	_island[8]->_posX = 320 - 10;
-	_island[8]->_posY = 320 + direction * 2 - 10;
-
-	_island[9]->_posX = 320 + direction * 3;
-	_island[9]->_posY = 320;
-
-	_island[10]->_posX = 320;
-	_island[10]->_posY = 320 - direction * 3;
-
-	_island[11]->_posX = 320 - direction * 3;
-	_island[11]->_posY = 320;
-
-	_island[12]->_posX = 320;
-	_island[12]->_posY = 320 + direction * 3;
-
-	_island[13]->_posX = 320 + direction - 10;
-	_island[13]->_posY = 320 - direction;
-
-	_island[14]->_posX = 320 - direction;
-	_island[14]->_posY = 320 - direction + 10;
-
-	_island[15]->_posX = 320 - direction + 10;
-	_island[15]->_posY = 320 + direction;
-
-	_island[16]->_posX = 320 + direction;
-	_island[16]->_posY = 320 + direction - 10;
-
-	_island[17]->_posX = 320 + direction * 2;
-	_island[17]->_posY = 320 - direction;
-
-	_island[18]->_posX = 320 + direction * 2;
-	_island[18]->_posY = 320 - direction * 2;
-
-	_island[19]->_posX = 320 + direction;
-	_island[19]->_posY = 320 - direction * 2;
-
-	_island[20]->_posX = 320 - direction;
-	_island[20]->_posY = 320 - direction * 2;
-
-	_island[21]->_posX = 320 - direction * 2;
-	_island[21]->_posY = 320 - direction * 2;
-
-	_island[22]->_posX = 320 - direction * 2;
-	_island[22]->_posY = 320 - direction;
-
-	_island[23]->_posX = 320 - direction * 2;
-	_island[23]->_posY = 320 + direction;
-
-	_island[24]->_posX = 320 - direction * 2;
-	_island[24]->_posY = 320 + direction * 2;
-
-	_island[25]->_posX = 320 - direction;
-	_island[25]->_posY = 320 + direction * 2;
-
-	_island[26]->_posX = 320 + direction;
-	_island[26]->_posY = 320 + direction * 2;
-
-	_island[27]->_posX = 320 + direction * 2;
-	_island[27]->_posY = 320 + direction * 2;
-
-	_island[28]->_posX = 320 + direction * 2;
-	_island[28]->_posY = 320 + direction;
-
-	_island[29]->_posX = 320 + direction * 3 - 10;
-	_island[29]->_posY = 320 - direction * 3 + 10;
-
-	_island[30]->_posX = 320 - direction * 3 + 10;
-	_island[30]->_posY = 320 - direction * 3 + 10;
-
-	_island[31]->_posX = 320 - direction * 3 + 10;
-	_island[31]->_posY = 320 + direction * 3 - 10;
-
-	_island[32]->_posX = 320 + direction * 3 - 10;
-	_island[32]->_posY = 320 + direction * 3 - 10;
-
+	//_island[40]->SetPosition(IslandInfo::Base_Island_PosX + direction + 200, IslandInfo::Base_Island_PosY - (direction * 5) + 200);
 }
 
 void GameController::Title()
@@ -284,7 +135,7 @@ void GameController::GamePlay()
 	if (_enemyResponFlag) {
 		for (int i = 0; i < ENEMY_NUM; i++) {
 			if (_enemy[i]->GetLiveFlag())continue;
-			EnemySpawner(_enemy[i]);
+			EnemySpawn(_enemy[i]);
 			_enemyResponFlag = false;
 			break;
 		}
@@ -322,7 +173,7 @@ void GameController::GamePlay()
 				}
 			}
 			if (!connectCheck) {
-				if (_island[num_p]->_posX == 320 && _island[num_p]->_posY == 320) {
+				if (_island[num_p]->_posX == IslandInfo::Base_Island_PosX && _island[num_p]->_posY == IslandInfo::Base_Island_PosY) {
 
 				}
 				else {
@@ -485,7 +336,7 @@ void GameController::GamePlay()
 	}
 	for (int i = 0; i < ENEMY_NUM; i++) {
 		if (_enemy[i]->GetJumpMoveFlag()) {
-			if (_enemy[i]->GetPosX() == 320 && _enemy[i]->GetPosY() == 320) {
+			if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && _enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
 				_player.Damage();
 			}
 			else {
@@ -493,13 +344,13 @@ void GameController::GamePlay()
 				_enemy[i]->OffJumpMoveFlag();
 				_enemy[i]->SetLastTouchIslandNumber(num_e[i]);
 
-				if (_enemy[i]->GetPosX() == 320 && _enemy[i]->GetPosY() == 320) {
+				if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && _enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
 					_player.Damage();
 				}
 			}
 		}
 		else {
-			if (_enemy[i]->GetPosX() == 320 && (int)_enemy[i]->GetPosY() == 320) {
+			if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && (int)_enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
 				_player.Damage();
 			}
 		}
@@ -603,37 +454,34 @@ int GameController::LengthCheck(int posX1, int posY1, int posX2, int posY2)
 	return ans;
 }
 
-void GameController::EnemySpawner(Enemy* enemy)
+void GameController::EnemySpawn(Enemy* enemy)
 {
-	//SRand(2);//¶ã
-	//SRand(7);//‰º
-	//SRand(15);// ¶
-	//SRand(12);// ‰E
-	int random = GetRand(8 - 1);
+	int random = GetRand(7 - 1);
+	int direction = 100;
 	switch (random) {
 	case 0:
-		enemy->Instantiate(320, 590);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction - 200, IslandInfo::Base_Island_PosY - (direction * 5) + 200);
 		break;
 	case 1:
-		enemy->Instantiate(60, 580);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction / 2 - 163, IslandInfo::Base_Island_PosY - (direction * 5) + 88);
 		break;
 	case 2:
-		enemy->Instantiate(50, 320);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction / 2 - 65, IslandInfo::Base_Island_PosY - (direction * 5) + 15);
 		break;
 	case 3:
-		enemy->Instantiate(60, 60);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 5) - 20);
 		break;
 	case 4:
-		enemy->Instantiate(320, 50);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction / 2 + 65, IslandInfo::Base_Island_PosY - (direction * 5) + 15);
 		break;
 	case 5:
-		enemy->Instantiate(580, 60);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction / 2 + 163, IslandInfo::Base_Island_PosY - (direction * 5) + 88);
 		break;
 	case 6:
-		enemy->Instantiate(590, 320);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction + 200, IslandInfo::Base_Island_PosY - (direction * 5) + 200);
 		break;
-	case 7:
-		enemy->Instantiate(580, 580);
-		break;
+	//case 7:
+	//	enemy->Instantiate(580, 580);
+	//	break;
 	}
 }

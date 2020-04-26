@@ -2,6 +2,8 @@
 
 class WindowInfo {
 public:
-	static const int Screen_Width = 640;
-	static const int Screen_Height = 640;
+	// ‰æ–Ê‰¡•
+	static const int Screen_Width = 1000;
+	// ‰æ–Êc•
+	static const int Screen_Height = 800;
 };
