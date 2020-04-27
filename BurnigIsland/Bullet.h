@@ -18,6 +18,12 @@ public:
 	void All();
 	void SetTarget(int posX,int posY,int target_posX,int target_posY);
 	void Deth();
+
+	// GetŠÖ”
+
+	// ¶‚«‚Ä‚¢‚é‚©
+	bool GetLiveFlag();
+
 private:
 	void Move();
 };

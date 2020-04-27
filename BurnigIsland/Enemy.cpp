@@ -39,6 +39,7 @@ void Enemy::Init()
 	_lastTouchIslandNumber = 0;
 	_atackChargeCount = 0;
 	_atackChargeflag = false;
+	_atackModeFlag = false;
 }
 
 void Enemy::Update()
@@ -79,9 +80,9 @@ void Enemy::Draw()
 		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(0, 0, 255), TRUE);
 		break;
 	case 2:
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
-		DrawCircle(_posX, _posY, ENEMY_RANGE, GetColor(255, 0, 0), TRUE);
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
+		//DrawCircle(_posX, _posY, ENEMY_RANGE, GetColor(255, 0, 0), TRUE);
+		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(0, 255, 0), TRUE);
 		break;
 	default:

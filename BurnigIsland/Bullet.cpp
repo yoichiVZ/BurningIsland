@@ -58,6 +58,11 @@ void Bullet::Deth()
 	Init();
 }
 
+bool Bullet::GetLiveFlag()
+{
+	return _liveFlag;
+}
+
 void Bullet::Move()
 {
 	_posX += _movementX;
