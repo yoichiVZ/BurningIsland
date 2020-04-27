@@ -4,6 +4,7 @@
 #include "Rope.h"
 #include "Enemy.h"
 #include "Time.h"
+#include "Bullet.h"
 
 //#define ISLAND_NUM 33
 #define M_PI 3.14159265358979323846
@@ -22,6 +23,7 @@ private:
 	Rope _rope;
 	Enemy* _enemy[ENEMY_NUM];
 	Time _time;
+	Bullet* _bullet[BULLET_NUM];
 
 public:
 

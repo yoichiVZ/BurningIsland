@@ -5,23 +5,31 @@
 
 GameController::GameController()
 {
-	for (int i = 0; i < ISLAND_NUM; i++) {
+	int i;
+	for (i = 0; i < ISLAND_NUM; i++) {
 		_island[i] = new Island();
 		_island[i]->GetMyNumber(i);
 	}
-	for (int i = 0; i < ENEMY_NUM; i++) {
+	for (i = 0; i < ENEMY_NUM; i++) {
 		_enemy[i] = new Enemy();
+	}
+	for (i = 0; i < BULLET_NUM; i++) {
+		_bullet[i] = new Bullet();
 	}
 	Init();
 }
 
 GameController::~GameController()
 {
-	for (int i = 0; i < ISLAND_NUM; i++) {
+	int i;
+	for (i = 0; i < ISLAND_NUM; i++) {
 		delete _island[i];
 	}
-	for (int i = 0; i < ENEMY_NUM; i++) {
+	for (i = 0; i < ENEMY_NUM; i++) {
 		delete _enemy[i];
+	}
+	for (i = 0; i < BULLET_NUM; i++) {
+		delete _bullet[i];
 	}
 }
 
@@ -32,6 +40,9 @@ void GameController::Init()
 	}
 	for (int i = 0; i < ENEMY_NUM; i++) {
 		_enemy[i]->Init();
+	}
+	for (int i = 0; i < BULLET_NUM; i++) {
+		_bullet[i]->Init();
 	}
 	_player.Init();
 	_rope.Init();
@@ -184,8 +195,8 @@ void GameController::GamePlay()
 			}
 			_island[num_p]->CrossCheck(_island[i]);
 			if (_mouseCount_Left == 1) { // 左クリックした瞬間
-				if (_island[i]->_posX - CIRCLE_ROTATE < _mousePosX_Left && _mousePosX_Left < _island[i]->_posX + CIRCLE_ROTATE &&
-					_island[i]->_posY - CIRCLE_ROTATE < _mousePosY_Left && _mousePosY_Left < _island[i]->_posY + CIRCLE_ROTATE &&
+				if (_island[i]->_posX - ISLAND_ROTATE < _mousePosX_Left && _mousePosX_Left < _island[i]->_posX + ISLAND_ROTATE &&
+					_island[i]->_posY - ISLAND_ROTATE < _mousePosY_Left && _mousePosY_Left < _island[i]->_posY + ISLAND_ROTATE &&
 					!_rope.GetConnectFlag(num_p, i))
 				{
 					if (_island[i]->StateCheck_BURN()) {
@@ -201,8 +212,8 @@ void GameController::GamePlay()
 
 	if (_mouseCount_Left == 1) { // 左クリックした瞬間
 		for (int i = 0; i < ISLAND_NUM; i++) {
-			if (_island[i]->_posX - CIRCLE_ROTATE < _mousePosX_Left && _mousePosX_Left < _island[i]->_posX + CIRCLE_ROTATE &&
-				_island[i]->_posY - CIRCLE_ROTATE < _mousePosY_Left && _mousePosY_Left < _island[i]->_posY + CIRCLE_ROTATE)
+			if (_island[i]->_posX - ISLAND_ROTATE < _mousePosX_Left && _mousePosX_Left < _island[i]->_posX + ISLAND_ROTATE &&
+				_island[i]->_posY - ISLAND_ROTATE < _mousePosY_Left && _mousePosY_Left < _island[i]->_posY + ISLAND_ROTATE)
 			{
 				_player.Move(_island[i]->_posX, _island[i]->_posY);
 			}
@@ -210,8 +221,8 @@ void GameController::GamePlay()
 	}
 	if (_mouseCount_Right == 1) { // 右クリックした瞬間
 		for (int i = 0; i < ISLAND_NUM; i++) {
-			if (_island[i]->_posX - CIRCLE_ROTATE < _mousePosX_Right && _mousePosX_Right < _island[i]->_posX + CIRCLE_ROTATE &&
-				_island[i]->_posY - CIRCLE_ROTATE < _mousePosY_Right && _mousePosY_Right < _island[i]->_posY + CIRCLE_ROTATE)
+			if (_island[i]->_posX - ISLAND_ROTATE < _mousePosX_Right && _mousePosX_Right < _island[i]->_posX + ISLAND_ROTATE &&
+				_island[i]->_posY - ISLAND_ROTATE < _mousePosY_Right && _mousePosY_Right < _island[i]->_posY + ISLAND_ROTATE)
 			{
 				if (!_fireReloadFlag) {
 					_island[i]->Burning();
@@ -268,7 +279,7 @@ void GameController::GamePlay()
 			if (_island[i]->EnemyDistanseCheck(_enemy[j]->GetPosX(), _enemy[j]->GetPosY())) {
 				if (_rope.GetConnectFlag(num_e[j], i) && !_enemy[j]->GetRopeModeFlag()) {
 					if (i == _enemy[j]->GetLastTouchIslandNumber())continue;
-					if (_enemy[j]->dis_number == 1)continue;
+					if (_enemy[j]->_dis_number == 1)continue;
 
 					_enemy[j]->SetAngle(atan2(_island[i]->_posY - _island[num_e[j]]->_posY, _island[i]->_posX - _island[num_e[j]]->_posX));
 
@@ -305,7 +316,7 @@ void GameController::GamePlay()
 				}
 				else
 				{
-					if (_enemy[j]->dis_number == 1) { // サルだったら
+					if (_enemy[j]->_dis_number == 1) { // サルだったら
 						int k;
 						for (k = 0; k < ISLAND_NUM; k++) {
 							if (_rope.GetConnectFlag(i, k))break;
@@ -355,7 +366,7 @@ void GameController::GamePlay()
 		}
 	}
 	for (int i = 0; i < ENEMY_NUM; i++) {
-		if (_enemy[i]->GetJumpMoveFlag()) {
+		if (_enemy[i]->GetJumpMoveFlag() && !_enemy[i]->_atackModeFlag) {
 			if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && _enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
 				_player.Damage();
 			}
@@ -377,6 +388,15 @@ void GameController::GamePlay()
 		else {
 			if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && (int)_enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
 				_player.Damage();
+			}
+		}
+	}
+	for (int i = 0; i < ENEMY_NUM; i++) {
+		if (_enemy[i]->_dis_number != 2)continue;
+		for (int j = 0; j < BULLET_NUM; j++) {
+			if (_enemy[i]->_atackChargeflag) {
+				_enemy[i]->Shot(_bullet[j], IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY);
+				break;
 			}
 		}
 	}
@@ -424,6 +444,9 @@ void GameController::All()
 	Draw();
 	for (int i = 0; i < ENEMY_NUM; i++) {
 		_enemy[i]->All();
+	}
+	for (int i = 0; i < BULLET_NUM; i++) {
+		_bullet[i]->All();
 	}
 	_player.All();
 	_rope.All();

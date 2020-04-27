@@ -7,7 +7,8 @@
 
 Enemy::Enemy()
 {
-	dis_number = GetRand(2 - 1);
+	_dis_number = GetRand(3 - 1);
+	_atackModeFlag = false;
 	Init();
 }
 
@@ -36,6 +37,8 @@ void Enemy::Init()
 	_vertualPosX = 0, _vertualPosY = 0;
 	_deletePosX = 0, _deletePosY = 0;
 	_lastTouchIslandNumber = 0;
+	_atackChargeCount = 0;
+	_atackChargeflag = false;
 }
 
 void Enemy::Update()
@@ -47,6 +50,18 @@ void Enemy::Update()
 		_jumpMoveCount = 0;
 	}
 	RopeMove();
+	if (_dis_number == 2) {
+		if (RangeCheck()) {
+			_atackModeFlag = true;
+		}
+	}
+	if (_atackModeFlag) {
+		_atackChargeCount++;
+		if (_atackChargeCount > 60) {
+			_atackChargeflag = true;
+			_atackChargeCount = 0;
+		}
+	}
 	if (_posX <= IslandInfo::Base_Island_PosX + 1 && _posX >= IslandInfo::Base_Island_PosX - 1
 		&& _posY <= IslandInfo::Base_Island_PosY + 1 && _posY >= IslandInfo::Base_Island_PosY - 1) {
 		Deth();
@@ -56,7 +71,7 @@ void Enemy::Update()
 void Enemy::Draw()
 {
 	if (!_liveFlag)return;
-	switch (dis_number) {
+	switch (_dis_number) {
 	case 0:
 		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(255, 0, 0), TRUE);
 		break;
@@ -64,6 +79,9 @@ void Enemy::Draw()
 		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(0, 0, 255), TRUE);
 		break;
 	case 2:
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
+		DrawCircle(_posX, _posY, ENEMY_RANGE, GetColor(255, 0, 0), TRUE);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(0, 255, 0), TRUE);
 		break;
 	default:
@@ -125,6 +143,24 @@ void Enemy::OnRopeModeFlag()
 void Enemy::OffRopeModeFlag()
 {
 	_ropeModeFlag = false;
+}
+
+void Enemy::Shot(Bullet * bullet, int targetPosX, int targetPosY)
+{
+	_atackChargeflag = false;
+	bullet->SetTarget(_posX, _posY, targetPosX, targetPosY);
+}
+
+bool Enemy::RangeCheck()
+{
+	auto x = abs(IslandInfo::Base_Island_PosX - _posX);
+	auto y = abs(IslandInfo::Base_Island_PosY - _posY);
+
+	if (x * x + y * y <= (ENEMY_RANGE + ISLAND_ROTATE) * (ENEMY_RANGE + ISLAND_ROTATE)) {
+		return true;
+	}
+
+	return false;
 }
 
 int Enemy::GetPosX()

@@ -1,7 +1,9 @@
 #pragma once
+#include "Bullet.h"
 
 #define ENEMY_ROTATE 10
 #define ENEMY_NUM 30
+#define ENEMY_RANGE 200
 
 class Enemy {
 private:
@@ -17,9 +19,12 @@ private:
 	bool _ropeModeFlag;
 	int _ropeMoveCount;
 	int _lastTouchIslandNumber;
+	int _atackChargeCount;
 
 public:
-	int dis_number;
+	int _dis_number;
+	bool _atackModeFlag;
+	bool _atackChargeflag;
 	Enemy();
 	Enemy(int posX, int posY);
 	~Enemy();
@@ -43,8 +48,15 @@ public:
 	void OnRopeModeFlag();
 	// ロープから降りる
 	void OffRopeModeFlag();
+	// 弾を撃つ
+	void Shot(Bullet* bullet,int targetPosX, int targetPosY);
 
-	// 以下 Get関数
+	// 当たり判定関数
+
+	// 射程距離内に拠点があるか
+	bool RangeCheck();
+
+	// Get関数
 
 	// X座標取得
 	int GetPosX();

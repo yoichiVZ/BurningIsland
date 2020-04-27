@@ -18,7 +18,7 @@ Island::~Island()
 void Island::Init()
 {
 	_posX = 0; _posY = 0;
-	_rotation = CIRCLE_ROTATE;
+	_rotation = ISLAND_ROTATE;
 	_distanseFlag = false;
 	_islandState = GRASS;
 	_fireCount = 0;
@@ -72,7 +72,7 @@ void Island::Draw()
 		//DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
 	}
 
-	DrawBox(_posX - CIRCLE_ROTATE, _posY - CIRCLE_ROTATE, _posX + CIRCLE_ROTATE, _posY + CIRCLE_ROTATE, GetColor(255, 255, 255), FALSE);
+	DrawBox(_posX - ISLAND_ROTATE, _posY - ISLAND_ROTATE, _posX + ISLAND_ROTATE, _posY + ISLAND_ROTATE, GetColor(255, 255, 255), FALSE);
 }
 
 void Island::All()
@@ -86,7 +86,7 @@ bool Island::DistanseCheck(int px, int py)
 	auto x = abs(px - _posX);
 	auto y = abs(py - _posY);
 
-	if (x * x + y * y <= ((PLAYER_ROTATE * ROPE_DISTANSE) + CIRCLE_ROTATE) * ((PLAYER_ROTATE * ROPE_DISTANSE) + CIRCLE_ROTATE)) {
+	if (x * x + y * y <= ((PLAYER_ROTATE * ROPE_DISTANSE) + ISLAND_ROTATE) * ((PLAYER_ROTATE * ROPE_DISTANSE) + ISLAND_ROTATE)) {
 		_distanseFlag = true;
 		return true;
 	}
@@ -100,7 +100,7 @@ bool Island::PlayerStayCheck(int px, int py)
 	auto x = abs(px - _posX);
 	auto y = abs(py - _posY);
 
-	if (x * x + y * y <= (PLAYER_ROTATE + CIRCLE_ROTATE) * (PLAYER_ROTATE + CIRCLE_ROTATE)) {
+	if (x * x + y * y <= (PLAYER_ROTATE + ISLAND_ROTATE) * (PLAYER_ROTATE + ISLAND_ROTATE)) {
 		_playerStayFlag = true;
 		return true;
 	}
@@ -114,7 +114,7 @@ bool Island::EnemyDistanseCheck(int ex, int ey)
 	auto x = abs(ex - _posX);
 	auto y = abs(ey - _posY);
 
-	if (x * x + y * y <= ((PLAYER_ROTATE * ROPE_DISTANSE) + CIRCLE_ROTATE) * ((PLAYER_ROTATE * ROPE_DISTANSE) + CIRCLE_ROTATE)) {
+	if (x * x + y * y <= ((PLAYER_ROTATE * ROPE_DISTANSE) + ISLAND_ROTATE) * ((PLAYER_ROTATE * ROPE_DISTANSE) + ISLAND_ROTATE)) {
 		return true;
 	}
 
@@ -126,7 +126,7 @@ bool Island::EnemyStayCheck(int ex, int ey)
 	auto x = abs(ex - _posX);
 	auto y = abs(ey - _posY);
 
-	if (x * x + y * y <= (PLAYER_ROTATE + CIRCLE_ROTATE) * (PLAYER_ROTATE + CIRCLE_ROTATE)) {
+	if (x * x + y * y <= (PLAYER_ROTATE + ISLAND_ROTATE) * (PLAYER_ROTATE + ISLAND_ROTATE)) {
 		return true;
 	}
 
