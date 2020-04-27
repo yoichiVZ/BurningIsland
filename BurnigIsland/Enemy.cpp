@@ -7,6 +7,7 @@
 
 Enemy::Enemy()
 {
+	dis_number = GetRand(2 - 1);
 	Init();
 }
 
@@ -16,7 +17,6 @@ Enemy::Enemy(int posX, int posY)
 	_firstPosY = posY;
 	Init();
 	_liveFlag = false;
-	dis_number = 1;
 }
 
 Enemy::~Enemy()
@@ -56,7 +56,19 @@ void Enemy::Update()
 void Enemy::Draw()
 {
 	if (!_liveFlag)return;
-	DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(255, 0, 0), TRUE);
+	switch (dis_number) {
+	case 0:
+		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(255, 0, 0), TRUE);
+		break;
+	case 1:
+		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(0, 0, 255), TRUE);
+		break;
+	case 2:
+		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(0, 255, 0), TRUE);
+		break;
+	default:
+		break;
+	}
 }
 
 void Enemy::All()

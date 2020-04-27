@@ -1,7 +1,7 @@
 #pragma once
 
 #define ENEMY_ROTATE 10
-#define ENEMY_NUM 10
+#define ENEMY_NUM 30
 
 class Enemy {
 private:
