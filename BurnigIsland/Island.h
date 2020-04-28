@@ -12,6 +12,7 @@ private:
 	};
 	IslandState _islandState;
 
+	int _posX, _posY;
 	int _width, _height;
 	int _rotation;
 	bool _distanseFlag;
@@ -20,9 +21,11 @@ private:
 	int _fireCount, _burnCount;
 	bool _fireStartFlag;
 	int _fireStartCount;
+	bool _extinguishedFlag;
+
+	int _gh_island;
 
 public:
-	int _posX, _posY;
 
 	Island();
 	~Island();
@@ -55,6 +58,8 @@ public:
 	bool StateCheck_FIRE();
 	// “‡‚Ìó‘Ô‚ÍBURN‚©
 	bool StateCheck_BURN();
+	// ’Á‰Î‚µ‚½‚©
+	bool ExtinguishedCheck();
 
 	// ˆÈ‰º GetŠÖ”
 	int GetPosX();

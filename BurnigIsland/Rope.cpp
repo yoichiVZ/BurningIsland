@@ -19,6 +19,7 @@ void Rope::Init()
 			_fireFlag[i][j] = false;
 		}
 	}
+	_maxRopeLife = ROPELIFE_NUM;
 	AllRecovery();
 }
 
@@ -66,7 +67,7 @@ void Rope::AllDelete()
 			_fireFlag[i][j] = false;
 		}
 	}
-	_ropeLife = ROPELIFE_NUM;
+	_ropeLife = _maxRopeLife;
 }
 
 void Rope::Minus(int minus)
@@ -80,7 +81,20 @@ void Rope::Minus(int minus)
 
 void Rope::AllRecovery()
 {
-	_ropeLife = ROPELIFE_NUM;
+	_ropeLife = _maxRopeLife;
+}
+
+void Rope::Recovery()
+{
+	_ropeLife += 50;
+	if (_ropeLife > _maxRopeLife) {
+		_ropeLife = _maxRopeLife;
+	}
+}
+
+void Rope::AddMaxLife()
+{
+	_maxRopeLife += 10;
 }
 
 void Rope::Burn(int island1, int island2)

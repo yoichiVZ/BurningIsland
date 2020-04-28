@@ -8,6 +8,8 @@
 
 Island::Island()
 {
+	_gh_island = LoadGraph("Resource\\Image\\sima1.png");
+	GetGraphSize(_gh_island, &_width, &_height);
 	Init();
 }
 
@@ -25,6 +27,8 @@ void Island::Init()
 	_burnCount = 0;
 	_fireStartFlag = false;
 	_fireStartCount = 0;
+	_extinguishedFlag = false;
+
 }
 
 void Island::Update()
@@ -34,6 +38,7 @@ void Island::Update()
 		if (_fireCount > 120) {
 			_islandState = BURN;
 			_fireCount = 0;
+			_extinguishedFlag = true;
 		}
 	}
 	else if (_islandState == BURN) {
@@ -55,7 +60,8 @@ void Island::Update()
 
 void Island::Draw()
 {
-	if (_islandState == GRASS)DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
+	//if (_islandState == GRASS)DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
+	if (_islandState == GRASS)DrawGraph(_posX - _width / 2, _posY - _height / 2, _gh_island, TRUE);
 	if (_islandState == FIRE)DrawCircle(_posX, _posY, _rotation, GetColor(200, 0, 0), TRUE);
 	if (_islandState == BURN)DrawCircle(_posX, _posY, _rotation, GetColor(100, 100, 100), TRUE);
 
@@ -72,7 +78,7 @@ void Island::Draw()
 		//DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
 	}
 
-	DrawBox(_posX - ISLAND_ROTATE, _posY - ISLAND_ROTATE, _posX + ISLAND_ROTATE, _posY + ISLAND_ROTATE, GetColor(255, 255, 255), FALSE);
+	//DrawBox(_posX - ISLAND_ROTATE, _posY - ISLAND_ROTATE, _posX + ISLAND_ROTATE, _posY + ISLAND_ROTATE, GetColor(255, 255, 255), FALSE);
 }
 
 void Island::All()
@@ -183,6 +189,15 @@ bool Island::StateCheck_FIRE()
 bool Island::StateCheck_BURN()
 {
 	if (_islandState == BURN)return true;
+	return false;
+}
+
+bool Island::ExtinguishedCheck()
+{
+	if (_extinguishedFlag) {
+		_extinguishedFlag = false;
+		return true;
+	}
 	return false;
 }
 

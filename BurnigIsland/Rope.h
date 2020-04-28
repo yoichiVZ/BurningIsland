@@ -8,6 +8,7 @@ private:
 	bool _connectFlag[ISLAND_NUM][ISLAND_NUM];
 	int _fireCount[ISLAND_NUM][ISLAND_NUM];
 	bool _fireFlag[ISLAND_NUM][ISLAND_NUM];
+	int _maxRopeLife;
 	int _ropeLife;
 
 public:
@@ -27,6 +28,10 @@ public:
 	void Minus(int minus);
 	// ロープ全回復
 	void AllRecovery();
+	// ロープ回復
+	void Recovery();
+	// ロープ最大値UP
+	void AddMaxLife();
 	// ロープを燃やす
 	void Burn(int island1, int island2);
 

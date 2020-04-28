@@ -51,7 +51,7 @@ public:
 	// ’e‚ğŒ‚‚Â
 	void Shot(Bullet* bullet,int targetPosX, int targetPosY);
 
-	// “–‚½‚è”»’èŠÖ”
+	// ”»’èŠÖ”
 
 	// Ë’ö‹——£“à‚É‹’“_‚ª‚ ‚é‚©
 	bool RangeCheck();

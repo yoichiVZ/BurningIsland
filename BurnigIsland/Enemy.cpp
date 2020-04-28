@@ -58,7 +58,7 @@ void Enemy::Update()
 	}
 	if (_atackModeFlag) {
 		_atackChargeCount++;
-		if (_atackChargeCount > 60) {
+		if (_atackChargeCount > 120) {
 			_atackChargeflag = true;
 			_atackChargeCount = 0;
 		}
@@ -74,16 +74,16 @@ void Enemy::Draw()
 	if (!_liveFlag)return;
 	switch (_dis_number) {
 	case 0:
-		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(255, 0, 0), TRUE);
+		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(150, 150, 255), TRUE);
 		break;
 	case 1:
-		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(0, 0, 255), TRUE);
+		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(255, 255, 55), TRUE);
 		break;
 	case 2:
 		//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
 		//DrawCircle(_posX, _posY, ENEMY_RANGE, GetColor(255, 0, 0), TRUE);
 		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(0, 255, 0), TRUE);
+		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(150, 0, 200), TRUE);
 		break;
 	default:
 		break;
