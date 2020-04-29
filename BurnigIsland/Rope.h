@@ -1,13 +1,14 @@
 #pragma once
 #include "Island.h"
-
-#define ROPELIFE_NUM 800
+#include "IslandInfo.h"
 
 class Rope {
 private:
-	bool _connectFlag[ISLAND_NUM][ISLAND_NUM];
-	int _fireCount[ISLAND_NUM][ISLAND_NUM];
-	bool _fireFlag[ISLAND_NUM][ISLAND_NUM];
+	bool _connectFlag[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	int _fireCount[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	bool _fireFlag[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	int _fireStartCount[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	bool _fireStartFlag[IslandInfo::Island_Num][IslandInfo::Island_Num];
 	int _maxRopeLife;
 	int _ropeLife;
 
@@ -25,13 +26,15 @@ public:
 	// ロープ全消去
 	void AllDelete();
 	// ロープ消費
-	void Minus(int minus);
+	void Minus();
 	// ロープ全回復
 	void AllRecovery();
 	// ロープ回復
 	void Recovery();
 	// ロープ最大値UP
 	void AddMaxLife();
+	// 着火
+	void Ignition(int island1, int island2);
 	// ロープを燃やす
 	void Burn(int island1, int island2);
 

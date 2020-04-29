@@ -2,6 +2,7 @@
 #include "Player.h"
 
 #include "IslandInfo.h"
+#include "PlayerInfo.h"
 
 Player::Player()
 {
@@ -16,8 +17,7 @@ void Player::Init()
 {
 	_posX = IslandInfo::Base_Island_PosX;
 	_posY = IslandInfo::Base_Island_PosY;
-	_rotation = PLAYER_ROTATE;
-	_hp = 3;
+	_hp = PlayerInfo::Player_HP;
 }
 
 void Player::Update()
@@ -27,7 +27,7 @@ void Player::Update()
 void Player::Draw()
 {
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
-	DrawCircle(_posX, _posY, _rotation * ROPE_DISTANSE, GetColor(0, 255, 0), TRUE);
+	DrawCircle(_posX, _posY, PlayerInfo::Player_Rope_Distance, GetColor(0, 255, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	//DrawCircle(_posX, _posY, _rotation, GetColor(0, 0, 255), TRUE);
 }

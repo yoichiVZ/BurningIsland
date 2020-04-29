@@ -1,9 +1,9 @@
 #pragma once
 #include "Bullet.h"
 
-#define ENEMY_ROTATE 10
-#define ENEMY_NUM 30
-#define ENEMY_RANGE 200
+//#define ENEMY_ROTATE 10
+//#define ENEMY_NUM 30
+//#define ENEMY_RANGE 200
 
 class Enemy {
 private:

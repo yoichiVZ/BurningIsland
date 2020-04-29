@@ -1,7 +1,11 @@
 #include <DxLib.h>
 #include <math.h>
+
 #include "Bullet.h"
+
 #include "WindowInfo.h"
+#include "IslandInfo.h"
+#include "BulletInfo.h"
 
 Bullet::Bullet()
 {
@@ -19,8 +23,8 @@ void Bullet::Update()
 {
 	if (!_liveFlag)return;
 	Move();
-	if (0 > _posX + BULLET_ROTATE || WindowInfo::Screen_Width < _posX - BULLET_ROTATE
-		|| 0 > _posY + BULLET_ROTATE || WindowInfo::Screen_Height < _posY - BULLET_ROTATE) {
+	if (0 > _posX + BulletInfo::Bullet_Rotation || WindowInfo::Screen_Width < _posX - BulletInfo::Bullet_Rotation
+		|| 0 > _posY + BulletInfo::Bullet_Rotation || WindowInfo::Screen_Height < _posY - BulletInfo::Bullet_Rotation) {
 		Deth();
 	}
 }
@@ -28,7 +32,7 @@ void Bullet::Update()
 void Bullet::Draw()
 {
 	if (!_liveFlag)return;
-	DrawCircle(_posX, _posY, BULLET_ROTATE, GetColor(255, 0, 0), TRUE);
+	DrawCircle(_posX, _posY, BulletInfo::Bullet_Rotation, GetColor(255, 0, 0), TRUE);
 }
 
 void Bullet::All()
@@ -49,13 +53,25 @@ void Bullet::SetTarget(int posX, int posY, int target_posX, int target_posY)
 
 	auto xy = sqrt(x * x + y * y);
 
-	_movementX = (x / xy) * BULLET_SPEED;
-	_movementY = (y / xy) * BULLET_SPEED;
+	_movementX = (x / xy) * BulletInfo::Bullet_Speed;
+	_movementY = (y / xy) * BulletInfo::Bullet_Speed;
 }
 
 void Bullet::Deth()
 {
 	Init();
+}
+
+bool Bullet::BaseHitCheck()
+{
+	auto x = abs(IslandInfo::Base_Island_PosX - (int)_posX);
+	auto y = abs(IslandInfo::Base_Island_PosY - (int)_posY);
+
+	if (x * x + y * y <= (IslandInfo::Island_Rotation + BulletInfo::Bullet_Rotation) * (IslandInfo::Island_Rotation + BulletInfo::Bullet_Rotation)) {
+		return true;
+	}
+
+	return false;
 }
 
 bool Bullet::GetLiveFlag()

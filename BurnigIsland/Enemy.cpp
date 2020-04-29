@@ -2,8 +2,9 @@
 #include "Enemy.h"
 
 #include "IslandInfo.h"
+#include "EnemyInfo.h"
 
-#include "Island.h"
+//#include "Island.h"
 
 Enemy::Enemy()
 {
@@ -46,7 +47,7 @@ void Enemy::Update()
 {
 	if (!_liveFlag)return;
 	if (!_ropeModeFlag)_jumpMoveCount++;
-	if (_jumpMoveCount >= 180) {
+	if (_jumpMoveCount >= EnemyInfo::Enemy_Move_Count) {
 		_jumpMoveFlag = true;
 		_jumpMoveCount = 0;
 	}
@@ -58,15 +59,15 @@ void Enemy::Update()
 	}
 	if (_atackModeFlag) {
 		_atackChargeCount++;
-		if (_atackChargeCount > 120) {
+		if (_atackChargeCount > EnemyInfo::Attack_Charge_Count) {
 			_atackChargeflag = true;
 			_atackChargeCount = 0;
 		}
 	}
-	if (_posX <= IslandInfo::Base_Island_PosX + 1 && _posX >= IslandInfo::Base_Island_PosX - 1
-		&& _posY <= IslandInfo::Base_Island_PosY + 1 && _posY >= IslandInfo::Base_Island_PosY - 1) {
-		Deth();
-	}
+	//if (_posX <= IslandInfo::Base_Island_PosX + 1 && _posX >= IslandInfo::Base_Island_PosX - 1
+	//	&& _posY <= IslandInfo::Base_Island_PosY + 1 && _posY >= IslandInfo::Base_Island_PosY - 1) {
+	//	Deth();
+	//}
 }
 
 void Enemy::Draw()
@@ -74,16 +75,16 @@ void Enemy::Draw()
 	if (!_liveFlag)return;
 	switch (_dis_number) {
 	case 0:
-		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(150, 150, 255), TRUE);
+		DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(150, 150, 255), TRUE);
 		break;
 	case 1:
-		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(255, 255, 55), TRUE);
+		DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(255, 255, 55), TRUE);
 		break;
 	case 2:
 		//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
 		//DrawCircle(_posX, _posY, ENEMY_RANGE, GetColor(255, 0, 0), TRUE);
 		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		DrawCircle((int)_posX, (int)_posY, ENEMY_ROTATE, GetColor(150, 0, 200), TRUE);
+		DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(150, 0, 200), TRUE);
 		break;
 	default:
 		break;
@@ -127,7 +128,7 @@ void Enemy::SetAngle(double angle)
 
 void Enemy::SetLastTouchIslandNumber(int lastTouchIslandNumber)
 {
-	if (lastTouchIslandNumber < 0 || lastTouchIslandNumber >= ISLAND_NUM)return;
+	if (lastTouchIslandNumber < 0 || lastTouchIslandNumber >= IslandInfo::Island_Num)return;
 	_lastTouchIslandNumber = lastTouchIslandNumber;
 }
 
@@ -157,7 +158,7 @@ bool Enemy::RangeCheck()
 	auto x = abs(IslandInfo::Base_Island_PosX - _posX);
 	auto y = abs(IslandInfo::Base_Island_PosY - _posY);
 
-	if (x * x + y * y <= (ENEMY_RANGE + ISLAND_ROTATE) * (ENEMY_RANGE + ISLAND_ROTATE)) {
+	if (x * x + y * y <= (EnemyInfo::Enemy_Range + IslandInfo::Island_Rotation) * (EnemyInfo::Enemy_Range + IslandInfo::Island_Rotation)) {
 		return true;
 	}
 

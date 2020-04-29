@@ -1,10 +1,15 @@
 #pragma once
+
 #include "Island.h"
 #include "Player.h"
 #include "Rope.h"
 #include "Enemy.h"
 #include "Time.h"
 #include "Bullet.h"
+
+#include "IslandInfo.h"
+#include "EnemyInfo.h"
+#include "BulletInfo.h"
 
 //#define ISLAND_NUM 33
 #define M_PI 3.14159265358979323846
@@ -30,12 +35,12 @@ private:
 	int _cloud_posX, _cloud_posY;
 	int _cloud_width, _cloud_height;
 
-	Island* _island[ISLAND_NUM];
+	Island* _island[IslandInfo::Island_Num];
 	Player _player;
 	Rope _rope;
-	Enemy* _enemy[ENEMY_NUM];
+	Enemy* _enemy[EnemyInfo::Enemy_Num];
 	Time _time;
-	Bullet* _bullet[BULLET_NUM];
+	Bullet* _bullet[BulletInfo::Bullet_Num];
 
 	enum Scenetate {
 		TITLE,

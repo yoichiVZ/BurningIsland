@@ -1,12 +1,11 @@
 #pragma once
 
-#define PLAYER_ROTATE 10
-#define ROPE_DISTANSE 10
+//#define PLAYER_ROTATE 10
+//#define ROPE_DISTANSE 100
 
 class Player {
 private:
 	int _posX, _posY;
-	int _rotation;
 	int _hp;
 
 public:

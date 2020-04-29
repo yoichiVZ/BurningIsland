@@ -2,6 +2,7 @@
 #include "Island.h"
 
 #include "IslandInfo.h"
+#include "PlayerInfo.h"
 
 #include "Player.h"
 
@@ -20,7 +21,7 @@ Island::~Island()
 void Island::Init()
 {
 	_posX = 0; _posY = 0;
-	_rotation = ISLAND_ROTATE;
+	_rotation = IslandInfo::Island_Rotation;
 	_distanseFlag = false;
 	_islandState = GRASS;
 	_fireCount = 0;
@@ -51,7 +52,7 @@ void Island::Update()
 	if (_fireStartFlag) {
 		_fireStartCount++;
 	}
-	if (_fireStartCount > 30) {
+	if (_fireStartCount > 10) {
 		_fireStartCount = 0;
 		_fireStartFlag = false;
 		Burning();
@@ -92,7 +93,7 @@ bool Island::DistanseCheck(int px, int py)
 	auto x = abs(px - _posX);
 	auto y = abs(py - _posY);
 
-	if (x * x + y * y <= ((PLAYER_ROTATE * ROPE_DISTANSE) + ISLAND_ROTATE) * ((PLAYER_ROTATE * ROPE_DISTANSE) + ISLAND_ROTATE)) {
+	if (x * x + y * y <= (PlayerInfo::Player_Rope_Distance + IslandInfo::Island_Rotation) * (PlayerInfo::Player_Rope_Distance + IslandInfo::Island_Rotation)) {
 		_distanseFlag = true;
 		return true;
 	}
@@ -106,7 +107,7 @@ bool Island::PlayerStayCheck(int px, int py)
 	auto x = abs(px - _posX);
 	auto y = abs(py - _posY);
 
-	if (x * x + y * y <= (PLAYER_ROTATE + ISLAND_ROTATE) * (PLAYER_ROTATE + ISLAND_ROTATE)) {
+	if (x * x + y * y <= (PlayerInfo::Player_Rotation + IslandInfo::Island_Rotation) * (PlayerInfo::Player_Rotation + IslandInfo::Island_Rotation)) {
 		_playerStayFlag = true;
 		return true;
 	}
@@ -120,7 +121,7 @@ bool Island::EnemyDistanseCheck(int ex, int ey)
 	auto x = abs(ex - _posX);
 	auto y = abs(ey - _posY);
 
-	if (x * x + y * y <= ((PLAYER_ROTATE * ROPE_DISTANSE) + ISLAND_ROTATE) * ((PLAYER_ROTATE * ROPE_DISTANSE) + ISLAND_ROTATE)) {
+	if (x * x + y * y <= (PlayerInfo::Player_Rope_Distance + IslandInfo::Island_Rotation) * (PlayerInfo::Player_Rope_Distance + IslandInfo::Island_Rotation)) {
 		return true;
 	}
 
@@ -132,7 +133,7 @@ bool Island::EnemyStayCheck(int ex, int ey)
 	auto x = abs(ex - _posX);
 	auto y = abs(ey - _posY);
 
-	if (x * x + y * y <= (PLAYER_ROTATE + ISLAND_ROTATE) * (PLAYER_ROTATE + ISLAND_ROTATE)) {
+	if (x * x + y * y <= (PlayerInfo::Player_Rotation + IslandInfo::Island_Rotation) * (PlayerInfo::Player_Rotation + IslandInfo::Island_Rotation)) {
 		return true;
 	}
 
