@@ -31,9 +31,22 @@ private:
 
 	int _gh_background;
 	int _gh_cloud;
+	int _gh_thunder;
 	int _background_width, _background_height;
 	int _cloud_posX, _cloud_posY;
 	int _cloud_width, _cloud_height;
+	int _cloud_speed_count;
+	int _thunder_width, _thunder_height;
+	int _thunder_count[IslandInfo::Island_Num];
+	int _island_posX_data[IslandInfo::Island_Num];
+	int _island_posY_data[IslandInfo::Island_Num];
+	int _nowIsland;
+
+	int s_count;
+	int right_count;
+	int left_count;
+	int up_count;
+	int down_count;
 
 	Island* _island[IslandInfo::Island_Num];
 	Player _player;
@@ -67,4 +80,6 @@ private:
 	int OnSpaceButton();
 	int LengthCheck(int posX1, int posY1, int posX2, int posY2);
 	void EnemySpawn(Enemy* enemy);
+	void PositionSave();
+	void PositionLoad();
 };

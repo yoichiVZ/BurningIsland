@@ -21,6 +21,8 @@ private:
 	bool _extinguishedFlag;
 
 	int _gh_island;
+	int _gh_base;
+	int _base_width, _base_height;
 
 public:
 
@@ -61,4 +63,7 @@ public:
 	// à»â∫ Getä÷êî
 	int GetPosX();
 	int GetPosY();
+
+	void MoveX(int num);
+	void MoveY(int num);
 };

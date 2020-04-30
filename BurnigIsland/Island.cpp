@@ -10,7 +10,9 @@
 Island::Island()
 {
 	_gh_island = LoadGraph("Resource\\Image\\sima1.png");
+	_gh_base = LoadGraph("Resource\\Image\\kyoten.png");
 	GetGraphSize(_gh_island, &_width, &_height);
+	GetGraphSize(_gh_base, &_base_width, &_base_height);
 	Init();
 }
 
@@ -62,9 +64,14 @@ void Island::Update()
 void Island::Draw()
 {
 	//if (_islandState == GRASS)DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
-	if (_islandState == GRASS)DrawGraph(_posX - _width / 2, _posY - _height / 2, _gh_island, TRUE);
-	if (_islandState == FIRE)DrawCircle(_posX, _posY, _rotation, GetColor(200, 0, 0), TRUE);
-	if (_islandState == BURN)DrawCircle(_posX, _posY, _rotation, GetColor(100, 100, 100), TRUE);
+	if (_posX == IslandInfo::Base_Island_PosX && _posY == IslandInfo::Base_Island_PosY) {
+		DrawGraph(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, TRUE);
+	}
+	else {
+		if (_islandState == GRASS)DrawGraph(_posX - _width / 2, _posY - _height / 2, _gh_island, TRUE);
+		if (_islandState == FIRE)DrawCircle(_posX, _posY, _rotation, GetColor(200, 0, 0), TRUE);
+		if (_islandState == BURN)DrawCircle(_posX, _posY, _rotation, GetColor(100, 100, 100), TRUE);
+	}
 
 	if (_distanseFlag) {
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
@@ -210,4 +217,22 @@ int Island::GetPosX()
 int Island::GetPosY()
 {
 	return _posY;
+}
+
+void Island::MoveX(int num)
+{
+	if (num == 0) {
+		_posX--;
+		return;
+	}
+	_posX++;
+}
+
+void Island::MoveY(int num)
+{
+	if (num == 0) {
+		_posY--;
+		return;
+	}
+	_posY++;
 }

@@ -17,3 +17,5 @@ Debug/
 *.ipdb
 *.zip
 BurnigIsland/Resource/
+BurnigIsland/PositionX.dat
+BurnigIsland/PositionY.dat
