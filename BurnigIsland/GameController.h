@@ -41,6 +41,7 @@ private:
 	int _island_posX_data[IslandInfo::Island_Num];
 	int _island_posY_data[IslandInfo::Island_Num];
 	int _nowIsland;
+	int _now_player_num;
 
 	int s_count;
 	int right_count;

@@ -21,6 +21,13 @@ private:
 	int _lastTouchIslandNumber;
 	int _atackChargeCount;
 
+	int _gh_suraimu;
+	int _gh_akuma;
+	int _gh_saru;
+	int _suraimu_width, _suraimu_height;
+	int _akuma_width, _akuma_height;
+	int _saru_width, _saru_height;
+
 public:
 	int _dis_number;
 	bool _atackModeFlag;

@@ -68,6 +68,7 @@ void GameController::Init()
 	_fireReloadFlag = false;
 
 	_enemyResponCount = 660;
+	//_enemyResponCount = 0;
 	_enemyResponFlag = false;
 
 	_cloud_posX = 0;
@@ -89,6 +90,8 @@ void GameController::Init()
 	left_count = 0;
 	up_count = 0;
 	down_count = 0;
+	_nowIsland = 0;
+	_now_player_num = 0;
 
 	//int direction = 100;
 
@@ -169,32 +172,32 @@ void GameController::GamePlay()
 	OnMouseButtonLeft();
 	OnMouseButtonRight();
 	OnSpaceButton();
-	if (CheckHitKey(KEY_INPUT_S))s_count++;
-	else s_count = 0;
-	if (CheckHitKey(KEY_INPUT_RIGHT))right_count++;
-	else right_count = 0;
-	if (CheckHitKey(KEY_INPUT_LEFT))left_count++;
-	else left_count = 0;
-	if (CheckHitKey(KEY_INPUT_UP))up_count++;
-	else up_count = 0;
-	if (CheckHitKey(KEY_INPUT_DOWN))down_count++;
-	else down_count = 0;
+	//if (CheckHitKey(KEY_INPUT_S))s_count++;
+	//else s_count = 0;
+	//if (CheckHitKey(KEY_INPUT_RIGHT))right_count++;
+	//else right_count = 0;
+	//if (CheckHitKey(KEY_INPUT_LEFT))left_count++;
+	//else left_count = 0;
+	//if (CheckHitKey(KEY_INPUT_UP))up_count++;
+	//else up_count = 0;
+	//if (CheckHitKey(KEY_INPUT_DOWN))down_count++;
+	//else down_count = 0;
 
-	if (s_count == 1 || (s_count > 10 && s_count % 2 == 0)) {
-		PositionSave();
-	}
-	if (right_count == 1 || (right_count > 10 && right_count % 2 == 0)) {
-		_island[_nowIsland]->MoveX(1);
-	}
-	if (left_count == 1 || (left_count > 10 && left_count % 2 == 0)) {
-		_island[_nowIsland]->MoveX(0);
-	}
-	if (up_count == 1 || (up_count > 10 && up_count % 2 == 0)) {
-		_island[_nowIsland]->MoveY(0);
-	}
-	if (down_count == 1 || (down_count > 10 && down_count % 2 == 0)) {
-		_island[_nowIsland]->MoveY(1);
-	}
+	//if (s_count == 1) {
+	//	PositionSave();
+	//}
+	//if (right_count == 1 || (right_count > 10)) {
+	//	_island[_nowIsland]->MoveX(1);
+	//}
+	//if (left_count == 1 || (left_count > 10)) {
+	//	_island[_nowIsland]->MoveX(0);
+	//}
+	//if (up_count == 1 || (up_count > 10)) {
+	//	_island[_nowIsland]->MoveY(0);
+	//}
+	//if (down_count == 1 || (down_count > 10)) {
+	//	_island[_nowIsland]->MoveY(1);
+	//}
 
 	if (_spaceKeyCount == 1) {
 		_sceneState = RESULT;
@@ -220,7 +223,7 @@ void GameController::GamePlay()
 		}
 		if (i == EnemyInfo::Enemy_Num) {
 			_wave++;
-			_remainingEnemyCount = _wave;
+			_remainingEnemyCount = _wave + 1;
 			_enemyResponCount += 180;
 		}
 	}
@@ -260,11 +263,9 @@ void GameController::GamePlay()
 		}
 	}
 
-	int num_p = 0;
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		if (_island[i]->PlayerStayCheck(_player.GetPosX(), _player.GetPosY())) {
-			num_p = i;
-			_nowIsland = i;
+			_now_player_num = i;
 			break;
 		}
 	}
@@ -291,31 +292,31 @@ void GameController::GamePlay()
 			bool connectCheck = false;
 			for (int j = 0; j < IslandInfo::Island_Num; j++) {
 				if (_rope.GetConnectFlag(i, j)			// 反対側からもロープをかけられる
-					|| _rope.GetConnectFlag(num_p, j))	// 自分がいる島と繋がっているか
+					|| _rope.GetConnectFlag(_now_player_num, j))	// 自分がいる島と繋がっているか
 				{
 					connectCheck = true;
 				}
 			}
 			if (!connectCheck) {
-				if (_island[num_p]->GetPosX() == IslandInfo::Base_Island_PosX && _island[num_p]->GetPosY() == IslandInfo::Base_Island_PosY) {
+				if (_island[_now_player_num]->GetPosX() == IslandInfo::Base_Island_PosX && _island[_now_player_num]->GetPosY() == IslandInfo::Base_Island_PosY) {
 
 				}
 				else {
 					continue;
 				}
 			}
-			if (_island[num_p]->StateCheck_BURN())continue;
-			_island[num_p]->CrossCheck(_island[i]);
+			if (_island[_now_player_num]->StateCheck_BURN())continue;
+			//_island[num_p]->CrossCheck(_island[i]);
 			if (_mouseCount_Left == 1) { // 左クリックした瞬間
 				if (_island[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Island_Rotation &&
 					_island[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Island_Rotation &&
-					!_rope.GetConnectFlag(num_p, i))
+					!_rope.GetConnectFlag(_now_player_num, i))
 				{
 					if (_island[i]->StateCheck_BURN()) {
 						_island[i]->Revival();
 						_rope.Minus();
 					}
-					_rope.Connect(num_p, i);
+					_rope.Connect(_now_player_num, i);
 					_rope.Minus();
 				}
 			}
@@ -328,9 +329,20 @@ void GameController::GamePlay()
 				_island[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Island_Rotation)
 			{
 				_player.Move(_island[i]->GetPosX(), _island[i]->GetPosY());
+				_nowIsland = i;
 			}
 		}
 	}
+	//if (_mouseCount_Left > 10) { // 調整用
+	//	for (int i = 0; i < IslandInfo::Island_Num; i++) {
+	//		if (_island[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Island_Rotation &&
+	//			_island[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Island_Rotation)
+	//		{
+	//			_island[i]->SetPosition(_mousePosX_Left, _mousePosY_Left);
+	//			break;
+	//		}
+	//	}
+	//}
 	if (_mouseCount_Right == 1) { // 右クリックした瞬間
 		for (int i = 0; i < IslandInfo::Island_Num; i++) {
 			if (_island[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Right && _mousePosX_Right < _island[i]->GetPosX() + IslandInfo::Island_Rotation &&
@@ -596,8 +608,31 @@ void GameController::Draw()
 		DrawLine(300 + i * 40, 42, 300 + i * 40, 58, GetColor(2055, 0, 0), 1);
 	}
 	//DrawFormatString(50, 200, GetColor(255, 255, 255), "%d", _time.GetGameTime());
-	for (int i = 0; i < IslandInfo::Island_Num; i++) {
+	for (int i = 1; i < IslandInfo::Island_Num; i++) {
 		_island[i]->Draw();
+	}
+	_island[0]->Draw();
+	for (int i = 0; i < IslandInfo::Island_Num; i++) {
+		if (_island[i]->DistanseCheck(_player.GetPosX(), _player.GetPosY())) {
+			bool connectCheck = false;
+			for (int j = 0; j < IslandInfo::Island_Num; j++) {
+				if (_rope.GetConnectFlag(i, j)			// 反対側からもロープをかけられる
+					|| _rope.GetConnectFlag(_now_player_num, j))	// 自分がいる島と繋がっているか
+				{
+					connectCheck = true;
+				}
+			}
+			if (!connectCheck) {
+				if (_island[_now_player_num]->GetPosX() == IslandInfo::Base_Island_PosX && _island[_now_player_num]->GetPosY() == IslandInfo::Base_Island_PosY) {
+
+				}
+				else {
+					continue;
+				}
+			}
+			if (_island[_now_player_num]->StateCheck_BURN())continue;
+			DrawLine(_player.GetPosX(), _player.GetPosY(), _island[i]->GetPosX(), _island[i]->GetPosY(), GetColor(150, 150, 150), 3);
+		}
 	}
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		for (int j = 0; j < IslandInfo::Island_Num; j++) {
@@ -721,28 +756,29 @@ void GameController::EnemySpawn(Enemy* enemy)
 	if (_remainingEnemyCount <= 0)return;
 	_remainingEnemyCount--;
 	int random = GetRand(6 - 1);
+	//int random = 2;
 	int direction = 100;
 	switch (random) {
 	case 0:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction - 200, IslandInfo::Base_Island_PosY - (direction * 5) + 210);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction - 310, IslandInfo::Base_Island_PosY - (direction * 5) + 70);
 		break;
 	case 1:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction / 2 - 163, IslandInfo::Base_Island_PosY - (direction * 5) + 100);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction / 2 - 210, IslandInfo::Base_Island_PosY - (direction * 5) + 10);
 		break;
 	case 2:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction / 2 - 30, IslandInfo::Base_Island_PosY - (direction * 5) + 15);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction / 2 - 30, IslandInfo::Base_Island_PosY - (direction * 5) - 50);
 		break;
 	//case 3:
 	//	enemy->Instantiate(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 5) - 20);
 	//	break;
 	case 3:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction / 2 + 30, IslandInfo::Base_Island_PosY - (direction * 5) + 15);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction / 2 + 50, IslandInfo::Base_Island_PosY - (direction * 5) - 50);
 		break;
 	case 4:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction / 2 + 163, IslandInfo::Base_Island_PosY - (direction * 5) + 100);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction / 2 + 220, IslandInfo::Base_Island_PosY - (direction * 5) + 10);
 		break;
 	case 5:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction + 200, IslandInfo::Base_Island_PosY - (direction * 5) + 210);
+		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction + 320, IslandInfo::Base_Island_PosY - (direction * 5) + 70);
 		break;
 	//case 7:
 	//	enemy->Instantiate(580, 580);
@@ -753,7 +789,7 @@ void GameController::EnemySpawn(Enemy* enemy)
 void GameController::PositionSave()
 {
 	FILE *fpx;
-	fopen_s(&fpx, "PositionX.dat", "wb");
+	fopen_s(&fpx, "Resource\\data\\PositionX.dat", "wb");
 
 	if (fpx == NULL)return;
 
@@ -769,7 +805,7 @@ void GameController::PositionSave()
 	fclose(fpx);
 
 	FILE *fpy;
-	fopen_s(&fpy, "PositionY.dat", "wb");
+	fopen_s(&fpy, "Resource\\data\\PositionY.dat", "wb");
 
 	if (fpx == NULL)return;
 
@@ -788,7 +824,7 @@ void GameController::PositionSave()
 void GameController::PositionLoad()
 {
 	FILE *fpx;
-	fopen_s(&fpx, "PositionX.dat", "rb");
+	fopen_s(&fpx, "Resource\\data\\PositionX.dat", "rb");
 
 	if (fpx == NULL) {
 	}
@@ -808,7 +844,7 @@ void GameController::PositionLoad()
 	}
 
 	FILE *fpy;
-	fopen_s(&fpy, "PositionY.dat", "rb");
+	fopen_s(&fpy, "Resource\\data\\PositionY.dat", "rb");
 
 	if (fpy == NULL) {
 	}

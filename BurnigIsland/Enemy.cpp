@@ -8,6 +8,12 @@
 
 Enemy::Enemy()
 {
+	_gh_suraimu = LoadGraph("Resource\\Image\\suraimu.png");
+	_gh_akuma = LoadGraph("Resource\\Image\\akuma.png");
+	_gh_saru = LoadGraph("Resource\\Image\\saru.png");
+	GetGraphSize(_gh_suraimu, &_suraimu_width, &_suraimu_height);
+	GetGraphSize(_gh_akuma, &_akuma_width, &_akuma_height);
+	GetGraphSize(_gh_saru, &_saru_width, &_saru_height);
 	_dis_number = GetRand(3 - 1);
 	_atackModeFlag = false;
 	Init();
@@ -75,16 +81,19 @@ void Enemy::Draw()
 	if (!_liveFlag)return;
 	switch (_dis_number) {
 	case 0:
-		DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(150, 150, 255), TRUE);
+		//DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(150, 150, 255), TRUE);
+		DrawGraph(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_suraimu, TRUE);
 		break;
 	case 1:
-		DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(255, 255, 55), TRUE);
+		//DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(255, 255, 55), TRUE);
+		DrawGraph(_posX - _saru_width / 2, _posY - _saru_height / 2 - 10, _gh_saru, TRUE);
 		break;
 	case 2:
 		//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
 		//DrawCircle(_posX, _posY, ENEMY_RANGE, GetColor(255, 0, 0), TRUE);
 		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(150, 0, 200), TRUE);
+		//DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(150, 0, 200), TRUE);
+		DrawGraph(_posX - _akuma_width / 2, _posY - _akuma_height / 2 - 10, _gh_akuma, TRUE);
 		break;
 	default:
 		break;
