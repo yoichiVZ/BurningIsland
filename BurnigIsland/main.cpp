@@ -1,6 +1,7 @@
 #include <DxLib.h>
 #include "WindowInfo.h"
 #include "GameController.h"
+#include "MyDrawTurn.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -19,7 +20,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		int startTime = GetNowCount();
 		ClearDrawScreen();
 
+		MyDrawTurn::Instance().Init();
 		gameController->All();
+		MyDrawTurn::Instance().SortDrawItem();
+		MyDrawTurn::Instance().DrawAll();
 		//if (CheckHitKey(KEY_INPUT_Q) == 1)
 		//	SaveDrawScreenToPNG(0, 0, WindowInfo::Screen_Width, WindowInfo::Screen_Height, "game3.png");
 

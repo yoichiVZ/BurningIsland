@@ -66,7 +66,7 @@ void Rope::Connect(int island1, int island2)
 {
 	if (island1 < 0 || island1 >= IslandInfo::Island_Num || island2 < 0 || island2 >= IslandInfo::Island_Num)return;
 	_connectFlag[island1][island2] = true;
-	_connectFlag[island2][island1] = true;
+	//_connectFlag[island2][island1] = true;
 }
 
 void Rope::AllDelete()
@@ -122,13 +122,16 @@ void Rope::Burn(int island1, int island2)
 	_fireFlag[island2][island1] = true;
 }
 
-bool Rope::GetConnectFlag(int island1, int island2)
+int Rope::GetConnectFlag(int island1, int island2)
 {
 	if (island1 < 0 || island1 >= IslandInfo::Island_Num || island2 < 0 || island2 >= IslandInfo::Island_Num)return false;
-	if (_connectFlag[island1][island2] || _connectFlag[island2][island1]) {
-		return true;
+	if (_connectFlag[island1][island2] == 1) { // Ž©•ª‚Ì“‡‚©‚çŒq‚ª‚Á‚Ä‚¢‚é
+		return 1;
 	}
-	return false;
+	if (_connectFlag[island2][island1] == 1) { // Ž©•ª‚Ì“‡‚ÉŒq‚ª‚Á‚Ä‚¢‚é
+		return 2;
+	}
+	return 0; // Œq‚ª‚Á‚Ä‚È‚¢
 }
 
 bool Rope::GetFireFlag(int island1, int island2)

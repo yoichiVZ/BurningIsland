@@ -41,7 +41,7 @@ public:
 	// 以下 Get関数
 
 	// 繋がっているか
-	bool GetConnectFlag(int island1, int island2);
+	int GetConnectFlag(int island1, int island2);
 	// 燃えているか
 	bool GetFireFlag(int island1, int island2);
 	// ロープライフ取得

@@ -4,6 +4,8 @@
 #include "IslandInfo.h"
 #include "EnemyInfo.h"
 
+#include "MyDrawTurn.h"
+
 //#include "Island.h"
 
 Enemy::Enemy()
@@ -82,18 +84,21 @@ void Enemy::Draw()
 	switch (_dis_number) {
 	case 0:
 		//DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(150, 150, 255), TRUE);
-		DrawGraph(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_suraimu, TRUE);
+		//DrawGraph(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_suraimu, TRUE);
+		MyDrawTurn::Instance().SetDrawItem(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_suraimu, 0.4f);
 		break;
 	case 1:
 		//DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(255, 255, 55), TRUE);
-		DrawGraph(_posX - _saru_width / 2, _posY - _saru_height / 2 - 10, _gh_saru, TRUE);
+		//DrawGraph(_posX - _saru_width / 2, _posY - _saru_height / 2 - 10, _gh_saru, TRUE);
+		MyDrawTurn::Instance().SetDrawItem(_posX - _saru_width / 2, _posY - _saru_height / 2 - 10, _gh_saru, 0.4f);
 		break;
 	case 2:
 		//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
 		//DrawCircle(_posX, _posY, ENEMY_RANGE, GetColor(255, 0, 0), TRUE);
 		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		//DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(150, 0, 200), TRUE);
-		DrawGraph(_posX - _akuma_width / 2, _posY - _akuma_height / 2 - 10, _gh_akuma, TRUE);
+		//DrawGraph(_posX - _akuma_width / 2, _posY - _akuma_height / 2 - 10, _gh_akuma, TRUE);
+		MyDrawTurn::Instance().SetDrawItem(_posX - _akuma_width / 2, _posY - _akuma_height / 2 - 10, _gh_akuma, 0.4f);
 		break;
 	default:
 		break;

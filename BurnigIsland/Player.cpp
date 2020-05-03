@@ -26,10 +26,9 @@ void Player::Update()
 
 void Player::Draw()
 {
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
-	DrawCircle(_posX, _posY, PlayerInfo::Player_Rope_Distance, GetColor(0, 255, 0), TRUE);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	//DrawCircle(_posX, _posY, _rotation, GetColor(0, 0, 255), TRUE);
+	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
+	//DrawCircle(_posX, _posY, PlayerInfo::Player_Rope_Distance, GetColor(0, 255, 0), TRUE);
+	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void Player::All()

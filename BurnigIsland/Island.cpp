@@ -1,6 +1,8 @@
 #include <DxLib.h>
 #include "Island.h"
 
+#include "MyDrawTurn.h"
+
 #include "IslandInfo.h"
 #include "PlayerInfo.h"
 
@@ -65,10 +67,12 @@ void Island::Draw()
 {
 	//if (_islandState == GRASS)DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
 	if (_posX == IslandInfo::Base_Island_PosX && _posY == IslandInfo::Base_Island_PosY) {
-		DrawGraph(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, TRUE);
+		//DrawGraph(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, TRUE);
+		MyDrawTurn::Instance().SetDrawItem(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, 0.21f);
 	}
 	else {
-		if (_islandState == GRASS)DrawGraph(_posX - _width / 2, _posY - _height / 2, _gh_island, TRUE);
+		//if (_islandState == GRASS)DrawGraph(_posX - _width / 2, _posY - _height / 2, _gh_island, TRUE);
+		if (_islandState == GRASS)MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_island,0.2f);
 		if (_islandState == FIRE)DrawCircle(_posX, _posY, _rotation, GetColor(200, 0, 0), TRUE);
 		if (_islandState == BURN)DrawCircle(_posX, _posY, _rotation, GetColor(100, 100, 100), TRUE);
 	}

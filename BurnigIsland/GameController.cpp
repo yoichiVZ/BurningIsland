@@ -2,16 +2,21 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "GameController.h"
+
+#include "MyDrawTurn.h"
 
 GameController::GameController()
 {
 	_gh_background = LoadGraph("Resource\\Image\\Haikei.png");
 	_gh_cloud = LoadGraph("Resource\\Image\\KumoHaikei.png");
 	_gh_thunder = LoadGraph("Resource\\Image\\kaminari.png");
+	_gh_tuta = LoadGraph("Resource\\Image\\Tuta.png");
 	GetGraphSize(_gh_background, &_background_width, &_background_height);
 	GetGraphSize(_gh_cloud, &_cloud_width, &_cloud_height);
 	GetGraphSize(_gh_thunder, &_thunder_width, &_thunder_height);
+	GetGraphSize(_gh_tuta, &_tuta_width, &_tuta_height);
 
 	int i;
 	for (i = 0; i < IslandInfo::Island_Num; i++) {
@@ -93,55 +98,6 @@ void GameController::Init()
 	_nowIsland = 0;
 	_now_player_num = 0;
 
-	//int direction = 100;
-
-	//_island[0]-> SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY);
-
-	//_island[1]-> SetPosition(IslandInfo::Base_Island_PosX - direction - 9, IslandInfo::Base_Island_PosY - (direction) + 51);
-	//_island[2]-> SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 11, IslandInfo::Base_Island_PosY - (direction) + 15);
-	//_island[3]-> SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction) - 7);
-	//_island[4]-> SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 11, IslandInfo::Base_Island_PosY - (direction) + 15);
-	//_island[5]-> SetPosition(IslandInfo::Base_Island_PosX + direction + 9, IslandInfo::Base_Island_PosY - (direction) + 51);
-
-	//_island[6]-> SetPosition(IslandInfo::Base_Island_PosX - direction - 60, IslandInfo::Base_Island_PosY - (direction * 2) + 100);
-	//_island[7]-> SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 65, IslandInfo::Base_Island_PosY - (direction * 2) + 50);
-	//_island[8]-> SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 15, IslandInfo::Base_Island_PosY - (direction * 2) + 10);
-	//_island[9]-> SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 2) - 5);
-	//_island[10]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 15, IslandInfo::Base_Island_PosY - (direction * 2) + 10);
-	//_island[11]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 65, IslandInfo::Base_Island_PosY - (direction * 2) + 50);
-	//_island[12]->SetPosition(IslandInfo::Base_Island_PosX + direction + 60, IslandInfo::Base_Island_PosY - (direction * 2) + 100);
-
-	//_island[13]->SetPosition(IslandInfo::Base_Island_PosX - direction - 110, IslandInfo::Base_Island_PosY - (direction * 3) + 150);
-	//_island[14]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 115, IslandInfo::Base_Island_PosY - (direction * 3) + 100);
-	//_island[15]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 70, IslandInfo::Base_Island_PosY - (direction * 3) + 45);
-	//_island[16]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 15, IslandInfo::Base_Island_PosY - (direction * 3) + 15);
-	//_island[17]->SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 3) - 10);
-	//_island[18]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 15, IslandInfo::Base_Island_PosY - (direction * 3) + 15);
-	//_island[19]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 70, IslandInfo::Base_Island_PosY - (direction * 3) + 45);
-	//_island[20]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 115, IslandInfo::Base_Island_PosY - (direction * 3) + 100);
-	//_island[21]->SetPosition(IslandInfo::Base_Island_PosX + direction + 110, IslandInfo::Base_Island_PosY - (direction * 3) + 150);
-
-	//_island[22]->SetPosition(IslandInfo::Base_Island_PosX - direction - 170, IslandInfo::Base_Island_PosY - (direction * 4) + 205);
-	//_island[23]->SetPosition(IslandInfo::Base_Island_PosX - direction - 110, IslandInfo::Base_Island_PosY - (direction * 4) + 145);
-	//_island[24]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 115, IslandInfo::Base_Island_PosY - (direction * 4) + 100);
-	//_island[25]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 70, IslandInfo::Base_Island_PosY - (direction * 4) + 50);
-	//_island[26]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 15, IslandInfo::Base_Island_PosY - (direction * 4) + 20);
-	//_island[27]->SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 4) - 5);
-	//_island[28]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 15, IslandInfo::Base_Island_PosY - (direction * 4) + 20);
-	//_island[29]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 70, IslandInfo::Base_Island_PosY - (direction * 4) + 50);
-	//_island[30]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 115, IslandInfo::Base_Island_PosY - (direction * 4) + 100);
-	//_island[31]->SetPosition(IslandInfo::Base_Island_PosX + direction + 110, IslandInfo::Base_Island_PosY - (direction * 4) + 145);
-	//_island[32]->SetPosition(IslandInfo::Base_Island_PosX + direction + 170, IslandInfo::Base_Island_PosY - (direction * 4) + 205);
-
-	//_island[33]->SetPosition(IslandInfo::Base_Island_PosX - direction - 200, IslandInfo::Base_Island_PosY - (direction * 5) + 210);
-	//_island[34]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 163, IslandInfo::Base_Island_PosY - (direction * 5) + 100);
-	//_island[35]->SetPosition(IslandInfo::Base_Island_PosX - direction / 2 - 30, IslandInfo::Base_Island_PosY - (direction * 5) + 15);
-	////_island[36]->SetPosition(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 5) - 20);
-	//_island[37]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 30, IslandInfo::Base_Island_PosY - (direction * 5) + 15);
-	//_island[38]->SetPosition(IslandInfo::Base_Island_PosX + direction / 2 + 163, IslandInfo::Base_Island_PosY - (direction * 5) + 100);
-	//_island[39]->SetPosition(IslandInfo::Base_Island_PosX + direction + 200, IslandInfo::Base_Island_PosY - (direction * 5) + 210);
-
-	//_island[40]->SetPosition(IslandInfo::Base_Island_PosX + direction + 200, IslandInfo::Base_Island_PosY - (direction * 5) + 200);
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		_island[i]->SetPosition(_island_posX_data[i], _island_posY_data[i]);
 	}
@@ -288,6 +244,7 @@ void GameController::GamePlay()
 		}
 	}
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
+		if (i == _now_player_num)continue;
 		if (_island[i]->DistanseCheck(_player.GetPosX(), _player.GetPosY())) {
 			bool connectCheck = false;
 			for (int j = 0; j < IslandInfo::Island_Num; j++) {
@@ -636,12 +593,20 @@ void GameController::Draw()
 	}
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		for (int j = 0; j < IslandInfo::Island_Num; j++) {
-			if (_rope.GetConnectFlag(i, j)) {
+			if (_rope.GetConnectFlag(i, j) == 1) {
+				auto x = _island[j]->GetPosX() - _island[i]->GetPosX();
+				auto y = _island[j]->GetPosY() - _island[i]->GetPosY();
+				auto angle = atan2(y, x);
+				//angle += (angle * (180 / M_PI) < 0.0) ? 180 * (M_PI / 180) : 0;
+				angle += 90 * (M_PI / 180);
+				auto xxxx = angle * (180 / M_PI);
 				if (_rope.GetFireFlag(i, j)) {
 					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 0, 0), 3);
 				}
 				else {
 					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
+					//DrawRotaGraph(_island[i]->GetPosX() + x / 2, _island[i]->GetPosY() + y / 2, 1.0, angle, _gh_tuta, TRUE);
+					MyDrawTurn::Instance().SetDrawItem(_island[i]->GetPosX() + (x / 2), _island[i]->GetPosY() + (y / 2), _gh_tuta, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle);
 				}
 			}
 			DrawFormatString(_island[i]->GetPosX(), _island[i]->GetPosY(), GetColor(0, 0, 0), "%d", i);
@@ -797,9 +762,6 @@ void GameController::PositionSave()
 		_island_posX_data[i] = _island[i]->GetPosX();
 	}
 
-	//for (int i = 0; i < IslandInfo::Island_Num; i++) {
-	//	fwrite(&_island_posX_data[i], sizeof(_island_posX_data[i]), 1, fpx);
-	//}
 	fwrite(&_island_posX_data, sizeof(_island_posX_data), 1, fpx);
 
 	fclose(fpx);
@@ -813,9 +775,6 @@ void GameController::PositionSave()
 		_island_posY_data[i] = _island[i]->GetPosY();
 	}
 
-	//for (int i = 0; i < IslandInfo::Island_Num; i++) {
-	//	fwrite(&_island_posY_data[i], sizeof(_island_posY_data[i]), 1, fpy);
-	//}
 	fwrite(&_island_posY_data, sizeof(_island_posY_data), 1, fpy);
 
 	fclose(fpy);
@@ -829,17 +788,8 @@ void GameController::PositionLoad()
 	if (fpx == NULL) {
 	}
 	else{
-		int numnum = 0;
-		//for (int i = 0; i < IslandInfo::Island_Num; i++) {
-		//	fread(&_island_posX_data[i], sizeof(_island_posX_data), 1, fpx);
-		//	numnum += sizeof(_island_posX_data);
-		//}
 		fread(&_island_posX_data, sizeof(_island_posX_data), 1, fpx);
-		numnum;
-		//int num[IslandInfo::Island_Num];
-		//for (int i = 0; i < IslandInfo::Island_Num; i++) {
-		//	num[i] = _island_posX_data[i];
-		//}
+
 		fclose(fpx);
 	}
 
@@ -849,16 +799,8 @@ void GameController::PositionLoad()
 	if (fpy == NULL) {
 	}
 	else {
-		//for (int i = 0; i < IslandInfo::Island_Num; i++) {
-		//	fread(&_island_posY_data[i], sizeof(_island_posY_data[i]), 1, fpy);
-		//}
 		fread(&_island_posY_data, sizeof(_island_posY_data), 1, fpy);
-		//int num[IslandInfo::Island_Num];
-		//for (int i = 0; i < IslandInfo::Island_Num; i++) {
-		//	num[i] = _island_posY_data[i];
-		//}
+
 		fclose(fpy);
 	}
-
-	int num = IslandInfo::Island_Num;
 }
