@@ -158,6 +158,15 @@ bool Rope::GetFireFlag(int island1, int island2)
 	return false;
 }
 
+bool Rope::GetFireStartFlag(int island1, int island2)
+{
+	if (island1 < 0 || island1 >= IslandInfo::Island_Num || island2 < 0 || island2 >= IslandInfo::Island_Num)return false;
+	if (_fireStartFlag[island1][island2] || _fireStartFlag[island2][island1]) {
+		return true;
+	}
+	return false;
+}
+
 int Rope::GetRopeLife()
 {
 	return _ropeLife;

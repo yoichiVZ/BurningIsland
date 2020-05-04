@@ -50,6 +50,8 @@ public:
 	int GetConnectFlag(int island1, int island2);
 	// 燃えているか
 	bool GetFireFlag(int island1, int island2);
+	// 燃え始めているか
+	bool GetFireStartFlag(int island1, int island2);
 	// ロープライフ取得
 	int GetRopeLife();
 };

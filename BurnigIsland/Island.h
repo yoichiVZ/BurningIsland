@@ -68,6 +68,8 @@ public:
 	// à»â∫ Getä÷êî
 	int GetPosX();
 	int GetPosY();
+	int GetWidth();
+	int GetHeight();
 
 	void MoveX(int num);
 	void MoveY(int num);

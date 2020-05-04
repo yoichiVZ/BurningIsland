@@ -323,10 +323,10 @@ void GameController::GamePlay()
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		for (int j = 0; j < IslandInfo::Island_Num; j++) {
 			if (_rope.GetConnectFlag(i, j) >= 3) {
-				if (_island[i]->StateCheck_FIRE()) {
+				if (_island[i]->StateCheck_FIRE() && (!_rope.GetFireFlag(i, j) && !_rope.GetFireStartFlag(i, j))) {
 					_rope.Ignition(i, j);
 				}
-				if (_island[j]->StateCheck_FIRE()) {
+				if (_island[j]->StateCheck_FIRE() && (!_rope.GetFireFlag(i, j) && !_rope.GetFireStartFlag(i, j))) {
 					_rope.Ignition(i, j);
 				}
 				if (_rope.GetFireFlag(i, j) && _island[i]->StateCheck_GRASS()) {
@@ -608,13 +608,14 @@ void GameController::Draw()
 				auto angle = atan2(y, x);
 				_rope._posX[i][j] += cos(angle) * 5;
 				_rope._posY[i][j] += sin(angle) * 5;
-				//if (_rope._posX[i][j] <= _island[j]->GetPosX() + 2 && _rope._posX[i][j] >= _island[j]->GetPosX() - 2
-				//	&& _rope._posY[i][j] <= _island[j]->GetPosY() + 2 && _rope._posY[i][j] >= _island[j]->GetPosY() - 2) {
+				auto dx = _rope._posX[i][j] - _island[i]->GetPosX();
+				auto dy = _rope._posY[i][j] - _island[i]->GetPosY();
+				//if (abs(_island[j]->GetPosX() - _rope._posX[i][j]) <= 3 && abs(_island[j]->GetPosY() - _rope._posY[i][j]) <= 3) {
 				//	_rope._posX[i][j] = _island[j]->GetPosX();
 				//	_rope._posY[i][j] = _island[j]->GetPosY();
 				//	_rope.ConnectFinished(i, j);
 				//}
-				if (abs(_island[j]->GetPosX() - _rope._posX[i][j]) <= 3 && abs(_island[j]->GetPosY() - _rope._posY[i][j]) <= 3) {
+				if (abs(dx) > abs(x) && abs(dy) > abs(y)) {
 					_rope._posX[i][j] = _island[j]->GetPosX();
 					_rope._posY[i][j] = _island[j]->GetPosY();
 					_rope.ConnectFinished(i, j);
@@ -631,19 +632,31 @@ void GameController::Draw()
 					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
 					//DrawRotaGraph(_island[i]->GetPosX() + x / 2, _island[i]->GetPosY() + y / 2, 1.0, angle, _gh_tuta, TRUE);
 					//MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + (x / 2), _rope._posY[i][j] + (y / 2), _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle);
-					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-					
+					float priority = 0.3f;
+					if (_island[i]->GetWidth() / 2 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
+						&& _island[i]->GetHeight() / 2 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
+						priority = 0.19f;
+					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					priority = 0.3f;
 					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) && abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
-						MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+						if (_island[i]->GetWidth() / 2 > abs(mx - _island[i]->GetPosX())
+							&& _island[i]->GetHeight() / 2 > abs(my - _island[i]->GetPosY()))
+							priority = 0.19f;
+						MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
 						while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
+							priority = 0.3f;
 							mx -= (int)mmdistance * cos(angle);
 							my -= (int)mmdistance * sin(angle);
-							MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+							if (_island[i]->GetWidth() / 2 > abs(mx - _island[i]->GetPosX())
+								&& _island[i]->GetHeight() / 2 > abs(my - _island[i]->GetPosY()))
+								priority = 0.19f;
+							MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
 						}
 					}
 				}
 			}
 			if (_rope.GetConnectFlag(i, j) == 3) {
+				_rope._moveCount[i][j] = 0;
 				auto x = _island[j]->GetPosX() - _island[i]->GetPosX();
 				auto y = _island[j]->GetPosY() - _island[i]->GetPosY();
 				auto angle = atan2(y, x);
@@ -659,14 +672,25 @@ void GameController::Draw()
 					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
 					//DrawRotaGraph(_island[i]->GetPosX() + x / 2, _island[i]->GetPosY() + y / 2, 1.0, angle, _gh_tuta, TRUE);
 					//MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + (x / 2), _rope._posY[i][j] + (y / 2), _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle);
-					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-					
+					float priority = 0.3f;
+					if (_island[i]->GetWidth() * 3 / 7 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
+						&& _island[i]->GetHeight() * 3 / 7 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
+						priority = 0.19f;
+					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					priority = 0.3f;
 					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) && abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
-						MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+						if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
+							&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
+							priority = 0.19f;
+						MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
 						while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
+							priority = 0.3f;
 							mx -= (int)mmdistance * cos(angle);
 							my -= (int)mmdistance * sin(angle);
-							MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+							if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
+								&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
+								priority = 0.19f;
+							MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
 						}
 					}
 				}

@@ -58,6 +58,7 @@ void Island::Update()
 	}
 	if (_fireStartFlag) {
 		_fireStartCount++;
+		_burnCount = 0;
 	}
 	if (_fireStartCount > 10) {
 		_fireStartCount = 0;
@@ -71,7 +72,7 @@ void Island::Draw()
 	//if (_islandState == GRASS)DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
 	if (_posX == IslandInfo::Base_Island_PosX && _posY == IslandInfo::Base_Island_PosY) {
 		//DrawGraph(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, TRUE);
-		MyDrawTurn::Instance().SetDrawItem(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, 0.21f);
+		MyDrawTurn::Instance().SetDrawItem(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, 0.31f);
 	}
 	else {
 		//if (_islandState == GRASS)DrawGraph(_posX - _width / 2, _posY - _height / 2, _gh_island, TRUE);
@@ -246,6 +247,16 @@ int Island::GetPosX()
 int Island::GetPosY()
 {
 	return _posY;
+}
+
+int Island::GetWidth()
+{
+	return _width;
+}
+
+int Island::GetHeight()
+{
+	return _height;
 }
 
 void Island::MoveX(int num)
