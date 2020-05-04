@@ -14,6 +14,7 @@ Island::Island()
 	_gh_island = LoadGraph("Resource\\Image\\sima1.png");
 	_gh_burnIsland = LoadGraph("Resource\\Image\\kurosima.png");
 	_gh_base = LoadGraph("Resource\\Image\\kyoten.png");
+	LoadDivGraph("Resource\\Image\\moerusima.png", 16, 4, 4, 80, 80, _gh_burningIsland);
 	GetGraphSize(_gh_island, &_width, &_height);
 	GetGraphSize(_gh_base, &_base_width, &_base_height);
 	Init();
@@ -34,7 +35,8 @@ void Island::Init()
 	_fireStartFlag = false;
 	_fireStartCount = 0;
 	_extinguishedFlag = false;
-
+	_animPos_burningIslnad = 0;
+	_animCount_burningIslnad = 0;
 }
 
 void Island::Update()
@@ -73,9 +75,30 @@ void Island::Draw()
 	}
 	else {
 		//if (_islandState == GRASS)DrawGraph(_posX - _width / 2, _posY - _height / 2, _gh_island, TRUE);
+		//if (_islandState == FIRE)DrawCircle(_posX, _posY, _rotation, GetColor(200, 0, 0), TRUE);
 		//if (_islandState == BURN)DrawCircle(_posX, _posY, _rotation, GetColor(100, 100, 100), TRUE);
-		if (_islandState == GRASS)MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_island,0.2f);
-		if (_islandState == FIRE)DrawCircle(_posX, _posY, _rotation, GetColor(200, 0, 0), TRUE);
+		if (_islandState == GRASS) {
+			if (_fireStartFlag) {
+				if (_fireStartCount % 2 == 0)_animPos_burningIslnad++;
+				MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_burningIsland[_animPos_burningIslnad], 0.2f);
+			}
+			else
+			MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_island, 0.2f);
+		}
+		if (_islandState == FIRE) {
+			if (_animPos_burningIslnad < 5)_animPos_burningIslnad = 5;
+			if (_fireCount < 110) {
+				if (_fireCount % 2 == 0)_animPos_burningIslnad++;
+				if (_animPos_burningIslnad > 10)_animPos_burningIslnad = 5;
+			}
+			else {
+				if (_fireCount == 110)_animPos_burningIslnad = 10;
+				else {
+					if (_fireCount % 2 == 0)_animPos_burningIslnad++;
+				}
+			}
+			MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_burningIsland[_animPos_burningIslnad], 0.2f);
+		}
 		if (_islandState == BURN)MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_burnIsland, 0.2f);
 	}
 

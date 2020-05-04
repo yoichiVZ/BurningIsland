@@ -25,6 +25,10 @@ private:
 	int _gh_base;
 	int _base_width, _base_height;
 
+	int _gh_burningIsland[16];
+	int _animPos_burningIslnad;
+	int _animCount_burningIslnad;
+
 public:
 
 	Island();
