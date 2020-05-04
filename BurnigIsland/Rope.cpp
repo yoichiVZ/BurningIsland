@@ -20,6 +20,9 @@ void Rope::Init()
 			_fireFlag[i][j] = false;
 			_fireStartCount[i][j] = 0;
 			_fireStartFlag[i][j] = false;
+			_posX[i][j] = 0;
+			_posY[i][j] = 0;
+			_moveCount[i][j] = 0;
 		}
 	}
 	_maxRopeLife = RopeInfo::Rope_Life;
@@ -65,8 +68,14 @@ void Rope::All()
 void Rope::Connect(int island1, int island2)
 {
 	if (island1 < 0 || island1 >= IslandInfo::Island_Num || island2 < 0 || island2 >= IslandInfo::Island_Num)return;
-	_connectFlag[island1][island2] = true;
+	_connectFlag[island1][island2] = 1;
 	//_connectFlag[island2][island1] = true;
+}
+
+void Rope::ConnectFinished(int island1, int island2)
+{
+	if (island1 < 0 || island1 >= IslandInfo::Island_Num || island2 < 0 || island2 >= IslandInfo::Island_Num)return;
+	_connectFlag[island1][island2] = 2;
 }
 
 void Rope::AllDelete()
@@ -125,11 +134,17 @@ void Rope::Burn(int island1, int island2)
 int Rope::GetConnectFlag(int island1, int island2)
 {
 	if (island1 < 0 || island1 >= IslandInfo::Island_Num || island2 < 0 || island2 >= IslandInfo::Island_Num)return false;
-	if (_connectFlag[island1][island2] == 1) { // ©•ª‚Ì“‡‚©‚çŒq‚ª‚Á‚Ä‚¢‚é
+	if (_connectFlag[island1][island2] == 1) { // ©•ª‚Ì“‡‚©‚çŒq‚ª‚Á‚Ä‚¢‚éÅ’†
 		return 1;
 	}
-	if (_connectFlag[island2][island1] == 1) { // ©•ª‚Ì“‡‚ÉŒq‚ª‚Á‚Ä‚¢‚é
+	if (_connectFlag[island2][island1] == 1) { // ©•ª‚Ì“‡‚ÉŒq‚ª‚Á‚Ä‚¢‚éÅ’†
 		return 2;
+	}
+	if (_connectFlag[island1][island2] == 2) { // ©•ª‚Ì“‡‚©‚çŒq‚ª‚èI‚í‚Á‚½
+		return 3;
+	}
+	if (_connectFlag[island2][island1] == 2) { // ©•ª‚Ì“‡‚ÉŒq‚ª‚èI‚í‚Á‚½
+		return 4;
 	}
 	return 0; // Œq‚ª‚Á‚Ä‚È‚¢
 }

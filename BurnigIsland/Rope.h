@@ -4,7 +4,7 @@
 
 class Rope {
 private:
-	bool _connectFlag[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	int _connectFlag[IslandInfo::Island_Num][IslandInfo::Island_Num];
 	int _fireCount[IslandInfo::Island_Num][IslandInfo::Island_Num];
 	bool _fireFlag[IslandInfo::Island_Num][IslandInfo::Island_Num];
 	int _fireStartCount[IslandInfo::Island_Num][IslandInfo::Island_Num];
@@ -13,6 +13,10 @@ private:
 	int _ropeLife;
 
 public:
+	double _posX[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	double _posY[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	int _moveCount[IslandInfo::Island_Num][IslandInfo::Island_Num];
+
 	Rope();
 	~Rope();
 	// 初期化
@@ -23,6 +27,8 @@ public:
 	void All();
 	// ロープを繋げる
 	void Connect(int island1, int island2);
+	// ロープを繋げ終わった。
+	void ConnectFinished(int island1, int island2);
 	// ロープ全消去
 	void AllDelete();
 	// ロープ消費

@@ -33,6 +33,8 @@ private:
 	int _gh_cloud;
 	int _gh_thunder;
 	int _gh_tuta;
+	int _gh_tuta_top;
+	int _gh_tuta_middle;
 	int _background_width, _background_height;
 	int _cloud_posX, _cloud_posY;
 	int _cloud_width, _cloud_height;
@@ -40,6 +42,9 @@ private:
 	int _thunder_width, _thunder_height;
 	int _thunder_count[IslandInfo::Island_Num];
 	int _tuta_width, _tuta_height;
+	int _tuta_top_posX, _tuta_top_posY;
+	int _tuta_top_width, _tuta_top_height;
+	int _tuta_middle_width, _tuta_middle_height;
 	int _island_posX_data[IslandInfo::Island_Num];
 	int _island_posY_data[IslandInfo::Island_Num];
 	int _nowIsland;

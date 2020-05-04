@@ -13,10 +13,14 @@ GameController::GameController()
 	_gh_cloud = LoadGraph("Resource\\Image\\KumoHaikei.png");
 	_gh_thunder = LoadGraph("Resource\\Image\\kaminari.png");
 	_gh_tuta = LoadGraph("Resource\\Image\\Tuta.png");
+	_gh_tuta_top = LoadGraph("Resource\\Image\\Tutanomoto3.png");
+	_gh_tuta_middle = LoadGraph("Resource\\Image\\Tutanomoto2.png");
 	GetGraphSize(_gh_background, &_background_width, &_background_height);
 	GetGraphSize(_gh_cloud, &_cloud_width, &_cloud_height);
 	GetGraphSize(_gh_thunder, &_thunder_width, &_thunder_height);
 	GetGraphSize(_gh_tuta, &_tuta_width, &_tuta_height);
+	GetGraphSize(_gh_tuta_top, &_tuta_top_width, &_tuta_top_height);
+	GetGraphSize(_gh_tuta_middle, &_tuta_middle_width, &_tuta_middle_height);
 
 	int i;
 	for (i = 0; i < IslandInfo::Island_Num; i++) {
@@ -248,8 +252,8 @@ void GameController::GamePlay()
 		if (_island[i]->DistanseCheck(_player.GetPosX(), _player.GetPosY())) {
 			bool connectCheck = false;
 			for (int j = 0; j < IslandInfo::Island_Num; j++) {
-				if (_rope.GetConnectFlag(i, j)			// 反対側からもロープをかけられる
-					|| _rope.GetConnectFlag(_now_player_num, j))	// 自分がいる島と繋がっているか
+				if (//_rope.GetConnectFlag(i, j) == 2	||		// 反対側からもロープをかけられる
+					_rope.GetConnectFlag(_now_player_num, j) >= 3)	// 自分がいる島と繋がっているか
 				{
 					connectCheck = true;
 				}
@@ -267,7 +271,7 @@ void GameController::GamePlay()
 			if (_mouseCount_Left == 1) { // 左クリックした瞬間
 				if (_island[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Island_Rotation &&
 					_island[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Island_Rotation &&
-					!_rope.GetConnectFlag(_now_player_num, i))
+					_rope.GetConnectFlag(_now_player_num, i) == 0)
 				{
 					if (_island[i]->StateCheck_BURN()) {
 						_island[i]->Revival();
@@ -318,7 +322,7 @@ void GameController::GamePlay()
 
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		for (int j = 0; j < IslandInfo::Island_Num; j++) {
-			if (_rope.GetConnectFlag(i, j)) {
+			if (_rope.GetConnectFlag(i, j) >= 3) {
 				if (_island[i]->StateCheck_FIRE()) {
 					_rope.Ignition(i, j);
 				}
@@ -369,7 +373,7 @@ void GameController::GamePlay()
 			if (i == num_e[j])continue;
 
 			if (_island[i]->EnemyDistanseCheck(_enemy[j]->GetPosX(), _enemy[j]->GetPosY())) {
-				if (_rope.GetConnectFlag(num_e[j], i) && !_enemy[j]->GetRopeModeFlag()) {
+				if (_rope.GetConnectFlag(num_e[j], i) >= 3 && !_enemy[j]->GetRopeModeFlag()) {
 					if (i == _enemy[j]->GetLastTouchIslandNumber())continue;
 					if (_enemy[j]->_dis_number == 1)continue;
 
@@ -411,7 +415,7 @@ void GameController::GamePlay()
 					if (_enemy[j]->_dis_number == 1) { // サルだったら
 						int k;
 						for (k = 0; k < IslandInfo::Island_Num; k++) {
-							if (_rope.GetConnectFlag(i, k))break;
+							if (_rope.GetConnectFlag(i, k) >= 1)break;
 						}
 						if (k != IslandInfo::Island_Num)continue; // ISLAND_NUMまで来なければつながっている
 					}
@@ -446,12 +450,12 @@ void GameController::GamePlay()
 			bool lastCheck = 0;
 			for (int k = 0; k < IslandInfo::Island_Num; k++) {
 				if (k == _enemy[j]->GetLastTouchIslandNumber())continue;
-				if (_rope.GetConnectFlag(num_e[j], k)) {
+				if (_rope.GetConnectFlag(num_e[j], k) >= 3) {
 					lastCheck = 1;
 					break;
 				}
 			}
-			if (lastCheck == 0 && _rope.GetConnectFlag(num_e[j], _enemy[j]->GetLastTouchIslandNumber()) && !_enemy[j]->GetRopeModeFlag()) {
+			if (lastCheck == 0 && _rope.GetConnectFlag(num_e[j], _enemy[j]->GetLastTouchIslandNumber()) >= 3 && !_enemy[j]->GetRopeModeFlag()) {
 				_enemy[j]->SetAngle(atan2(
 					_island[_enemy[j]->GetLastTouchIslandNumber()]->GetPosY() - _island[num_e[j]]->GetPosY(),
 					_island[_enemy[j]->GetLastTouchIslandNumber()]->GetPosX() - _island[num_e[j]]->GetPosX()));
@@ -573,8 +577,8 @@ void GameController::Draw()
 		if (_island[i]->DistanseCheck(_player.GetPosX(), _player.GetPosY())) {
 			bool connectCheck = false;
 			for (int j = 0; j < IslandInfo::Island_Num; j++) {
-				if (_rope.GetConnectFlag(i, j)			// 反対側からもロープをかけられる
-					|| _rope.GetConnectFlag(_now_player_num, j))	// 自分がいる島と繋がっているか
+				if (//_rope.GetConnectFlag(i, j) ||			// 反対側からもロープをかけられる
+					_rope.GetConnectFlag(_now_player_num, j) >= 3)	// 自分がいる島と繋がっているか
 				{
 					connectCheck = true;
 				}
@@ -594,19 +598,77 @@ void GameController::Draw()
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		for (int j = 0; j < IslandInfo::Island_Num; j++) {
 			if (_rope.GetConnectFlag(i, j) == 1) {
+				if (_rope._moveCount[i][j] == 0) {
+					_rope._posX[i][j] = _island[i]->GetPosX();
+					_rope._posY[i][j] = _island[i]->GetPosY();
+				}
+				_rope._moveCount[i][j]++;
 				auto x = _island[j]->GetPosX() - _island[i]->GetPosX();
 				auto y = _island[j]->GetPosY() - _island[i]->GetPosY();
 				auto angle = atan2(y, x);
-				//angle += (angle * (180 / M_PI) < 0.0) ? 180 * (M_PI / 180) : 0;
-				angle += 90 * (M_PI / 180);
-				auto xxxx = angle * (180 / M_PI);
+				_rope._posX[i][j] += cos(angle) * 5;
+				_rope._posY[i][j] += sin(angle) * 5;
+				//if (_rope._posX[i][j] <= _island[j]->GetPosX() + 2 && _rope._posX[i][j] >= _island[j]->GetPosX() - 2
+				//	&& _rope._posY[i][j] <= _island[j]->GetPosY() + 2 && _rope._posY[i][j] >= _island[j]->GetPosY() - 2) {
+				//	_rope._posX[i][j] = _island[j]->GetPosX();
+				//	_rope._posY[i][j] = _island[j]->GetPosY();
+				//	_rope.ConnectFinished(i, j);
+				//}
+				if (abs(_island[j]->GetPosX() - _rope._posX[i][j]) <= 3 && abs(_island[j]->GetPosY() - _rope._posY[i][j]) <= 3) {
+					_rope._posX[i][j] = _island[j]->GetPosX();
+					_rope._posY[i][j] = _island[j]->GetPosY();
+					_rope.ConnectFinished(i, j);
+				}
+				auto tmdistance = (_tuta_middle_height / 2.0) + (_tuta_top_height / 2.0);
+				auto mmdistance = (_tuta_middle_height / 2.0) + (_tuta_middle_height / 2.0);
+				auto mx = (int)_rope._posX[i][j] - (int)(tmdistance * cos(angle));
+				auto my = (int)_rope._posY[i][j] - (int)(tmdistance * sin(angle));
+				
 				if (_rope.GetFireFlag(i, j)) {
 					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 0, 0), 3);
 				}
 				else {
 					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
 					//DrawRotaGraph(_island[i]->GetPosX() + x / 2, _island[i]->GetPosY() + y / 2, 1.0, angle, _gh_tuta, TRUE);
-					MyDrawTurn::Instance().SetDrawItem(_island[i]->GetPosX() + (x / 2), _island[i]->GetPosY() + (y / 2), _gh_tuta, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle);
+					//MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + (x / 2), _rope._posY[i][j] + (y / 2), _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle);
+					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					
+					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) && abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
+						MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+						while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
+							mx -= (int)mmdistance * cos(angle);
+							my -= (int)mmdistance * sin(angle);
+							MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+						}
+					}
+				}
+			}
+			if (_rope.GetConnectFlag(i, j) == 3) {
+				auto x = _island[j]->GetPosX() - _island[i]->GetPosX();
+				auto y = _island[j]->GetPosY() - _island[i]->GetPosY();
+				auto angle = atan2(y, x);
+				auto tmdistance = (_tuta_middle_height / 2.0) + (_tuta_top_height / 2.0);
+				auto mmdistance = (_tuta_middle_height / 2.0) + (_tuta_middle_height / 2.0);
+				auto mx = (int)_rope._posX[i][j] - (int)(tmdistance * cos(angle));
+				auto my = (int)_rope._posY[i][j] - (int)(tmdistance * sin(angle));
+				
+				if (_rope.GetFireFlag(i, j)) {
+					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 0, 0), 3);
+				}
+				else {
+					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
+					//DrawRotaGraph(_island[i]->GetPosX() + x / 2, _island[i]->GetPosY() + y / 2, 1.0, angle, _gh_tuta, TRUE);
+					//MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + (x / 2), _rope._posY[i][j] + (y / 2), _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle);
+					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					
+					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) && abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
+						MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+						while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
+							mx -= (int)mmdistance * cos(angle);
+							my -= (int)mmdistance * sin(angle);
+							MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+						}
+					}
 				}
 			}
 			DrawFormatString(_island[i]->GetPosX(), _island[i]->GetPosY(), GetColor(0, 0, 0), "%d", i);

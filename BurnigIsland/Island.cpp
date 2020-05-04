@@ -12,6 +12,7 @@
 Island::Island()
 {
 	_gh_island = LoadGraph("Resource\\Image\\sima1.png");
+	_gh_burnIsland = LoadGraph("Resource\\Image\\kurosima.png");
 	_gh_base = LoadGraph("Resource\\Image\\kyoten.png");
 	GetGraphSize(_gh_island, &_width, &_height);
 	GetGraphSize(_gh_base, &_base_width, &_base_height);
@@ -72,9 +73,10 @@ void Island::Draw()
 	}
 	else {
 		//if (_islandState == GRASS)DrawGraph(_posX - _width / 2, _posY - _height / 2, _gh_island, TRUE);
+		//if (_islandState == BURN)DrawCircle(_posX, _posY, _rotation, GetColor(100, 100, 100), TRUE);
 		if (_islandState == GRASS)MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_island,0.2f);
 		if (_islandState == FIRE)DrawCircle(_posX, _posY, _rotation, GetColor(200, 0, 0), TRUE);
-		if (_islandState == BURN)DrawCircle(_posX, _posY, _rotation, GetColor(100, 100, 100), TRUE);
+		if (_islandState == BURN)MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_burnIsland, 0.2f);
 	}
 
 	if (_distanseFlag) {

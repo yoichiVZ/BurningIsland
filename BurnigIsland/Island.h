@@ -21,6 +21,7 @@ private:
 	bool _extinguishedFlag;
 
 	int _gh_island;
+	int _gh_burnIsland;
 	int _gh_base;
 	int _base_width, _base_height;
 
