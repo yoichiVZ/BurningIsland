@@ -16,4 +16,5 @@ public:
 
 	// ŽËŒ‚ŠÔŠu
 	static const int Attack_Charge_Count = 120;
+
 };

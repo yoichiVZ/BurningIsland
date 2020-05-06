@@ -17,6 +17,7 @@ private:
 	bool _jumpMoveFlag;
 	bool _liveFlag;
 	bool _ropeModeFlag;
+	bool _firstMoveFlag;
 	int _ropeMoveCount;
 	int _lastTouchIslandNumber;
 	int _atackChargeCount;
@@ -27,6 +28,8 @@ private:
 	int _suraimu_width, _suraimu_height;
 	int _akuma_width, _akuma_height;
 	int _saru_width, _saru_height;
+
+	int _resPosX, _resPosY;
 
 public:
 	int _dis_number;
@@ -40,7 +43,10 @@ public:
 	void Draw();
 	void All();
 	void Deth();
+	// 生成
 	void Instantiate(int px, int py);
+	// 初期位置セット
+	void SetFirstPosition(int px, int py);
 	// ジャンプ移動
 	void JumpMove(int posX, int posY);
 	// スピードセット
@@ -83,4 +89,6 @@ public:
 private:
 	// ロープ移動
 	void RopeMove();
+	// 初期ムーブ
+	void FirstMove();
 };

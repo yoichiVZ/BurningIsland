@@ -40,6 +40,7 @@ void Enemy::Init()
 	_jumpMoveFlag = false;
 	_liveFlag = false;
 	_ropeModeFlag = false;
+	_firstMoveFlag = false;
 	_speedX = 0, _speedY = 0;
 	_ropeMoveCount = 0;
 	_angle = 0;
@@ -49,17 +50,19 @@ void Enemy::Init()
 	_atackChargeCount = 0;
 	_atackChargeflag = false;
 	_atackModeFlag = false;
+	_resPosX = 0, _resPosY = 0;
 }
 
 void Enemy::Update()
 {
 	if (!_liveFlag)return;
-	if (!_ropeModeFlag)_jumpMoveCount++;
+	if (!_ropeModeFlag && !_firstMoveFlag)_jumpMoveCount++;
 	if (_jumpMoveCount >= EnemyInfo::Enemy_Move_Count) {
 		_jumpMoveFlag = true;
 		_jumpMoveCount = 0;
 	}
-	RopeMove();
+	if (_ropeModeFlag) RopeMove();
+	if (_firstMoveFlag) FirstMove();
 	if (_dis_number == 2) {
 		if (RangeCheck()) {
 			_atackModeFlag = true;
@@ -118,9 +121,16 @@ void Enemy::Deth()
 
 void Enemy::Instantiate(int px, int py)
 {
-	_posX = px;
-	_posY = py;
+	_posX = _resPosX = px;
+	_posY = _resPosY = py;
 	_liveFlag = true;
+	_firstMoveFlag = true;
+}
+
+void Enemy::SetFirstPosition(int px, int py)
+{
+	_firstPosX = px;
+	_firstPosY = py;
 }
 
 void Enemy::JumpMove(int posX, int posY)
@@ -216,7 +226,6 @@ bool Enemy::GetJumpMoveFlag()
 
 void Enemy::RopeMove()
 {
-	if (!_ropeModeFlag)return;
 	_ropeMoveCount++;
 	if (_ropeMoveCount > 0) {
 		_vertualPosX += _speedX + _deletePosX;
@@ -269,5 +278,22 @@ void Enemy::RopeMove()
 			}
 			_posY -= i;
 		}
+	}
+}
+
+void Enemy::FirstMove()
+{
+	auto dx = _firstPosX - _resPosX;
+	auto dy = _firstPosY - _resPosY;
+
+	auto dxy = sqrt(dx * dx + dy * dy);
+
+	_posX += dx / dxy;
+	_posY += dy / dxy;
+
+	if (abs(_posX - _resPosX) > abs(dx) || abs(_posY - _resPosY) > abs(dy)) {
+		_firstMoveFlag = false;
+		_posX = _firstPosX;
+		_posY = _firstPosY;
 	}
 }

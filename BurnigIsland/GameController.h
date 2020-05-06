@@ -30,6 +30,7 @@ private:
 	int _remainingEnemyCount;
 
 	int _gh_background;
+	int _gh_background2;
 	int _gh_cloud;
 	int _gh_thunder;
 	int _gh_tuta;
@@ -87,7 +88,7 @@ private:
 	int OnMouseButtonRight();
 	int OnSpaceButton();
 	int LengthCheck(int posX1, int posY1, int posX2, int posY2);
-	void EnemySpawn(Enemy* enemy);
+	void EnemySpawn();
 	void PositionSave();
 	void PositionLoad();
 };

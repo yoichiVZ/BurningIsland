@@ -10,6 +10,7 @@
 GameController::GameController()
 {
 	_gh_background = LoadGraph("Resource\\Image\\Haikei.png");
+	_gh_background2 = LoadGraph("Resource\\Image\\makai2.png");
 	_gh_cloud = LoadGraph("Resource\\Image\\KumoHaikei.png");
 	_gh_thunder = LoadGraph("Resource\\Image\\kaminari.png");
 	_gh_tuta = LoadGraph("Resource\\Image\\Tuta.png");
@@ -132,32 +133,32 @@ void GameController::GamePlay()
 	OnMouseButtonLeft();
 	OnMouseButtonRight();
 	OnSpaceButton();
-	//if (CheckHitKey(KEY_INPUT_S))s_count++;
-	//else s_count = 0;
-	//if (CheckHitKey(KEY_INPUT_RIGHT))right_count++;
-	//else right_count = 0;
-	//if (CheckHitKey(KEY_INPUT_LEFT))left_count++;
-	//else left_count = 0;
-	//if (CheckHitKey(KEY_INPUT_UP))up_count++;
-	//else up_count = 0;
-	//if (CheckHitKey(KEY_INPUT_DOWN))down_count++;
-	//else down_count = 0;
+	if (CheckHitKey(KEY_INPUT_S))s_count++;
+	else s_count = 0;
+	if (CheckHitKey(KEY_INPUT_RIGHT))right_count++;
+	else right_count = 0;
+	if (CheckHitKey(KEY_INPUT_LEFT))left_count++;
+	else left_count = 0;
+	if (CheckHitKey(KEY_INPUT_UP))up_count++;
+	else up_count = 0;
+	if (CheckHitKey(KEY_INPUT_DOWN))down_count++;
+	else down_count = 0;
 
-	//if (s_count == 1) {
-	//	PositionSave();
-	//}
-	//if (right_count == 1 || (right_count > 10)) {
-	//	_island[_nowIsland]->MoveX(1);
-	//}
-	//if (left_count == 1 || (left_count > 10)) {
-	//	_island[_nowIsland]->MoveX(0);
-	//}
-	//if (up_count == 1 || (up_count > 10)) {
-	//	_island[_nowIsland]->MoveY(0);
-	//}
-	//if (down_count == 1 || (down_count > 10)) {
-	//	_island[_nowIsland]->MoveY(1);
-	//}
+	if (s_count == 1) {
+		PositionSave();
+	}
+	if (right_count == 1 || (right_count > 10)) {
+		_island[_nowIsland]->MoveX(1);
+	}
+	if (left_count == 1 || (left_count > 10)) {
+		_island[_nowIsland]->MoveX(0);
+	}
+	if (up_count == 1 || (up_count > 10)) {
+		_island[_nowIsland]->MoveY(0);
+	}
+	if (down_count == 1 || (down_count > 10)) {
+		_island[_nowIsland]->MoveY(1);
+	}
 
 	if (_spaceKeyCount == 1) {
 		_sceneState = RESULT;
@@ -183,7 +184,7 @@ void GameController::GamePlay()
 		}
 		if (i == EnemyInfo::Enemy_Num) {
 			_wave++;
-			_remainingEnemyCount = _wave + 1;
+			_remainingEnemyCount = _wave + 2;
 			_enemyResponCount += 180;
 		}
 	}
@@ -213,14 +214,9 @@ void GameController::GamePlay()
 		_enemyResponFlag = true;
 	}
 	if (_enemyResponFlag) {
-		for (int j = 0; j < 3; j++) {
-			for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
-				if (_enemy[i]->GetLiveFlag())continue;
-				EnemySpawn(_enemy[i]);
-				_enemyResponFlag = false;
-				break;
-			}
-		}
+			EnemySpawn();
+			_enemyResponFlag = false;
+			
 	}
 
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
@@ -369,10 +365,14 @@ void GameController::GamePlay()
 			stackCheck[k] = 0;
 		}
 
+		int v_dx = 1000, v_dy = 1000;
+		int v_x = 0, v_y = 0;
+		bool distanceFlag = false; // ”ÍˆÍ“à‚É“‡‚ª‚ ‚Á‚½‚çtrue
 		for (int i = 0; i < IslandInfo::Island_Num; i++) {
 			if (i == num_e[j])continue;
 
 			if (_island[i]->EnemyDistanseCheck(_enemy[j]->GetPosX(), _enemy[j]->GetPosY())) {
+				distanceFlag = true;
 				if (_rope.GetConnectFlag(num_e[j], i) >= 3 && !_enemy[j]->GetRopeModeFlag()) {
 					if (i == _enemy[j]->GetLastTouchIslandNumber())continue;
 					if (_enemy[j]->_dis_number == 1)continue;
@@ -438,6 +438,28 @@ void GameController::GamePlay()
 					}
 				}
 			}
+			else {
+				if (_enemy[j]->_dis_number == 1) { // ƒTƒ‹‚¾‚Á‚½‚ç
+					int k;
+					for (k = 0; k < IslandInfo::Island_Num; k++) {
+						if (_rope.GetConnectFlag(i, k) >= 1)break;
+					}
+					if (k != IslandInfo::Island_Num)continue; // ISLAND_NUM‚Ü‚Å—ˆ‚È‚¯‚ê‚Î‚Â‚È‚ª‚Á‚Ä‚¢‚é
+				}
+				auto x = abs(_island[i]->GetPosX() - v_posX[j]);
+				auto y = abs(_island[i]->GetPosY() - v_posY[j]);
+				auto xy = sqrt(x * x + y * y);
+				if (xy < sqrt(v_dx * v_dx + v_dy * v_dy)) {
+					v_dx = x;
+					v_dy = y;
+					v_x = _island[i]->GetPosX();
+					v_y = _island[i]->GetPosY();
+				}
+			}
+		}
+		if (!distanceFlag) {
+			v_posX[j] = v_x;
+			v_posY[j] = v_y;
 		}
 		if (_enemy[j]->_dis_number != 0)continue;
 		if (count > 0) {
@@ -466,20 +488,21 @@ void GameController::GamePlay()
 		}
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
-		if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && _enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
-			_player.Damage();
-			_enemy[i]->Deth();
-			continue;
-		}
 		if (_enemy[i]->GetJumpMoveFlag() && !_enemy[i]->_atackModeFlag) {
 				int j;
 				for (j = 0; j < EnemyInfo::Enemy_Num; j++) {
-					if (v_posX[i] == _enemy[j]->GetPosX() && v_posY[i] == _enemy[j]->GetPosY())break;
+					if (v_posX[i] == _enemy[j]->GetPosX() && v_posY[i] == _enemy[j]->GetPosY())
+						break;
 				}
 				if (j != EnemyInfo::Enemy_Num)continue;
 				_enemy[i]->JumpMove(v_posX[i], v_posY[i]);
 				_enemy[i]->OffJumpMoveFlag();
 				_enemy[i]->SetLastTouchIslandNumber(num_e[i]);
+		}
+		if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && _enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
+			_player.Damage();
+			_enemy[i]->Deth();
+			continue;
 		}
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
@@ -553,20 +576,21 @@ void GameController::Result()
 void GameController::Draw()
 {
 	DrawGraph(0, 0, _gh_background, FALSE);
-	//DrawGraph(_cloud_posX, _cloud_posY, _gh_cloud, TRUE);
-	//DrawGraph(_cloud_posX - _cloud_width, _cloud_posY, _gh_cloud, TRUE);
 	DrawExtendGraph(_cloud_posX, _cloud_posY, _cloud_posX + WindowInfo::Screen_Width, _cloud_posY + WindowInfo::Screen_Height, _gh_cloud, TRUE);
 	DrawExtendGraph(_cloud_posX - WindowInfo::Screen_Width, _cloud_posY, _cloud_posX, _cloud_posY + WindowInfo::Screen_Height, _gh_cloud, TRUE);
-	DrawFormatString(10, 10, GetColor(0, 0, 0), "hp : %d", _player.GetHP());
+	DrawGraph(0, 0, _gh_background2, TRUE);
+	//DrawGraph(_cloud_posX, _cloud_posY, _gh_cloud, TRUE);
+	//DrawGraph(_cloud_posX - _cloud_width, _cloud_posY, _gh_cloud, TRUE);
+	DrawFormatString(10, 610, GetColor(0, 0, 0), "hp : %d", _player.GetHP());
 	if (!_fireReloadFlag) {
-		DrawFormatString(10, 140, GetColor(0, 0, 0), "Œ‚‚Ä‚é");
+		DrawFormatString(10, 740, GetColor(0, 0, 0), "Œ‚‚Ä‚é");
 	}
-	DrawFormatString(10, 100, GetColor(0, 0, 0), "KILL : %d", _killCount);
-	DrawFormatString(10, 120, GetColor(0, 0, 0), "”­ŽË‰Â”\‚Ü‚Å : %d", FIRE_RELOAD_NUM - _fireReloadCount);
-	DrawFormatString(10, 160, GetColor(0, 0, 0), "WAVE : %d", _wave);
-	DrawLine(300, 50, 300 + (_rope.GetRopeLife() * 40), 50, GetColor(255, 255, 100), 16);
+	DrawFormatString(10, 700, GetColor(0, 0, 0), "KILL : %d", _killCount);
+	DrawFormatString(10, 720, GetColor(0, 0, 0), "”­ŽË‰Â”\‚Ü‚Å : %d", FIRE_RELOAD_NUM - _fireReloadCount);
+	DrawFormatString(10, 760, GetColor(0, 0, 0), "WAVE : %d", _wave);
+	DrawLine(300, 790, 300 + (_rope.GetRopeLife() * 40), 790, GetColor(255, 255, 100), 16);
 	for (int i = 1; i < _rope.GetRopeLife(); i++) {
-		DrawLine(300 + i * 40, 42, 300 + i * 40, 58, GetColor(2055, 0, 0), 1);
+		DrawLine(300 + i * 40, 782, 300 + i * 40, 798, GetColor(2055, 0, 0), 1);
 	}
 	//DrawFormatString(50, 200, GetColor(255, 255, 255), "%d", _time.GetGameTime());
 	for (int i = 1; i < IslandInfo::Island_Num; i++) {
@@ -615,7 +639,7 @@ void GameController::Draw()
 				//	_rope._posY[i][j] = _island[j]->GetPosY();
 				//	_rope.ConnectFinished(i, j);
 				//}
-				if (abs(dx) > abs(x) && abs(dy) > abs(y)) {
+				if (abs(dx) > abs(x) || abs(dy) > abs(y)) {
 					_rope._posX[i][j] = _island[j]->GetPosX();
 					_rope._posY[i][j] = _island[j]->GetPosY();
 					_rope.ConnectFinished(i, j);
@@ -638,7 +662,7 @@ void GameController::Draw()
 						priority = 0.19f;
 					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
 					priority = 0.3f;
-					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) && abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
+					if (dx >= abs((int)_rope._posX[i][j] - mx) || dy >= abs((int)_rope._posY[i][j] - my)) {
 						if (_island[i]->GetWidth() / 2 > abs(mx - _island[i]->GetPosX())
 							&& _island[i]->GetHeight() / 2 > abs(my - _island[i]->GetPosY()))
 							priority = 0.19f;
@@ -678,7 +702,7 @@ void GameController::Draw()
 						priority = 0.19f;
 					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
 					priority = 0.3f;
-					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) && abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
+					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) || abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
 						if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
 							&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
 							priority = 0.19f;
@@ -705,6 +729,7 @@ void GameController::Draw()
 		_bullet[i]->Draw();
 	}
 	_player.Draw();
+	int color = GetColor(255, 0, 0);
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		if (_thunder_count[i] > 0) {
 			DrawGraph(_island[i]->GetPosX() - _thunder_width / 2 - 10, _island[i]->GetPosY() - _thunder_height + 30, _gh_thunder, TRUE);
@@ -802,38 +827,69 @@ int GameController::LengthCheck(int posX1, int posY1, int posX2, int posY2)
 	return ans;
 }
 
-void GameController::EnemySpawn(Enemy* enemy)
+void GameController::EnemySpawn()
 {
-	if (_remainingEnemyCount <= 0)return;
-	_remainingEnemyCount--;
-	int random = GetRand(6 - 1);
-	//int random = 2;
+	int random = GetRand(3 - 1);
+	int counter = 0;
 	int direction = 100;
-	switch (random) {
-	case 0:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction - 310, IslandInfo::Base_Island_PosY - (direction * 5) + 70);
-		break;
-	case 1:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction / 2 - 210, IslandInfo::Base_Island_PosY - (direction * 5) + 10);
-		break;
-	case 2:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX - direction / 2 - 30, IslandInfo::Base_Island_PosY - (direction * 5) - 50);
-		break;
-	//case 3:
-	//	enemy->Instantiate(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 5) - 20);
-	//	break;
-	case 3:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction / 2 + 50, IslandInfo::Base_Island_PosY - (direction * 5) - 50);
-		break;
-	case 4:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction / 2 + 220, IslandInfo::Base_Island_PosY - (direction * 5) + 10);
-		break;
-	case 5:
-		enemy->Instantiate(IslandInfo::Base_Island_PosX + direction + 320, IslandInfo::Base_Island_PosY - (direction * 5) + 70);
-		break;
-	//case 7:
-	//	enemy->Instantiate(580, 580);
-	//	break;
+	while (counter < 3) {
+		if (_remainingEnemyCount <= 0)break;
+		_remainingEnemyCount--;
+		int i;
+		for (i = 0; i < EnemyInfo::Enemy_Num; i++) {
+			if (!_enemy[i]->GetLiveFlag())break;;
+		}
+		int x, y;
+		switch (random) {
+		case 0:
+			if (counter == 0)x = -40, y = 40;
+			if (counter == 1)x = 40, y = 0;
+			if (counter == 2)x = -20, y = -30;
+			_enemy[i]->SetFirstPosition(IslandInfo::Base_Island_PosX - 400 + x, IslandInfo::Base_Island_PosY - 510 + y);
+			_enemy[i]->Instantiate(IslandInfo::Base_Island_PosX - 400 - 200 + x, IslandInfo::Base_Island_PosY - 510 + y);
+			break;
+		case 1:
+			if (counter == 0)x = -60, y = 0;
+			if (counter == 1)x = 60, y = 0;
+			if (counter == 2)x = 0, y = -10;
+			_enemy[i]->SetFirstPosition(IslandInfo::Base_Island_PosX + x, IslandInfo::Base_Island_PosY - 600 + y);
+			_enemy[i]->Instantiate(IslandInfo::Base_Island_PosX + x, IslandInfo::Base_Island_PosY - 600 - 100 + y);
+			break;
+		case 2:
+			if (counter == 0)x = 40, y = 40;
+			if (counter == 1)x = -40, y = 0;
+			if (counter == 2)x = 20, y = -30;
+			_enemy[i]->SetFirstPosition(IslandInfo::Base_Island_PosX + 400 + x, IslandInfo::Base_Island_PosY - 510 + y);
+			_enemy[i]->Instantiate(IslandInfo::Base_Island_PosX + 400 + 200 + x, IslandInfo::Base_Island_PosY - 510 + y);
+			break;
+		default:
+			break;
+		//case 0:
+		//	_enemy[i]->Instantiate(IslandInfo::Base_Island_PosX - direction - 310 + 30 * counter, IslandInfo::Base_Island_PosY - (direction * 5) + 70);
+		//	break;
+		//case 1:
+		//	_enemy[i]->Instantiate(IslandInfo::Base_Island_PosX - direction / 2 - 210 + 30 * counter, IslandInfo::Base_Island_PosY - (direction * 5) + 10);
+		//	break;
+		//case 2:
+		//	_enemy[i]->Instantiate(IslandInfo::Base_Island_PosX - direction / 2 - 30 + 30 * counter, IslandInfo::Base_Island_PosY - (direction * 5) - 50);
+		//	break;
+		//	//case 3:
+		//	//	enemy->Instantiate(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY - (direction * 5) - 20);
+		//	//	break;
+		//case 3:
+		//	_enemy[i]->Instantiate(IslandInfo::Base_Island_PosX + direction / 2 + 50 + 30 * counter, IslandInfo::Base_Island_PosY - (direction * 5) - 50);
+		//	break;
+		//case 4:
+		//	_enemy[i]->Instantiate(IslandInfo::Base_Island_PosX + direction / 2 + 220 + 30 * counter, IslandInfo::Base_Island_PosY - (direction * 5) + 10);
+		//	break;
+		//case 5:
+		//	_enemy[i]->Instantiate(IslandInfo::Base_Island_PosX + direction + 320 + 30 * counter, IslandInfo::Base_Island_PosY - (direction * 5) + 70);
+		//	break;
+		//	//case 7:
+		//	//	enemy->Instantiate(580, 580);
+		//	//	break;
+		}
+		counter++;
 	}
 }
 
