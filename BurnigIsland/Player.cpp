@@ -6,6 +6,7 @@
 
 Player::Player()
 {
+	_sh_damage = LoadSoundMem("Resource\\Sound\\damage.mp3");
 	Init();
 }
 
@@ -39,6 +40,7 @@ void Player::All()
 void Player::Damage()
 {
 	_hp--;
+	PlaySoundMem(_sh_damage, DX_PLAYTYPE_BACK);
 }
 
 void Player::Move(int posX, int posY)

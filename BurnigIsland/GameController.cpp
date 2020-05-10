@@ -12,13 +12,20 @@ GameController::GameController()
 	_gh_background = LoadGraph("Resource\\Image\\Haikei.png");
 	_gh_background2 = LoadGraph("Resource\\Image\\makai2.png");
 	_gh_cloud = LoadGraph("Resource\\Image\\KumoHaikei.png");
-	_gh_thunder = LoadGraph("Resource\\Image\\kaminari.png");
+	LoadDivGraph("Resource\\Image\\kaminari.png", 5, 5, 1, 180, 700, _gh_thunder);
+	LoadDivGraph("Resource\\Image\\kaminariUI64.png", 6, 6, 1, 64, 64, _gh_thunderUI);
 	_gh_tuta = LoadGraph("Resource\\Image\\Tuta.png");
 	_gh_tuta_top = LoadGraph("Resource\\Image\\Tutanomoto3.png");
 	_gh_tuta_middle = LoadGraph("Resource\\Image\\Tutanomoto2.png");
+	_gh_tuta_fire_top = LoadGraph("Resource\\Image\\moetuta2.png");
+	_gh_tuta_fire_middle = LoadGraph("Resource\\Image\\moetuta1.png");
+	_sh_gameplay = LoadSoundMem("Resource\\Sound\\gameplay.mp3");
+	ChangeVolumeSoundMem(255 * 65 / 100, _sh_gameplay);
+	_sh_thunder = LoadSoundMem("Resource\\Sound\\thunder.mp3");
+	ChangeVolumeSoundMem(255 * 80 / 100, _sh_gameplay);
 	GetGraphSize(_gh_background, &_background_width, &_background_height);
 	GetGraphSize(_gh_cloud, &_cloud_width, &_cloud_height);
-	GetGraphSize(_gh_thunder, &_thunder_width, &_thunder_height);
+	GetGraphSize(_gh_thunder[0], &_thunder_width, &_thunder_height);
 	GetGraphSize(_gh_tuta, &_tuta_width, &_tuta_height);
 	GetGraphSize(_gh_tuta_top, &_tuta_top_width, &_tuta_top_height);
 	GetGraphSize(_gh_tuta_middle, &_tuta_middle_width, &_tuta_middle_height);
@@ -93,7 +100,9 @@ void GameController::Init()
 	_remainingEnemyCount = 0;
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		_thunder_count[i] = 0;
+		_animPos_thunder[i] = 0;
 	}
+	_animPos_thunderUI = 5;
 
 	s_count = 0;
 	right_count = 0;
@@ -105,6 +114,10 @@ void GameController::Init()
 
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		_island[i]->SetPosition(_island_posX_data[i], _island_posY_data[i]);
+	}
+
+	for (int i = 0; i < 4; i++) {
+		_onth_flag[i] = 0;
 	}
 }
 
@@ -128,6 +141,11 @@ void GameController::Tutorial()
 
 void GameController::GamePlay()
 {
+	if (_onth_flag[_sceneState] == 0) {
+		_onth_flag[_sceneState]++;
+		StopSoundMem(_sh_gameplay);
+		PlaySoundMem(_sh_gameplay, DX_PLAYTYPE_LOOP);
+	}
 	_time.TimeCourse();
 
 	OnMouseButtonLeft();
@@ -194,7 +212,11 @@ void GameController::GamePlay()
 	}
 	if (_fireReloadCount > FIRE_RELOAD_NUM) {
 		_fireReloadCount = 0;
+		_animPos_thunderUI = 5;
 		_fireReloadFlag = false;
+	}
+	if (_fireReloadFlag && _fireReloadCount % (FIRE_RELOAD_NUM / 5) == 0) {
+		_animPos_thunderUI++;
 	}
 
 	_enemyResponCount++;
@@ -222,7 +244,7 @@ void GameController::GamePlay()
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		if (_island[i]->PlayerStayCheck(_player.GetPosX(), _player.GetPosY())) {
 			_now_player_num = i;
-			break;
+			//break;
 		}
 	}
 	int num_e[EnemyInfo::Enemy_Num];
@@ -230,12 +252,12 @@ void GameController::GamePlay()
 		num_e[i] = 0;
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
-		if (!_enemy[i]->GetLiveFlag())continue;
+		if (!_enemy[i]->GetLiveFlag() || _enemy[i]->GetDethDelayFlag())continue;
 		for (int j = 0; j < IslandInfo::Island_Num; j++) {
 			if (_island[j]->EnemyStayCheck(_enemy[i]->GetPosX(), _enemy[i]->GetPosY())) {
 				num_e[i] = j;
 				if (_island[j]->StateCheck_FIRE()) {
-					_enemy[i]->Deth();
+					_enemy[i]->Deth_Fire();
 					_rope.Recovery();
 					_killCount++;
 					
@@ -308,8 +330,10 @@ void GameController::GamePlay()
 				if (!_fireReloadFlag) {
 					_island[i]->Burning();
 					_fireReloadFlag = true;
+					_animPos_thunderUI = 0;
 					_killCount = 0;
-					_thunder_count[i] = 5;
+					_thunder_count[i] = 25;
+					PlaySoundMem(_sh_thunder, DX_PLAYTYPE_BACK);
 					//_rope.AllRecovery();
 				}
 			}
@@ -500,6 +524,7 @@ void GameController::GamePlay()
 				_enemy[i]->SetLastTouchIslandNumber(num_e[i]);
 		}
 		if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && _enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
+			_enemy[i]->Attack();
 			_player.Damage();
 			_enemy[i]->Deth();
 			continue;
@@ -582,12 +607,13 @@ void GameController::Draw()
 	//DrawGraph(_cloud_posX, _cloud_posY, _gh_cloud, TRUE);
 	//DrawGraph(_cloud_posX - _cloud_width, _cloud_posY, _gh_cloud, TRUE);
 	DrawFormatString(10, 610, GetColor(0, 0, 0), "hp : %d", _player.GetHP());
-	if (!_fireReloadFlag) {
-		DrawFormatString(10, 740, GetColor(0, 0, 0), "Œ‚‚Ä‚é");
-	}
-	DrawFormatString(10, 700, GetColor(0, 0, 0), "KILL : %d", _killCount);
-	DrawFormatString(10, 720, GetColor(0, 0, 0), "”­ŽË‰Â”\‚Ü‚Å : %d", FIRE_RELOAD_NUM - _fireReloadCount);
-	DrawFormatString(10, 760, GetColor(0, 0, 0), "WAVE : %d", _wave);
+	//if (!_fireReloadFlag) {
+	//	DrawFormatString(10, 740, GetColor(0, 0, 0), "Œ‚‚Ä‚é");
+	//}
+	DrawFormatString(10, 630, GetColor(0, 0, 0), "KILL : %d", _killCount);
+	//DrawFormatString(10, 720, GetColor(0, 0, 0), "”­ŽË‰Â”\‚Ü‚Å : %d", FIRE_RELOAD_NUM - _fireReloadCount);
+	MyDrawTurn::Instance().SetDrawItem(10, 720, _gh_thunderUI[_animPos_thunderUI], 0.8f);
+	DrawFormatString(10, 650, GetColor(0, 0, 0), "WAVE : %d", _wave);
 	DrawLine(300, 790, 300 + (_rope.GetRopeLife() * 40), 790, GetColor(255, 255, 100), 16);
 	for (int i = 1; i < _rope.GetRopeLife(); i++) {
 		DrawLine(300 + i * 40, 782, 300 + i * 40, 798, GetColor(2055, 0, 0), 1);
@@ -648,12 +674,17 @@ void GameController::Draw()
 				auto mmdistance = (_tuta_middle_height / 2.0) + (_tuta_middle_height / 2.0);
 				auto mx = (int)_rope._posX[i][j] - (int)(tmdistance * cos(angle));
 				auto my = (int)_rope._posY[i][j] - (int)(tmdistance * sin(angle));
-				
+
+				float priority = 0.3f;
+				if (_island[i]->GetWidth() / 2 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
+					&& _island[i]->GetHeight() / 2 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
+					priority = 0.19f;
+
 				if (_rope.GetFireFlag(i, j)) {
-					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 0, 0), 3);
+					//DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 0, 0), 3);
 				}
 				else {
-					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
+					//DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
 					//DrawRotaGraph(_island[i]->GetPosX() + x / 2, _island[i]->GetPosY() + y / 2, 1.0, angle, _gh_tuta, TRUE);
 					//MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + (x / 2), _rope._posY[i][j] + (y / 2), _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle);
 					float priority = 0.3f;
@@ -688,18 +719,38 @@ void GameController::Draw()
 				auto mmdistance = (_tuta_middle_height / 2.0) + (_tuta_middle_height / 2.0);
 				auto mx = (int)_rope._posX[i][j] - (int)(tmdistance * cos(angle));
 				auto my = (int)_rope._posY[i][j] - (int)(tmdistance * sin(angle));
+
+				float priority = 0.3f;
+				if (_island[i]->GetWidth() * 3 / 7 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
+					&& _island[i]->GetHeight() * 3 / 7 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
+					priority = 0.19f;
 				
 				if (_rope.GetFireFlag(i, j)) {
 					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 0, 0), 3);
+
+					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_fire_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					priority = 0.3f;
+					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) || abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
+						if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
+							&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
+							priority = 0.19f;
+						MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_fire_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+						while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
+							priority = 0.3f;
+							mx -= (int)mmdistance * cos(angle);
+							my -= (int)mmdistance * sin(angle);
+							if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
+								&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
+								priority = 0.19f;
+							MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_fire_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+						}
+					}
 				}
 				else {
 					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
 					//DrawRotaGraph(_island[i]->GetPosX() + x / 2, _island[i]->GetPosY() + y / 2, 1.0, angle, _gh_tuta, TRUE);
 					//MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + (x / 2), _rope._posY[i][j] + (y / 2), _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle);
-					float priority = 0.3f;
-					if (_island[i]->GetWidth() * 3 / 7 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
-						&& _island[i]->GetHeight() * 3 / 7 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
-						priority = 0.19f;
+			
 					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
 					priority = 0.3f;
 					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) || abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
@@ -732,7 +783,11 @@ void GameController::Draw()
 	int color = GetColor(255, 0, 0);
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		if (_thunder_count[i] > 0) {
-			DrawGraph(_island[i]->GetPosX() - _thunder_width / 2 - 10, _island[i]->GetPosY() - _thunder_height + 30, _gh_thunder, TRUE);
+			if (_thunder_count[i] % 5 == 0)_animPos_thunder[i]++;
+			MyDrawTurn::Instance().SetDrawItem(_island[i]->GetPosX() - _thunder_width / 2, _island[i]->GetPosY() - _thunder_height + 10, _gh_thunder[_animPos_thunder[i]], 0.5f);
+		}
+		else {
+			_animPos_thunder[i] = 0;
 		}
 	}
 }

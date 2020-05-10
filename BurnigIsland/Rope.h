@@ -12,6 +12,8 @@ private:
 	int _maxRopeLife;
 	int _ropeLife;
 
+	int _sh_tuta;
+
 public:
 	double _posX[IslandInfo::Island_Num][IslandInfo::Island_Num];
 	double _posY[IslandInfo::Island_Num][IslandInfo::Island_Num];

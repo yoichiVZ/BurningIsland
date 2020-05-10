@@ -4,6 +4,7 @@
 
 Rope::Rope()
 {
+	_sh_tuta = LoadSoundMem("Resource\\Sound\\tuta.mp3");
 	Init();
 }
 
@@ -69,6 +70,7 @@ void Rope::Connect(int island1, int island2)
 {
 	if (island1 < 0 || island1 >= IslandInfo::Island_Num || island2 < 0 || island2 >= IslandInfo::Island_Num)return;
 	_connectFlag[island1][island2] = 1;
+	PlaySoundMem(_sh_tuta, DX_PLAYTYPE_BACK);
 	//_connectFlag[island2][island1] = true;
 }
 

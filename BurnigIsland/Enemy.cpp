@@ -13,9 +13,15 @@ Enemy::Enemy()
 	_gh_suraimu = LoadGraph("Resource\\Image\\suraimu.png");
 	_gh_akuma = LoadGraph("Resource\\Image\\akuma.png");
 	_gh_saru = LoadGraph("Resource\\Image\\saru.png");
+	_gh_suraimu_deth = LoadGraph("Resource\\Image\\suraimuD.png");
+	_gh_akuma_deth = LoadGraph("Resource\\Image\\akumaD.png");
+	_gh_saru_deth = LoadGraph("Resource\\Image\\saruD.png");
 	GetGraphSize(_gh_suraimu, &_suraimu_width, &_suraimu_height);
 	GetGraphSize(_gh_akuma, &_akuma_width, &_akuma_height);
 	GetGraphSize(_gh_saru, &_saru_width, &_saru_height);
+	_sh_attack_allow = LoadSoundMem("Resource\\Sound\\enemyattack_allow.mp3");
+	_sh_attack_monkey = LoadSoundMem("Resource\\Sound\\enemyattack_monkey.mp3");
+	_sh_attack_slime = LoadSoundMem("Resource\\Sound\\enemyattack_slime.mp3");
 	_dis_number = GetRand(3 - 1);
 	_atackModeFlag = false;
 	Init();
@@ -51,11 +57,19 @@ void Enemy::Init()
 	_atackChargeflag = false;
 	_atackModeFlag = false;
 	_resPosX = 0, _resPosY = 0;
+	_dis_number = GetRand(3 - 1);
+	_dethDelayCount = 0;
+	_dethDelayFlag = false;
 }
 
 void Enemy::Update()
 {
 	if (!_liveFlag)return;
+	if (_dethDelayFlag) {
+		_dethDelayCount--;
+		if (_dethDelayCount <= 0)Init();
+		return;
+	}
 	if (!_ropeModeFlag && !_firstMoveFlag)_jumpMoveCount++;
 	if (_jumpMoveCount >= EnemyInfo::Enemy_Move_Count) {
 		_jumpMoveFlag = true;
@@ -88,11 +102,19 @@ void Enemy::Draw()
 	case 0:
 		//DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(150, 150, 255), TRUE);
 		//DrawGraph(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_suraimu, TRUE);
+		if (_dethDelayFlag) {
+			MyDrawTurn::Instance().SetDrawItem(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_suraimu_deth, 0.4f);
+			break;
+		}
 		MyDrawTurn::Instance().SetDrawItem(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_suraimu, 0.4f);
 		break;
 	case 1:
 		//DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(255, 255, 55), TRUE);
 		//DrawGraph(_posX - _saru_width / 2, _posY - _saru_height / 2 - 10, _gh_saru, TRUE);
+		if (_dethDelayFlag) {
+			MyDrawTurn::Instance().SetDrawItem(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_saru_deth, 0.4f);
+			break;
+		}
 		MyDrawTurn::Instance().SetDrawItem(_posX - _saru_width / 2, _posY - _saru_height / 2 - 10, _gh_saru, 0.4f);
 		break;
 	case 2:
@@ -101,6 +123,10 @@ void Enemy::Draw()
 		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		//DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(150, 0, 200), TRUE);
 		//DrawGraph(_posX - _akuma_width / 2, _posY - _akuma_height / 2 - 10, _gh_akuma, TRUE);
+		if (_dethDelayFlag) {
+			MyDrawTurn::Instance().SetDrawItem(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_akuma_deth, 0.4f);
+			break;
+		}
 		MyDrawTurn::Instance().SetDrawItem(_posX - _akuma_width / 2, _posY - _akuma_height / 2 - 10, _gh_akuma, 0.4f);
 		break;
 	default:
@@ -117,6 +143,12 @@ void Enemy::All()
 void Enemy::Deth()
 {
 	Init();
+}
+
+void Enemy::Deth_Fire()
+{
+	_dethDelayCount = 60;
+	_dethDelayFlag = true;
 }
 
 void Enemy::Instantiate(int px, int py)
@@ -173,8 +205,15 @@ void Enemy::OffRopeModeFlag()
 
 void Enemy::Shot(Bullet * bullet, int targetPosX, int targetPosY)
 {
+	PlaySoundMem(_sh_attack_allow, DX_PLAYTYPE_BACK);
 	_atackChargeflag = false;
 	bullet->SetTarget(_posX, _posY, targetPosX, targetPosY);
+}
+
+void Enemy::Attack()
+{
+	if (_dis_number == 0)PlaySoundMem(_sh_attack_slime, DX_PLAYTYPE_BACK);
+	if (_dis_number == 1)PlaySoundMem(_sh_attack_monkey, DX_PLAYTYPE_BACK);
 }
 
 bool Enemy::RangeCheck()
@@ -217,6 +256,11 @@ bool Enemy::GetRopeModeFlag()
 bool Enemy::GetLiveFlag()
 {
 	return _liveFlag;
+}
+
+bool Enemy::GetDethDelayFlag()
+{
+	return _dethDelayFlag;
 }
 
 bool Enemy::GetJumpMoveFlag()

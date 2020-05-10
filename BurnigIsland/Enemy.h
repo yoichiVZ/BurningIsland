@@ -16,20 +16,29 @@ private:
 	int _jumpMoveCount;
 	bool _jumpMoveFlag;
 	bool _liveFlag;
+	bool _dethDelayFlag;
 	bool _ropeModeFlag;
 	bool _firstMoveFlag;
 	int _ropeMoveCount;
 	int _lastTouchIslandNumber;
 	int _atackChargeCount;
+	int _dethDelayCount;
 
 	int _gh_suraimu;
 	int _gh_akuma;
 	int _gh_saru;
+	int _gh_suraimu_deth;
+	int _gh_akuma_deth;
+	int _gh_saru_deth;
 	int _suraimu_width, _suraimu_height;
 	int _akuma_width, _akuma_height;
 	int _saru_width, _saru_height;
 
 	int _resPosX, _resPosY;
+
+	int _sh_attack_allow;
+	int _sh_attack_monkey;
+	int _sh_attack_slime;
 
 public:
 	int _dis_number;
@@ -42,7 +51,10 @@ public:
 	void Update();
 	void Draw();
 	void All();
+	// 死亡
 	void Deth();
+	// 焼死
+	void Deth_Fire();
 	// 生成
 	void Instantiate(int px, int py);
 	// 初期位置セット
@@ -63,6 +75,8 @@ public:
 	void OffRopeModeFlag();
 	// 弾を撃つ
 	void Shot(Bullet* bullet,int targetPosX, int targetPosY);
+	// 攻撃
+	void Attack();
 
 	// 判定関数
 
@@ -83,6 +97,8 @@ public:
 	bool GetRopeModeFlag();
 	// 生きているか
 	bool GetLiveFlag();
+	// 焼死中か
+	bool GetDethDelayFlag();
 	// ジャンプ可能か
 	bool GetJumpMoveFlag();
 

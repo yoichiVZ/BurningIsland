@@ -14,7 +14,9 @@ Island::Island()
 	_gh_island = LoadGraph("Resource\\Image\\sima1.png");
 	_gh_burnIsland = LoadGraph("Resource\\Image\\kurosima.png");
 	_gh_base = LoadGraph("Resource\\Image\\kyoten.png");
-	LoadDivGraph("Resource\\Image\\moerusima.png", 16, 4, 4, 80, 80, _gh_burningIsland);
+	LoadDivGraph("Resource\\Image\\moerusima.png", 10, 5, 2, 100, 100, _gh_burningIsland);
+	LoadDivGraph("Resource\\Image\\saisei.png", 8, 4, 2, 80, 80, _gh_revivalingIsland);
+	_sh_fire = LoadSoundMem("Resource\\Sound\\fire.mp3");
 	GetGraphSize(_gh_island, &_width, &_height);
 	GetGraphSize(_gh_base, &_base_width, &_base_height);
 	Init();
@@ -29,33 +31,21 @@ void Island::Init()
 	_posX = 0; _posY = 0;
 	_rotation = IslandInfo::Island_Rotation;
 	_distanseFlag = false;
+	_playerStayFlag = false;
 	_islandState = GRASS;
 	_fireCount = 0;
 	_burnCount = 0;
 	_fireStartFlag = false;
 	_fireStartCount = 0;
 	_extinguishedFlag = false;
-	_animPos_burningIslnad = 0;
+	_animPos_burningIsland = 0;
 	_animCount_burningIslnad = 0;
+	_animPos_revivalingIsland = 0;
+	_animCount_revivalingIsland = 0;
 }
 
 void Island::Update()
 {
-	if (_islandState == FIRE) {
-		_fireCount++;
-		if (_fireCount > 120) {
-			_islandState = BURN;
-			_fireCount = 0;
-			_extinguishedFlag = true;
-		}
-	}
-	else if (_islandState == BURN) {
-		_burnCount++;
-		if (_burnCount > 600) {
-			_islandState = GRASS;
-			_burnCount = 0;
-		}
-	}
 	if (_fireStartFlag) {
 		_fireStartCount++;
 		_burnCount = 0;
@@ -65,42 +55,115 @@ void Island::Update()
 		_fireStartFlag = false;
 		Burning();
 	}
+	//if (_islandState == FIRE) {
+	//	_fireCount++;
+	//	if (_fireCount > 120) {
+	//		_islandState = BURN;
+	//		_fireCount = 0;
+	//		_extinguishedFlag = true;
+	//	}
+	//}
+	//else if (_islandState == BURN) {
+	//	_burnCount++;
+	//	if (_burnCount > 600) {
+	//		_islandState = GRASS;
+	//		_burnCount = 0;
+	//	}
+	//}
+	//else if (_islandState == GRASS) {
+	//	if (_fireStartFlag) {
+	//		if (_fireStartCount % 2 == 0)_animPos_burningIslnad++;
+	//	}
+	//}
+	switch (_islandState) {
+	case GRASS:
+		//if (_fireStartFlag) {
+		//	if (_fireStartCount % 2 == 0)_animPos_burningIslnad++;
+		//}
+		break;
+
+	case FIRE:
+		if (_fireCount == 0)_animPos_burningIsland = 0;
+		_fireCount++;
+		if (_fireCount > 120) {
+			_islandState = BURN;
+			_fireCount = 0;
+			_extinguishedFlag = true;
+		}
+
+		//if (_animPos_burningIslnad < 5)_animPos_burningIslnad = 5;
+		//if (_fireCount < 110) {
+		//	if (_fireCount % 2 == 0)_animPos_burningIslnad++;
+		//	if (_animPos_burningIslnad > 10)_animPos_burningIslnad = 5;
+		//}
+		//else {
+		//	if (_fireCount == 110)_animPos_burningIslnad = 10;
+		//	else {
+		//		if (_fireCount % 2 == 0)_animPos_burningIslnad++;
+		//	}
+		//}
+		if (_fireCount % 12 == 0) {
+			_animPos_burningIsland++;
+		}
+		if (_animPos_burningIsland > 10 - 1)_animPos_burningIsland = 10 - 1;
+		break;
+
+	case BURN:
+		_burnCount++;
+		if (_burnCount < 600 - (8 - 1) * 3) {
+			_animPos_revivalingIsland = 0;
+		}
+		else if (_burnCount % 3 == 0) {
+			_animPos_revivalingIsland++;
+		}
+		if (_animPos_revivalingIsland > 8 - 1)_animPos_revivalingIsland = 8 - 1;
+		if (_burnCount > 600) {
+			_islandState = GRASS;
+			_burnCount = 0;
+		}
+		break;
+		
+	default:
+		break;
+	}
 }
 
 void Island::Draw()
 {
 	//if (_islandState == GRASS)DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
+	int nowChoice_distance = 0;
+	if (_playerStayFlag) {
+		nowChoice_distance = 5;
+	}
 	if (_posX == IslandInfo::Base_Island_PosX && _posY == IslandInfo::Base_Island_PosY) {
 		//DrawGraph(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, TRUE);
-		MyDrawTurn::Instance().SetDrawItem(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, 0.31f);
+		MyDrawTurn::Instance().SetDrawItem(_posX - _base_width / 2, _posY - _base_height / 2 + nowChoice_distance, _gh_base, 0.31f);
 	}
 	else {
 		//if (_islandState == GRASS)DrawGraph(_posX - _width / 2, _posY - _height / 2, _gh_island, TRUE);
 		//if (_islandState == FIRE)DrawCircle(_posX, _posY, _rotation, GetColor(200, 0, 0), TRUE);
 		//if (_islandState == BURN)DrawCircle(_posX, _posY, _rotation, GetColor(100, 100, 100), TRUE);
 		if (_islandState == GRASS) {
-			if (_fireStartFlag) {
-				if (_fireStartCount % 2 == 0)_animPos_burningIslnad++;
-				MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_burningIsland[_animPos_burningIslnad], 0.2f);
-			}
-			else
-			MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_island, 0.2f);
+			//if (_fireStartFlag)
+				//MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_burningIsland[_animPos_burningIslnad], 0.2f);
+			//else
+				MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2 + nowChoice_distance, _gh_island, 0.2f);
 		}
 		if (_islandState == FIRE) {
-			if (_animPos_burningIslnad < 5)_animPos_burningIslnad = 5;
-			if (_fireCount < 110) {
-				if (_fireCount % 2 == 0)_animPos_burningIslnad++;
-				if (_animPos_burningIslnad > 10)_animPos_burningIslnad = 5;
-			}
-			else {
-				if (_fireCount == 110)_animPos_burningIslnad = 10;
-				else {
-					if (_fireCount % 2 == 0)_animPos_burningIslnad++;
-				}
-			}
-			MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_burningIsland[_animPos_burningIslnad], 0.2f);
+			//if (_animPos_burningIslnad < 5)_animPos_burningIslnad = 5;
+			//if (_fireCount < 110) {
+			//	if (_fireCount % 2 == 0)_animPos_burningIslnad++;
+			//	if (_animPos_burningIslnad > 10)_animPos_burningIslnad = 5;
+			//}
+			//else {
+			//	if (_fireCount == 110)_animPos_burningIslnad = 10;
+			//	else {
+			//		if (_fireCount % 2 == 0)_animPos_burningIslnad++;
+			//	}
+			//}
+			MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2 - 10, _posY - _height / 2 - 10 + nowChoice_distance, _gh_burningIsland[_animPos_burningIsland], 0.2f);
 		}
-		if (_islandState == BURN)MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_burnIsland, 0.2f);
+		if (_islandState == BURN)MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2 + nowChoice_distance, _gh_revivalingIsland[_animPos_revivalingIsland], 0.2f);
 	}
 
 	if (_distanseFlag) {
@@ -193,6 +256,7 @@ void Island::Burning()
 	if (_posX == IslandInfo::Base_Island_PosX && _posY == IslandInfo::Base_Island_PosY) return;
 	if (_islandState == GRASS) {
 		_islandState = FIRE;
+		PlaySoundMem(_sh_fire, DX_PLAYTYPE_BACK);
 	}
 }
 

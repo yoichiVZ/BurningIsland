@@ -8,6 +8,8 @@ private:
 	int _posX, _posY;
 	int _hp;
 
+	int _sh_damage;
+
 public:
 	Player();
 	~Player();
