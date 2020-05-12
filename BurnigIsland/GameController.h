@@ -9,7 +9,9 @@
 
 #include "IslandInfo.h"
 #include "EnemyInfo.h"
+#include "PlayerInfo.h"
 #include "BulletInfo.h"
+#include "RopeInfo.h"
 
 //#define ISLAND_NUM 33
 #define M_PI 3.14159265358979323846
@@ -35,6 +37,11 @@ private:
 	int _gh_cloud;
 	int _gh_thunder[5];
 	int _gh_thunderUI[6];
+	int _gh_UIbar;
+	int _gh_hp;
+	int _gh_hp_damage;
+	int _gh_tuta_life_active;
+	int _gh_tuta_life_inactive;
 	int _gh_tuta;
 	int _gh_tuta_top;
 	int _gh_tuta_middle;

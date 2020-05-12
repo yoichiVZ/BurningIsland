@@ -115,6 +115,7 @@ void Rope::Recovery()
 
 void Rope::AddMaxLife()
 {
+	if(_maxRopeLife < RopeInfo::Rope_MaxLife)
 	_maxRopeLife += 1;
 }
 

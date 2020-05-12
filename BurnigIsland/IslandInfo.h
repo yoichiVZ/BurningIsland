@@ -9,7 +9,10 @@ public:
 	static const int Base_Island_PosY = WindowInfo::Screen_Height - 150;
 
 	// “‡‚Ì’¼Œa
-	static const int Island_Rotation = 20;
+	static const int Island_Rotation = 25;
+
+	// ‹’“_‚Ì’¼Œa
+	static const int Base_Island_Rotation = 60;
 
 	// “‡‚Ì”
 	static const int Island_Num = 50;

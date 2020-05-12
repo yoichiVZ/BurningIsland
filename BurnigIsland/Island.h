@@ -19,6 +19,9 @@ private:
 	bool _fireStartFlag;
 	int _fireStartCount;
 	bool _extinguishedFlag;
+	int _nowChoiceDistance;
+	int _nowChoiceDistanceCount;
+	bool _nowChoiceFlag;
 
 	int _gh_island;
 	int _gh_burnIsland;

@@ -13,7 +13,12 @@ GameController::GameController()
 	_gh_background2 = LoadGraph("Resource\\Image\\makai2.png");
 	_gh_cloud = LoadGraph("Resource\\Image\\KumoHaikei.png");
 	LoadDivGraph("Resource\\Image\\kaminari.png", 5, 5, 1, 180, 700, _gh_thunder);
-	LoadDivGraph("Resource\\Image\\kaminariUI64.png", 6, 6, 1, 64, 64, _gh_thunderUI);
+	LoadDivGraph("Resource\\Image\\kaminariUI.png", 6, 6, 1, 96, 96, _gh_thunderUI);
+	_gh_UIbar = LoadGraph("Resource\\Image\\UI.png");
+	_gh_hp = LoadGraph("Resource\\Image\\Life1.png");
+	_gh_hp_damage = LoadGraph("Resource\\Image\\Life2.png");
+	_gh_tuta_life_active = LoadGraph("Resource\\Image\\ge-ziUI2.png");
+	_gh_tuta_life_inactive = LoadGraph("Resource\\Image\\ge-ziUI1.png");
 	_gh_tuta = LoadGraph("Resource\\Image\\Tuta.png");
 	_gh_tuta_top = LoadGraph("Resource\\Image\\Tutanomoto3.png");
 	_gh_tuta_middle = LoadGraph("Resource\\Image\\Tutanomoto2.png");
@@ -151,32 +156,32 @@ void GameController::GamePlay()
 	OnMouseButtonLeft();
 	OnMouseButtonRight();
 	OnSpaceButton();
-	if (CheckHitKey(KEY_INPUT_S))s_count++;
-	else s_count = 0;
-	if (CheckHitKey(KEY_INPUT_RIGHT))right_count++;
-	else right_count = 0;
-	if (CheckHitKey(KEY_INPUT_LEFT))left_count++;
-	else left_count = 0;
-	if (CheckHitKey(KEY_INPUT_UP))up_count++;
-	else up_count = 0;
-	if (CheckHitKey(KEY_INPUT_DOWN))down_count++;
-	else down_count = 0;
+	//if (CheckHitKey(KEY_INPUT_S))s_count++;
+	//else s_count = 0;
+	//if (CheckHitKey(KEY_INPUT_RIGHT))right_count++;
+	//else right_count = 0;
+	//if (CheckHitKey(KEY_INPUT_LEFT))left_count++;
+	//else left_count = 0;
+	//if (CheckHitKey(KEY_INPUT_UP))up_count++;
+	//else up_count = 0;
+	//if (CheckHitKey(KEY_INPUT_DOWN))down_count++;
+	//else down_count = 0;
 
-	if (s_count == 1) {
-		PositionSave();
-	}
-	if (right_count == 1 || (right_count > 10)) {
-		_island[_nowIsland]->MoveX(1);
-	}
-	if (left_count == 1 || (left_count > 10)) {
-		_island[_nowIsland]->MoveX(0);
-	}
-	if (up_count == 1 || (up_count > 10)) {
-		_island[_nowIsland]->MoveY(0);
-	}
-	if (down_count == 1 || (down_count > 10)) {
-		_island[_nowIsland]->MoveY(1);
-	}
+	//if (s_count == 1) {
+	//	PositionSave();
+	//}
+	//if (right_count == 1 || (right_count > 10)) {
+	//	_island[_nowIsland]->MoveX(1);
+	//}
+	//if (left_count == 1 || (left_count > 10)) {
+	//	_island[_nowIsland]->MoveX(0);
+	//}
+	//if (up_count == 1 || (up_count > 10)) {
+	//	_island[_nowIsland]->MoveY(0);
+	//}
+	//if (down_count == 1 || (down_count > 10)) {
+	//	_island[_nowIsland]->MoveY(1);
+	//}
 
 	if (_spaceKeyCount == 1) {
 		_sceneState = RESULT;
@@ -287,6 +292,20 @@ void GameController::GamePlay()
 			if (_island[_now_player_num]->StateCheck_BURN())continue;
 			//_island[num_p]->CrossCheck(_island[i]);
 			if (_mouseCount_Left == 1) { // 左クリックした瞬間
+				if (i == 0) {
+					if (_island[i]->GetPosX() - IslandInfo::Base_Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Base_Island_Rotation &&
+						_island[i]->GetPosY() - IslandInfo::Base_Island_Rotation + 10 < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Base_Island_Rotation + 30 &&
+						_rope.GetConnectFlag(_now_player_num, i) == 0)
+					{
+						if (_island[i]->StateCheck_BURN()) {
+							_island[i]->Revival();
+							_rope.Minus();
+						}
+						_rope.Connect(_now_player_num, i);
+						_rope.Minus();
+						continue;
+					}
+				}
 				if (_island[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Island_Rotation &&
 					_island[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Island_Rotation &&
 					_rope.GetConnectFlag(_now_player_num, i) == 0)
@@ -301,9 +320,17 @@ void GameController::GamePlay()
 			}
 		}
 	}
-
 	if (_mouseCount_Left == 1) { // 左クリックした瞬間
 		for (int i = 0; i < IslandInfo::Island_Num; i++) {
+			if (i == 0) {
+				if (_island[i]->GetPosX() - IslandInfo::Base_Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Base_Island_Rotation &&
+					_island[i]->GetPosY() - IslandInfo::Base_Island_Rotation + 10 < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Base_Island_Rotation + 30)
+				{
+					_player.Move(_island[i]->GetPosX(), _island[i]->GetPosY());
+					_nowIsland = i;
+					break;
+				}
+			}
 			if (_island[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Island_Rotation &&
 				_island[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Island_Rotation)
 			{
@@ -327,6 +354,7 @@ void GameController::GamePlay()
 			if (_island[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Right && _mousePosX_Right < _island[i]->GetPosX() + IslandInfo::Island_Rotation &&
 				_island[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Right && _mousePosY_Right < _island[i]->GetPosY() + IslandInfo::Island_Rotation)
 			{
+				if (i == 0)break;
 				if (!_fireReloadFlag) {
 					_island[i]->Burning();
 					_fireReloadFlag = true;
@@ -604,20 +632,42 @@ void GameController::Draw()
 	DrawExtendGraph(_cloud_posX, _cloud_posY, _cloud_posX + WindowInfo::Screen_Width, _cloud_posY + WindowInfo::Screen_Height, _gh_cloud, TRUE);
 	DrawExtendGraph(_cloud_posX - WindowInfo::Screen_Width, _cloud_posY, _cloud_posX, _cloud_posY + WindowInfo::Screen_Height, _gh_cloud, TRUE);
 	DrawGraph(0, 0, _gh_background2, TRUE);
+	MyDrawTurn::Instance().SetDrawItem(0, 0, _gh_UIbar, 0.8f);
 	//DrawGraph(_cloud_posX, _cloud_posY, _gh_cloud, TRUE);
 	//DrawGraph(_cloud_posX - _cloud_width, _cloud_posY, _gh_cloud, TRUE);
-	DrawFormatString(10, 610, GetColor(0, 0, 0), "hp : %d", _player.GetHP());
+	//DrawFormatString(10, 610, GetColor(0, 0, 0), "hp : %d", _player.GetHP());
+	int playerHP = 0;
+	for (int i = 0; i < PlayerInfo::Player_HP; i++) {
+		if (playerHP < _player.GetHP()) {
+			MyDrawTurn::Instance().SetDrawItem(820 + (70 * i) - 50, 766 - 50, _gh_hp, 0.81f);
+		}
+		else {
+			MyDrawTurn::Instance().SetDrawItem(820 + (70 * i) - 50, 766 - 50, _gh_hp_damage, 0.81f);
+		}
+		playerHP++;
+	}
 	//if (!_fireReloadFlag) {
 	//	DrawFormatString(10, 740, GetColor(0, 0, 0), "撃てる");
 	//}
-	DrawFormatString(10, 630, GetColor(0, 0, 0), "KILL : %d", _killCount);
+	DrawFormatString(10, 550, GetColor(0, 0, 0), "KILL : %d", _killCount);
 	//DrawFormatString(10, 720, GetColor(0, 0, 0), "発射可能まで : %d", FIRE_RELOAD_NUM - _fireReloadCount);
-	MyDrawTurn::Instance().SetDrawItem(10, 720, _gh_thunderUI[_animPos_thunderUI], 0.8f);
-	DrawFormatString(10, 650, GetColor(0, 0, 0), "WAVE : %d", _wave);
-	DrawLine(300, 790, 300 + (_rope.GetRopeLife() * 40), 790, GetColor(255, 255, 100), 16);
-	for (int i = 1; i < _rope.GetRopeLife(); i++) {
-		DrawLine(300 + i * 40, 782, 300 + i * 40, 798, GetColor(2055, 0, 0), 1);
+	MyDrawTurn::Instance().SetDrawItem(42, 670, _gh_thunderUI[_animPos_thunderUI], 0.81f);
+	DrawFormatString(10, 570, GetColor(0, 0, 0), "WAVE : %d", _wave);
+	int ropeLife = 0;
+	for (int i = 0; i < RopeInfo::Rope_MaxLife; i++) {
+		int nnnn = _rope.GetRopeLife();
+		if (ropeLife < _rope.GetRopeLife()) {
+			MyDrawTurn::Instance().SetDrawItem(280 + (50 * i) - 50, 766 - 50, _gh_tuta_life_active, 0.81f);
+		}
+		else {
+			MyDrawTurn::Instance().SetDrawItem(280 + (50 * i) - 50, 766 - 50, _gh_tuta_life_inactive, 0.81f);
+		}
+		ropeLife++;
 	}
+	//DrawLine(300, 790, 300 + (_rope.GetRopeLife() * 40), 790, GetColor(255, 255, 100), 16);
+	//for (int i = 1; i < _rope.GetRopeLife(); i++) {
+	//	DrawLine(300 + i * 40, 782, 300 + i * 40, 798, GetColor(2055, 0, 0), 1);
+	//}
 	//DrawFormatString(50, 200, GetColor(255, 255, 255), "%d", _time.GetGameTime());
 	for (int i = 1; i < IslandInfo::Island_Num; i++) {
 		_island[i]->Draw();

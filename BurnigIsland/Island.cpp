@@ -8,7 +8,6 @@
 
 #include "Player.h"
 
-
 Island::Island()
 {
 	_gh_island = LoadGraph("Resource\\Image\\sima1.png");
@@ -42,6 +41,9 @@ void Island::Init()
 	_animCount_burningIslnad = 0;
 	_animPos_revivalingIsland = 0;
 	_animCount_revivalingIsland = 0;
+	_nowChoiceDistance = 0;
+	_nowChoiceDistanceCount = 0;
+	_nowChoiceFlag = false;
 }
 
 void Island::Update()
@@ -131,13 +133,40 @@ void Island::Update()
 void Island::Draw()
 {
 	//if (_islandState == GRASS)DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
-	int nowChoice_distance = 0;
+	//int nowChoice_distance = 0;
 	if (_playerStayFlag) {
-		nowChoice_distance = 5;
+		_nowChoiceDistanceCount++;
+		if (_nowChoiceDistanceCount % 6 == 0) {
+			if (_nowChoiceFlag) {
+				_nowChoiceDistance--;
+			}
+			else {
+				_nowChoiceDistance++;
+			}
+		}
+		//nowChoice_distance = 5;
+	}
+	else {
+		_nowChoiceDistance = 0;
+		_nowChoiceDistanceCount = 0;
+		_nowChoiceFlag = false;
+	}
+	int distance = 0;
+	if (_nowChoiceDistance > 4) {
+		_nowChoiceFlag = true;
+	}
+	if (_nowChoiceDistance < -1) {
+		_nowChoiceFlag = false;
+	}
+	if (_nowChoiceDistance >= 3) {
+		distance = 3 - _nowChoiceDistance;
+	}
+	if (_nowChoiceDistance <= 0) {
+		distance = 0 - _nowChoiceDistance;
 	}
 	if (_posX == IslandInfo::Base_Island_PosX && _posY == IslandInfo::Base_Island_PosY) {
 		//DrawGraph(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, TRUE);
-		MyDrawTurn::Instance().SetDrawItem(_posX - _base_width / 2, _posY - _base_height / 2 + nowChoice_distance, _gh_base, 0.31f);
+		MyDrawTurn::Instance().SetDrawItem(_posX - _base_width / 2, _posY - _base_height / 2 + _nowChoiceDistance + distance, _gh_base, 0.31f);
 	}
 	else {
 		//if (_islandState == GRASS)DrawGraph(_posX - _width / 2, _posY - _height / 2, _gh_island, TRUE);
@@ -147,7 +176,7 @@ void Island::Draw()
 			//if (_fireStartFlag)
 				//MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2, _gh_burningIsland[_animPos_burningIslnad], 0.2f);
 			//else
-				MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2 + nowChoice_distance, _gh_island, 0.2f);
+				MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2 + _nowChoiceDistance + distance, _gh_island, 0.2f);
 		}
 		if (_islandState == FIRE) {
 			//if (_animPos_burningIslnad < 5)_animPos_burningIslnad = 5;
@@ -161,9 +190,9 @@ void Island::Draw()
 			//		if (_fireCount % 2 == 0)_animPos_burningIslnad++;
 			//	}
 			//}
-			MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2 - 10, _posY - _height / 2 - 10 + nowChoice_distance, _gh_burningIsland[_animPos_burningIsland], 0.2f);
+			MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2 - 10, _posY - _height / 2 - 10 + _nowChoiceDistance, _gh_burningIsland[_animPos_burningIsland], 0.2f);
 		}
-		if (_islandState == BURN)MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2 + nowChoice_distance, _gh_revivalingIsland[_animPos_revivalingIsland], 0.2f);
+		if (_islandState == BURN)MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2 + _nowChoiceDistance, _gh_revivalingIsland[_animPos_revivalingIsland], 0.2f);
 	}
 
 	if (_distanseFlag) {
@@ -179,7 +208,8 @@ void Island::Draw()
 		//DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
 	}
 
-	//DrawBox(_posX - ISLAND_ROTATE, _posY - ISLAND_ROTATE, _posX + ISLAND_ROTATE, _posY + ISLAND_ROTATE, GetColor(255, 255, 255), FALSE);
+	//DrawBox(_posX - IslandInfo::Island_Rotation, _posY - IslandInfo::Island_Rotation, 
+	//	_posX + IslandInfo::Island_Rotation, _posY + IslandInfo::Island_Rotation, GetColor(255, 0, 0), TRUE);
 }
 
 void Island::All()
