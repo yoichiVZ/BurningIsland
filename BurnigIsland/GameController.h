@@ -6,6 +6,7 @@
 #include "Enemy.h"
 #include "Time.h"
 #include "Bullet.h"
+#include "KillCountUI.h"
 
 #include "IslandInfo.h"
 #include "EnemyInfo.h"
@@ -80,6 +81,7 @@ private:
 	Enemy* _enemy[EnemyInfo::Enemy_Num];
 	Time _time;
 	Bullet* _bullet[BulletInfo::Bullet_Num];
+	KillCountUI* _killCountUI[EnemyInfo::Enemy_Num];
 
 	enum Scenetate {
 		TITLE,

@@ -42,6 +42,7 @@ GameController::GameController()
 	}
 	for (i = 0; i < EnemyInfo::Enemy_Num; i++) {
 		_enemy[i] = new Enemy();
+		_killCountUI[i] = new KillCountUI;
 	}
 	for (i = 0; i < BulletInfo::Bullet_Num; i++) {
 		_bullet[i] = new Bullet();
@@ -65,6 +66,7 @@ GameController::~GameController()
 	}
 	for (i = 0; i < EnemyInfo::Enemy_Num; i++) {
 		delete _enemy[i];
+		delete _killCountUI[i];
 	}
 	for (i = 0; i < BulletInfo::Bullet_Num; i++) {
 		delete _bullet[i];
@@ -78,6 +80,7 @@ void GameController::Init()
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
 		_enemy[i]->Init();
+		_killCountUI[i]->Init();
 	}
 	for (int i = 0; i < BulletInfo::Bullet_Num; i++) {
 		_bullet[i]->Init();
@@ -265,7 +268,7 @@ void GameController::GamePlay()
 					_enemy[i]->Deth_Fire();
 					_rope.Recovery();
 					_killCount++;
-					
+					_killCountUI[i]->SetActive(_enemy[i]->GetPosX(), _enemy[i]->GetPosY(), _killCount);
 				}
 			}
 		}
@@ -600,6 +603,7 @@ void GameController::GamePlay()
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
 		_enemy[i]->Update();
+		_killCountUI[i]->Update();
 	}
 	for (int i = 0; i < BulletInfo::Bullet_Num; i++) {
 		_bullet[i]->Update();
@@ -825,6 +829,7 @@ void GameController::Draw()
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
 		_enemy[i]->Draw();
+		_killCountUI[i]->Draw();
 	}
 	for (int i = 0; i < BulletInfo::Bullet_Num; i++) {
 		_bullet[i]->Draw();
