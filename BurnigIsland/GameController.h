@@ -66,7 +66,10 @@ private:
 	int _nowIsland;
 	int _now_player_num;
 
+	int _sh_title;
+	int _sh_tutorial;
 	int _sh_gameplay;
+	int _sh_result;
 	int _sh_thunder;
 
 	int s_count;

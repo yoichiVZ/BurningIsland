@@ -24,10 +24,16 @@ GameController::GameController()
 	_gh_tuta_middle = LoadGraph("Resource\\Image\\Tutanomoto2.png");
 	_gh_tuta_fire_top = LoadGraph("Resource\\Image\\moetuta2.png");
 	_gh_tuta_fire_middle = LoadGraph("Resource\\Image\\moetuta1.png");
+	_sh_title = LoadSoundMem("Resource\\Sound\\title.mp3");
+	ChangeVolumeSoundMem(255 * 80 / 100, _sh_title);
+	_sh_tutorial = LoadSoundMem("Resource\\Sound\\tutorial.mp3");
+	ChangeVolumeSoundMem(255 * 65 / 100, _sh_tutorial);
 	_sh_gameplay = LoadSoundMem("Resource\\Sound\\gameplay.mp3");
 	ChangeVolumeSoundMem(255 * 65 / 100, _sh_gameplay);
+	_sh_result = LoadSoundMem("Resource\\Sound\\result.mp3");
+	ChangeVolumeSoundMem(255 * 80 / 100, _sh_result);
 	_sh_thunder = LoadSoundMem("Resource\\Sound\\thunder.mp3");
-	ChangeVolumeSoundMem(255 * 80 / 100, _sh_gameplay);
+	ChangeVolumeSoundMem(255 * 80 / 100, _sh_thunder);
 	GetGraphSize(_gh_background, &_background_width, &_background_height);
 	GetGraphSize(_gh_cloud, &_cloud_width, &_cloud_height);
 	GetGraphSize(_gh_thunder[0], &_thunder_width, &_thunder_height);
@@ -47,7 +53,7 @@ GameController::GameController()
 	for (i = 0; i < BulletInfo::Bullet_Num; i++) {
 		_bullet[i] = new Bullet();
 	}
-	_sceneState = GAMEPLAY;
+	_sceneState = TITLE;
 	_spaceKeyCount = 0;
 	//for (i = 0; i < IslandInfo::Island_Num; i++) {
 	//	_island_posX_data[i] = _island[i]->GetPosX();
@@ -131,8 +137,12 @@ void GameController::Init()
 
 void GameController::Title()
 {
-	OnSpaceButton();
-	if (_spaceKeyCount == 1) {
+	if (_onth_flag[_sceneState] == 0) {
+		_onth_flag[_sceneState]++;
+		StopSoundMem(_sh_result);
+		PlaySoundMem(_sh_title, DX_PLAYTYPE_LOOP);
+	}
+	if (_mouseCount_Left == -1) {
 		_sceneState = TUTORIAL;
 	}
 	DrawString(300, 300, "title", GetColor(255, 255, 255));
@@ -140,8 +150,12 @@ void GameController::Title()
 
 void GameController::Tutorial()
 {
-	OnSpaceButton();
-	if (_spaceKeyCount == 1) {
+	if (_onth_flag[_sceneState] == 0) {
+		_onth_flag[_sceneState]++;
+		StopSoundMem(_sh_title);
+		PlaySoundMem(_sh_tutorial, DX_PLAYTYPE_LOOP);
+	}
+	if (_mouseCount_Left == -1) {
 		_sceneState = GAMEPLAY;
 	}
 	DrawString(300, 300, "tutorial", GetColor(255, 255, 255));
@@ -151,14 +165,11 @@ void GameController::GamePlay()
 {
 	if (_onth_flag[_sceneState] == 0) {
 		_onth_flag[_sceneState]++;
-		StopSoundMem(_sh_gameplay);
+		StopSoundMem(_sh_tutorial);
 		PlaySoundMem(_sh_gameplay, DX_PLAYTYPE_LOOP);
 	}
 	_time.TimeCourse();
 
-	OnMouseButtonLeft();
-	OnMouseButtonRight();
-	OnSpaceButton();
 	//if (CheckHitKey(KEY_INPUT_S))s_count++;
 	//else s_count = 0;
 	//if (CheckHitKey(KEY_INPUT_RIGHT))right_count++;
@@ -615,14 +626,19 @@ void GameController::GamePlay()
 		Init();
 	}
 	if (!_player.GetLive()) {
+		_sceneState = RESULT;
 		DrawFormatString(100, 10, GetColor(255, 255, 255), "GAMEOVER");
 	}
 }
 
 void GameController::Result()
 {
-	OnSpaceButton();
-	if (_spaceKeyCount == 1) {
+	if (_onth_flag[_sceneState] == 0) {
+		_onth_flag[_sceneState]++;
+		StopSoundMem(_sh_gameplay);
+		PlaySoundMem(_sh_result, DX_PLAYTYPE_BACK);
+	}
+	if (_mouseCount_Left == -1) {
 		_sceneState = TITLE;
 		Init();
 	}
@@ -849,6 +865,9 @@ void GameController::Draw()
 
 void GameController::All()
 {
+	OnMouseButtonLeft();
+	OnMouseButtonRight();
+	OnSpaceButton();
 	switch (_sceneState) {
 	case TITLE:   
 		Title();
