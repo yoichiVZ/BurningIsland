@@ -25,15 +25,15 @@ GameController::GameController()
 	_gh_tuta_fire_top = LoadGraph("Resource\\Image\\moetuta2.png");
 	_gh_tuta_fire_middle = LoadGraph("Resource\\Image\\moetuta1.png");
 	_sh_title = LoadSoundMem("Resource\\Sound\\title.mp3");
-	ChangeVolumeSoundMem(255 * 80 / 100, _sh_title);
+	ChangeVolumeSoundMem(255 * 40 / 100, _sh_title);
 	_sh_tutorial = LoadSoundMem("Resource\\Sound\\tutorial.mp3");
-	ChangeVolumeSoundMem(255 * 65 / 100, _sh_tutorial);
+	ChangeVolumeSoundMem(255 * 25 / 100, _sh_tutorial);
 	_sh_gameplay = LoadSoundMem("Resource\\Sound\\gameplay.mp3");
-	ChangeVolumeSoundMem(255 * 65 / 100, _sh_gameplay);
+	ChangeVolumeSoundMem(255 * 25 / 100, _sh_gameplay);
 	_sh_result = LoadSoundMem("Resource\\Sound\\result.mp3");
-	ChangeVolumeSoundMem(255 * 80 / 100, _sh_result);
+	ChangeVolumeSoundMem(255 * 40 / 100, _sh_result);
 	_sh_thunder = LoadSoundMem("Resource\\Sound\\thunder.mp3");
-	ChangeVolumeSoundMem(255 * 80 / 100, _sh_thunder);
+	ChangeVolumeSoundMem(255 * 40 / 100, _sh_thunder);
 	GetGraphSize(_gh_background, &_background_width, &_background_height);
 	GetGraphSize(_gh_cloud, &_cloud_width, &_cloud_height);
 	GetGraphSize(_gh_thunder[0], &_thunder_width, &_thunder_height);
@@ -146,6 +146,7 @@ void GameController::Title()
 		_sceneState = TUTORIAL;
 	}
 	DrawString(300, 300, "title", GetColor(255, 255, 255));
+	DrawString(300, 340, "OnClick", GetColor(255, 255, 255));
 }
 
 void GameController::Tutorial()
@@ -159,6 +160,9 @@ void GameController::Tutorial()
 		_sceneState = GAMEPLAY;
 	}
 	DrawString(300, 300, "tutorial", GetColor(255, 255, 255));
+	DrawString(300, 330, "Left Click : 島移動、ロープをかける", GetColor(255, 255, 255));
+	DrawString(300, 360, "Right Click : 雷を落とす", GetColor(255, 255, 255));
+	DrawString(300, 400, "OnClick", GetColor(255, 255, 255));
 }
 
 void GameController::GamePlay()
@@ -197,9 +201,9 @@ void GameController::GamePlay()
 	//	_island[_nowIsland]->MoveY(1);
 	//}
 
-	if (_spaceKeyCount == 1) {
-		_sceneState = RESULT;
-	}
+	//if (_spaceKeyCount == 1) {
+	//	_sceneState = RESULT;
+	//}
 	_cloud_speed_count++;
 	if (_cloud_speed_count % 2 == 0) {
 		_cloud_posX++;
@@ -614,7 +618,8 @@ void GameController::GamePlay()
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
 		_enemy[i]->Update();
-		_killCountUI[i]->Update();
+		if (_killCountUI[i]->GetActiveFlag())
+			_killCountUI[i]->Update();
 	}
 	for (int i = 0; i < BulletInfo::Bullet_Num; i++) {
 		_bullet[i]->Update();
@@ -644,6 +649,7 @@ void GameController::Result()
 	}
 	DrawString(300, 300, "result", GetColor(255, 255, 255));
 	DrawFormatString(300, 350, GetColor(255, 255, 255), "到達WAVE : %d", _wave);
+	DrawString(300, 400, "OnClick", GetColor(255, 255, 255));
 }
 
 void GameController::Draw()
@@ -845,7 +851,8 @@ void GameController::Draw()
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
 		_enemy[i]->Draw();
-		_killCountUI[i]->Draw();
+		if (_killCountUI[i]->GetActiveFlag())
+			_killCountUI[i]->Draw();
 	}
 	for (int i = 0; i < BulletInfo::Bullet_Num; i++) {
 		_bullet[i]->Draw();

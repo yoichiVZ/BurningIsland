@@ -1,4 +1,5 @@
 #pragma once
+#include "DrawNumber.h"
 
 class KillCountUI {
 private:
@@ -7,6 +8,10 @@ private:
 	bool _activeFlag;
 	int _killCount;
 	int _liveTime;
+
+	int _gh_burning;
+
+	DrawNumber drawNumber;
 
 public:
 	KillCountUI();

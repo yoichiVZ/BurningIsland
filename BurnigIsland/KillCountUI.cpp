@@ -1,9 +1,11 @@
 #include <DxLib.h>
 
 #include "KillCountUI.h"
+#include "MyDrawTurn.h"
 
 KillCountUI::KillCountUI()
 {
+	_gh_burning = LoadGraph("Resource\\Image\\BURNING.png");
 	_speed = 1;
 	Init();
 }
@@ -18,7 +20,6 @@ void KillCountUI::Init()
 
 void KillCountUI::Update()
 {
-	if (!_activeFlag)return;
 	_posY -= _speed;
 	_liveTime++;
 	if (_liveTime > 60) {
@@ -28,7 +29,9 @@ void KillCountUI::Update()
 
 void KillCountUI::Draw()
 {
-	DrawFormatString(_posX - 30, _posY - 20, GetColor(0, 0, 0), "%dKILL!!", _killCount);
+	//DrawFormatString(_posX - 30, _posY - 20, GetColor(0, 0, 0), "%dBurnig!!", _killCount);
+	drawNumber.Draw(_posX - 80, _posY - 35, _killCount, SETDRAWNUM_KILLCOUNT);
+	MyDrawTurn::Instance().SetDrawItem(_posX - 60, _posY - 30, _gh_burning, 0.8f);
 }
 
 void KillCountUI::SetActive(int posX, int posY, int killCount)

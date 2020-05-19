@@ -7,6 +7,7 @@
 Player::Player()
 {
 	_sh_damage = LoadSoundMem("Resource\\Sound\\damage.mp3");
+	ChangeVolumeSoundMem(255 * 50 / 100, _sh_damage);
 	Init();
 }
 

@@ -5,6 +5,7 @@
 Rope::Rope()
 {
 	_sh_tuta = LoadSoundMem("Resource\\Sound\\tuta.mp3");
+	ChangeVolumeSoundMem(255 * 30 / 100, _sh_tuta);
 	Init();
 }
 

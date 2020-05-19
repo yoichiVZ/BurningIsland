@@ -20,8 +20,11 @@ Enemy::Enemy()
 	GetGraphSize(_gh_akuma, &_akuma_width, &_akuma_height);
 	GetGraphSize(_gh_saru, &_saru_width, &_saru_height);
 	_sh_attack_allow = LoadSoundMem("Resource\\Sound\\enemyattack_allow.mp3");
+	ChangeVolumeSoundMem(255 * 50 / 100, _sh_attack_allow);
 	_sh_attack_monkey = LoadSoundMem("Resource\\Sound\\enemyattack_monkey.mp3");
+	ChangeVolumeSoundMem(255 * 40 / 100, _sh_attack_monkey);
 	_sh_attack_slime = LoadSoundMem("Resource\\Sound\\enemyattack_slime.mp3");
+	ChangeVolumeSoundMem(255 * 50 / 100, _sh_attack_slime);
 	_dis_number = GetRand(3 - 1);
 	_atackModeFlag = false;
 	Init();

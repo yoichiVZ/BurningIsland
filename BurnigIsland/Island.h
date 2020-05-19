@@ -1,5 +1,7 @@
 #pragma once
 
+#include "YugudorasiruParticle.h"
+
 class Island {
 private:
 	enum IslandState {
@@ -27,6 +29,9 @@ private:
 	int _gh_burnIsland;
 	int _gh_base;
 	int _base_width, _base_height;
+	int _gh_base_crystal;
+	
+	int _gh_rightEfect01;
 
 	int _gh_burningIsland[10];
 	int _animPos_burningIsland;
@@ -37,6 +42,11 @@ private:
 	int _animCount_revivalingIsland;
 
 	int _sh_fire;
+
+	int _particle_activeCount;
+	int _particle_firstActiveCount;
+
+	YugudorasiruParticle* _yugudorasiruParticle[YUGUDORASIRU_PARITCLE_NUM];
 
 public:
 
