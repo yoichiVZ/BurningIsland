@@ -4,17 +4,25 @@
 //#define ENEMY_ROTATE 10
 //#define ENEMY_NUM 30
 //#define ENEMY_RANGE 200
+#define ENEMYTYPE_SLIME 0
+#define ENEMYTYPE_MONKEY 1
+#define ENEMYTYPE_DEMON 2
 
 class Enemy {
 private:
 	int _firstPosX, _firstPosY;
 	int _posX, _posY;
+	int _jumpPosX, _jumpPosY;
+	double _jumpVecX, _jumpVecY;
+	double _jumpVPosX, _jumpVPosY;
 	double _vertualPosX, _vertualPosY;
 	double _deletePosX, _deletePosY;
 	double _speedX, _speedY;
 	double _angle;
 	int _jumpMoveCount;
+	int _jumpFinishCount;
 	bool _jumpMoveFlag;
+	bool _jumpNowFlag;
 	bool _liveFlag;
 	bool _dethDelayFlag;
 	bool _ropeModeFlag;
@@ -25,6 +33,42 @@ private:
 	int _dethDelayCount;
 
 	int _gh_suraimu;
+	int _gh_suraimu_anim_idle[10];
+	int _gh_suraimu_anim_jump[18];
+	int _gh_suraimu_anim_deth[9];
+	int _gh_saru_anim_idle[7];
+	int _gh_saru_anim_walk[12];
+	int _gh_saru_anim_jump[18];
+	int _gh_saru_anim_deth[9];
+	int _gh_akuma_anim_idle[7];
+	int _gh_akuma_anim_move[6];
+	int _gh_akuma_anim_attack[20];
+	int _gh_akuma_anim_deth[9];
+	int _animPos_suraimu_idle;
+	int _animPos_suraimu_jump;
+	int _animPos_suraimu_deth;
+	int _animPos_saru_idle;
+	int _animPos_saru_walk;
+	int _animPos_saru_jump;
+	int _animPos_saru_deth;
+	int _animPos_akuma_idle;
+	int _animPos_akuma_move;
+	int _animPos_akuma_attack;
+	int _animPos_akuma_attackDelay;
+	int _animPos_akuma_deth;
+	int _animCount_suraimu_idle;
+	int _animCount_suraimu_jump;
+	int _animCount_suraimu_deth;
+	int _animCount_saru_idle;
+	int _animCount_saru_walk;
+	int _animCount_saru_jump;
+	int _animCount_saru_deth;
+	int _animCount_akuma_idle;
+	int _animCount_akuma_move;
+	int _animCount_akuma_attack;
+	int _animCount_akuma_attackDelay;
+	int _animCount_akuma_deth;
+	int _animFlag_akuma_attackDelay;
 	int _gh_akuma;
 	int _gh_saru;
 	int _gh_suraimu_deth;
@@ -59,8 +103,10 @@ public:
 	void Instantiate(int px, int py);
 	// 初期位置セット
 	void SetFirstPosition(int px, int py);
+	// ジャンプ開始
+	void JumpStart(int posX, int posY);
 	// ジャンプ移動
-	void JumpMove(int posX, int posY);
+	void JumpMove();
 	// スピードセット
 	void SetSpeed(double speedX, double speedY);
 	// angleセット
@@ -101,6 +147,9 @@ public:
 	bool GetDethDelayFlag();
 	// ジャンプ可能か
 	bool GetJumpMoveFlag();
+	bool GetJumpNowFlag();
+	int GetJumpPosX();
+	int GetJumpPosY();
 
 private:
 	// ロープ移動

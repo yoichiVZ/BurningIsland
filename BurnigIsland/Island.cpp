@@ -64,7 +64,7 @@ void Island::Update()
 		if (_particle_activeCount > _particle_firstActiveCount) {
 			for (int i = 0; i < YUGUDORASIRU_PARITCLE_NUM; i++) {
 				if (_yugudorasiruParticle[i]->GetActive())continue;
-				_yugudorasiruParticle[i]->SetActive(_posX, _posY);
+				_yugudorasiruParticle[i]->SetActive(_posX, _posY + 40);
 				_particle_activeCount = 0;
 				_particle_firstActiveCount = GetRand(90) + 30;
 				break;
@@ -158,10 +158,10 @@ void Island::Draw()
 	}
 	if (_posX == IslandInfo::Base_Island_PosX && _posY == IslandInfo::Base_Island_PosY) {
 		//DrawGraph(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, TRUE);
-		MyDrawTurn::Instance().SetDrawItem(_posX - _base_width / 2, _posY - _base_height / 2 + _nowChoiceDistance + distance, _gh_base, 0.31f);
-		MyDrawTurn::Instance().SetDrawItem(_posX - 15, _posY - 24 + _nowChoiceDistance + distance, _gh_base_crystal, 0.32f);
-		MyDrawTurn::Instance().SetDrawBrightItem(_posX - 60, _posY - 60 + _nowChoiceDistance + distance, _gh_rightEfect01, 0.311f, 100, 255, 100, 
-			BLENDMODE_ADD, 180, DRAWTYPE_DRAWEXTENDGRAPH, 0, _posX + 60, _posY + 60 + _nowChoiceDistance + distance);
+		MyDrawTurn::Instance().SetDrawItem(_posX - _base_width / 2, _posY - _base_height / 2 + _nowChoiceDistance + distance + 40, _gh_base, 0.31f);
+		MyDrawTurn::Instance().SetDrawItem(_posX - 15, _posY - 24 + _nowChoiceDistance + distance + 40, _gh_base_crystal, 0.32f);
+		MyDrawTurn::Instance().SetDrawBrightItem(_posX - 60, _posY - 60 + _nowChoiceDistance + distance + 40, _gh_rightEfect01, 0.311f, 100, 255, 100,
+			BLENDMODE_ADD, 180, DRAWTYPE_DRAWEXTENDGRAPH, 0, _posX + 60, _posY + 60 + _nowChoiceDistance + distance + 40);
 		for (int i = 0; i < YUGUDORASIRU_PARITCLE_NUM; i++) {
 			if (!_yugudorasiruParticle[i]->GetActive())continue;
 				_yugudorasiruParticle[i]->Draw();
@@ -177,15 +177,15 @@ void Island::Draw()
 		if (_islandState == BURN)MyDrawTurn::Instance().SetDrawItem(_posX - _width / 2, _posY - _height / 2 + _nowChoiceDistance, _gh_revivalingIsland[_animPos_revivalingIsland], 0.2f);
 	}
 
-	if (_distanseFlag) {
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
-		if (_playerStayFlag)
-			DrawCircle(_posX, _posY, _rotation, GetColor(0, 255, 0), TRUE);
-		else
-			DrawCircle(_posX, _posY, _rotation, GetColor(0, 155, 0), TRUE);
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	//if (_distanseFlag) {
+	//	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
+	//	if (_playerStayFlag)
+	//		DrawCircle(_posX, _posY, _rotation, GetColor(0, 255, 0), TRUE);
+	//	else
+	//		DrawCircle(_posX, _posY, _rotation, GetColor(0, 155, 0), TRUE);
+	//	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	}
+	//}
 }
 
 void Island::All()
@@ -327,6 +327,11 @@ int Island::GetWidth()
 int Island::GetHeight()
 {
 	return _height;
+}
+
+int Island::GetFireStartflag()
+{
+	return _fireStartFlag;
 }
 
 void Island::MoveX(int num)

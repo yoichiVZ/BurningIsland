@@ -10,5 +10,5 @@ public:
 	// ’…‰Î‚µ‚Ä‚©‚ç”R‚¦‚é‚Ü‚Å‚ÌŠÔ(ƒtƒŒ[ƒ€)
 	static const int Fire_Start_Count = 10;
 	// ”R‚¦n‚ß‚Ä‚©‚ç”R‚¦s‚«‚é‚Ü‚Å‚ÌŠÔ(ƒtƒŒ[ƒ€)
-	static const int Fire_Count = 120;
+	static const int Fire_Count = 60;
 };

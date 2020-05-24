@@ -12,7 +12,7 @@ public:
 	static const int Enemy_Range = 200;
 
 	// ƒWƒƒƒ“ƒv‚·‚é‚Ü‚Å‚Ì—­‚ß‚éŠÔ
-	static const int Enemy_Move_Count = 180;
+	static const int Enemy_Move_Count = 120;
 
 	// ËŒ‚ŠÔŠu
 	static const int Attack_Charge_Count = 300;

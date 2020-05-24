@@ -3,12 +3,16 @@
 
 #include "Bullet.h"
 
+#include "MyDrawTurn.h"
+
 #include "WindowInfo.h"
 #include "IslandInfo.h"
 #include "BulletInfo.h"
 
 Bullet::Bullet()
 {
+	_gh_demonBullet = LoadGraph("Resource\\Image\\AkumaBullet.png");
+	GetGraphSize(_gh_demonBullet, &_demonBullet_width, &_demonBullet_height);
 	Init();
 }
 
@@ -32,7 +36,8 @@ void Bullet::Update()
 void Bullet::Draw()
 {
 	if (!_liveFlag)return;
-	DrawCircle(_posX, _posY, BulletInfo::Bullet_Rotation, GetColor(255, 0, 0), TRUE);
+	MyDrawTurn::Instance().SetDrawItem(_posX - _demonBullet_width / 2, _posY - _demonBullet_height / 2, _gh_demonBullet, 0.5f);
+	//DrawCircle(_posX, _posY, BulletInfo::Bullet_Rotation, GetColor(255, 0, 0), TRUE);
 }
 
 void Bullet::All()

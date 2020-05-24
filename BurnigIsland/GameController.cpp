@@ -19,11 +19,14 @@ GameController::GameController()
 	_gh_hp_damage = LoadGraph("Resource\\Image\\Life2.png");
 	_gh_tuta_life_active = LoadGraph("Resource\\Image\\ge-ziUI2.png");
 	_gh_tuta_life_inactive = LoadGraph("Resource\\Image\\ge-ziUI1.png");
-	_gh_tuta = LoadGraph("Resource\\Image\\Tuta.png");
-	_gh_tuta_top = LoadGraph("Resource\\Image\\Tutanomoto3.png");
-	_gh_tuta_middle = LoadGraph("Resource\\Image\\Tutanomoto2.png");
-	_gh_tuta_fire_top = LoadGraph("Resource\\Image\\moetuta2.png");
-	_gh_tuta_fire_middle = LoadGraph("Resource\\Image\\moetuta1.png");
+	//_gh_tuta = LoadGraph("Resource\\Image\\Tuta.png");
+	//_gh_tuta_top = LoadGraph("Resource\\Image\\Tutanomoto3.png");
+	//_gh_tuta_middle = LoadGraph("Resource\\Image\\Tutanomoto2.png");
+	//_gh_tuta_fire_top = LoadGraph("Resource\\Image\\moetuta2.png");
+	//_gh_tuta_fire_middle = LoadGraph("Resource\\Image\\moetuta1.png");
+	LoadDivGraph("Resource\\Image\\TutaAnime.png", 10, 10, 1, 40, 100, _gh_tuta_anim);
+	LoadDivGraph("Resource\\Image\\MoeruTuta1.png", 6, 6, 1, 40, 100, _gh_tuta_fire1_anim);
+	LoadDivGraph("Resource\\Image\\MoeruTuta2.png", 6, 6, 1, 40, 100, _gh_tuta_fire2_anim);
 	_sh_title = LoadSoundMem("Resource\\Sound\\title.mp3");
 	ChangeVolumeSoundMem(255 * 40 / 100, _sh_title);
 	_sh_tutorial = LoadSoundMem("Resource\\Sound\\tutorial.mp3");
@@ -34,12 +37,19 @@ GameController::GameController()
 	ChangeVolumeSoundMem(255 * 40 / 100, _sh_result);
 	_sh_thunder = LoadSoundMem("Resource\\Sound\\thunder.mp3");
 	ChangeVolumeSoundMem(255 * 40 / 100, _sh_thunder);
+	_sh_thunderCharge = LoadSoundMem("Resource\\Sound\\thunderCharge.mp3");
+	ChangeVolumeSoundMem(255 * 50 / 100, _sh_thunderCharge);
+	_sh_click = LoadSoundMem("Resource\\Sound\\Click.mp3");
+	ChangeVolumeSoundMem(255 * 50 / 100, _sh_click);
+	_sh_tuta_imposible = LoadSoundMem("Resource\\Sound\\tuta_imposible.mp3");
+	ChangeVolumeSoundMem(255 * 50 / 100, _sh_tuta_imposible);
 	GetGraphSize(_gh_background, &_background_width, &_background_height);
 	GetGraphSize(_gh_cloud, &_cloud_width, &_cloud_height);
 	GetGraphSize(_gh_thunder[0], &_thunder_width, &_thunder_height);
-	GetGraphSize(_gh_tuta, &_tuta_width, &_tuta_height);
-	GetGraphSize(_gh_tuta_top, &_tuta_top_width, &_tuta_top_height);
-	GetGraphSize(_gh_tuta_middle, &_tuta_middle_width, &_tuta_middle_height);
+	//GetGraphSize(_gh_tuta, &_tuta_width, &_tuta_height);
+	//GetGraphSize(_gh_tuta_top, &_tuta_top_width, &_tuta_top_height);
+	//GetGraphSize(_gh_tuta_middle, &_tuta_middle_width, &_tuta_middle_height);
+	GetGraphSize(_gh_tuta_anim[0], &_tuta_width, &_tuta_height);
 
 	int i;
 	for (i = 0; i < IslandInfo::Island_Num; i++) {
@@ -115,6 +125,13 @@ void GameController::Init()
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		_thunder_count[i] = 0;
 		_animPos_thunder[i] = 0;
+		for (int j = 0; j < IslandInfo::Island_Num; j++) {
+			_animPos_tuta[i][j] = 0;
+			_animPos_tuta_fire1[i][j] = 0;
+			_animPos_tuta_fire2[i][j] = 0;
+			_animCount_tuta_fire1[i][j] = 0;
+			_animCount_tuta_fire2[i][j] = 0;
+		}
 	}
 	_animPos_thunderUI = 5;
 
@@ -142,7 +159,8 @@ void GameController::Title()
 		StopSoundMem(_sh_result);
 		PlaySoundMem(_sh_title, DX_PLAYTYPE_LOOP);
 	}
-	if (_mouseCount_Left == -1) {
+	if (_mouseCount_Left == -1){
+		PlaySoundMem(_sh_click, DX_PLAYTYPE_BACK);
 		_sceneState = TUTORIAL;
 	}
 	DrawString(300, 300, "title", GetColor(255, 255, 255));
@@ -157,6 +175,7 @@ void GameController::Tutorial()
 		PlaySoundMem(_sh_tutorial, DX_PLAYTYPE_LOOP);
 	}
 	if (_mouseCount_Left == -1) {
+		PlaySoundMem(_sh_click, DX_PLAYTYPE_BACK);
 		_sceneState = GAMEPLAY;
 	}
 	DrawString(300, 300, "tutorial", GetColor(255, 255, 255));
@@ -234,6 +253,7 @@ void GameController::GamePlay()
 		_fireReloadCount++;
 	}
 	if (_fireReloadCount > FIRE_RELOAD_NUM) {
+		PlaySoundMem(_sh_thunderCharge, DX_PLAYTYPE_BACK);
 		_fireReloadCount = 0;
 		_animPos_thunderUI = 5;
 		_fireReloadFlag = false;
@@ -315,30 +335,100 @@ void GameController::GamePlay()
 						_island[i]->GetPosY() - IslandInfo::Base_Island_Rotation + 10 < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Base_Island_Rotation + 30 &&
 						_rope.GetConnectFlag(_now_player_num, i) == 0)
 					{
-						if (_island[i]->StateCheck_BURN()) {
-							_island[i]->Revival();
+						//if (_island[i]->StateCheck_BURN()) {
+						//	_island[i]->Revival();
+						//	_rope.Minus();
+						//}
+						if (_rope.GetRopeLife() > 0) {
+							_rope.Connect(_now_player_num, i);
 							_rope.Minus();
+							continue;
 						}
-						_rope.Connect(_now_player_num, i);
-						_rope.Minus();
-						continue;
+						else {
+							if (CheckSoundMem(_sh_tuta_imposible) == 0)
+								PlaySoundMem(_sh_tuta_imposible, DX_PLAYTYPE_BACK);
+						}
 					}
 				}
 				if (_island[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Island_Rotation &&
 					_island[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Island_Rotation &&
 					_rope.GetConnectFlag(_now_player_num, i) == 0)
 				{
-					if (_island[i]->StateCheck_BURN()) {
-						_island[i]->Revival();
+					if (_rope.GetRopeLife() > 0) {
+						if (_island[i]->StateCheck_BURN()) {
+							_island[i]->Revival();
+							_rope.Minus();
+						}
+						_rope.Connect(_now_player_num, i);
 						_rope.Minus();
 					}
-					_rope.Connect(_now_player_num, i);
-					_rope.Minus();
+					else {
+						if (CheckSoundMem(_sh_tuta_imposible) == 0)
+							PlaySoundMem(_sh_tuta_imposible, DX_PLAYTYPE_BACK);
+					}
+				}
+			}
+			else if (_mouseCount_Left > 1) { // 左クリックしてる間
+				if (i == 0) {
+					if (_island[i]->GetPosX() - IslandInfo::Base_Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Base_Island_Rotation &&
+						_island[i]->GetPosY() - IslandInfo::Base_Island_Rotation + 10 < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Base_Island_Rotation + 30 &&
+						_rope.GetConnectFlag(_now_player_num, i) == 0)
+					{
+						//if (_island[i]->StateCheck_BURN()) {
+						//	_island[i]->Revival();
+						//	_rope.Minus();
+						//}
+						if (_rope.GetRopeLife() > 0) {
+							_rope.Connect(_now_player_num, i);
+							_rope.Minus();
+							continue;
+						}
+						else {
+							if (CheckSoundMem(_sh_tuta_imposible) == 0)
+								PlaySoundMem(_sh_tuta_imposible, DX_PLAYTYPE_BACK);
+						}
+					}
+				}
+				if (_island[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Island_Rotation &&
+					_island[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Island_Rotation &&
+					_rope.GetConnectFlag(_now_player_num, i) == 0)
+				{
+					if (_rope.GetRopeLife() > 0) {
+						if (_island[i]->StateCheck_BURN()) {
+							_island[i]->Revival();
+							_rope.Minus();
+						}
+						_rope.Connect(_now_player_num, i);
+						_rope.Minus();
+					}
+					else {
+						if (CheckSoundMem(_sh_tuta_imposible) == 0)
+							PlaySoundMem(_sh_tuta_imposible, DX_PLAYTYPE_BACK);
+					}
 				}
 			}
 		}
 	}
 	if (_mouseCount_Left == 1) { // 左クリックした瞬間
+		for (int i = 0; i < IslandInfo::Island_Num; i++) {
+			if (i == 0) {
+				if (_island[i]->GetPosX() - IslandInfo::Base_Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Base_Island_Rotation &&
+					_island[i]->GetPosY() - IslandInfo::Base_Island_Rotation + 10 < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Base_Island_Rotation + 30)
+				{
+					_player.Move(_island[i]->GetPosX(), _island[i]->GetPosY());
+					_nowIsland = i;
+					break;
+				}
+			}
+			if (_island[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Island_Rotation &&
+				_island[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island[i]->GetPosY() + IslandInfo::Island_Rotation)
+			{
+				_player.Move(_island[i]->GetPosX(), _island[i]->GetPosY());
+				_nowIsland = i;
+			}
+		}
+	}
+	else if (_mouseCount_Left > 1) { // 左クリックしてる間
 		for (int i = 0; i < IslandInfo::Island_Num; i++) {
 			if (i == 0) {
 				if (_island[i]->GetPosX() - IslandInfo::Base_Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island[i]->GetPosX() + IslandInfo::Base_Island_Rotation &&
@@ -381,6 +471,11 @@ void GameController::GamePlay()
 					_thunder_count[i] = 25;
 					PlaySoundMem(_sh_thunder, DX_PLAYTYPE_BACK);
 					//_rope.AllRecovery();
+					for (int j = 0; j < EnemyInfo::Enemy_Num; j++) {
+						if (num_e[j] == i && !_enemy[j]->GetJumpNowFlag() && !_enemy[j]->GetRopeModeFlag()) {
+							_enemy[j]->Deth_Fire();
+						}
+					}
 				}
 			}
 		}
@@ -389,17 +484,19 @@ void GameController::GamePlay()
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		for (int j = 0; j < IslandInfo::Island_Num; j++) {
 			if (_rope.GetConnectFlag(i, j) >= 3) {
-				if (_island[i]->StateCheck_FIRE() && (!_rope.GetFireFlag(i, j) && !_rope.GetFireStartFlag(i, j))) {
+				if (_island[i]->StateCheck_FIRE() && (_rope.GetFireFlag(i, j) == 0 && _rope.GetFireStartFlag(i, j) == 0)) {
 					_rope.Ignition(i, j);
 				}
-				if (_island[j]->StateCheck_FIRE() && (!_rope.GetFireFlag(i, j) && !_rope.GetFireStartFlag(i, j))) {
-					_rope.Ignition(i, j);
+				if (_island[j]->StateCheck_FIRE() && (_rope.GetFireFlag(i, j) == 0 && _rope.GetFireStartFlag(i, j) == 0)) {
+					_rope.Ignition(j, i);
 				}
-				if (_rope.GetFireFlag(i, j) && _island[i]->StateCheck_GRASS()) {
-					_island[i]->Ignition();
+				if (_rope.GetFireFlag(i, j) != 0 && _island[i]->StateCheck_GRASS() && _island[i]->GetFireStartflag() == 0) {
+					if(i != 0)
+						_island[i]->Ignition();
 				}
-				if (_rope.GetFireFlag(i, j) && _island[j]->StateCheck_GRASS()) {
-					_island[j]->Ignition();
+				if (_rope.GetFireFlag(i, j) != 0 && _island[j]->StateCheck_GRASS() && _island[j]->GetFireStartflag() == 0) {
+					if(j != 0)
+						_island[j]->Ignition();
 				}
 			}
 		}
@@ -413,16 +510,19 @@ void GameController::GamePlay()
 				if (_enemy[i]->GetPosX() <= _island[j]->GetPosX() + 2 && _enemy[i]->GetPosX() >= _island[j]->GetPosX() - 2
 					&& _enemy[i]->GetPosY() <= _island[j]->GetPosY() + 2 && _enemy[i]->GetPosY() >= _island[j]->GetPosY() - 2) {
 					_enemy[i]->OffRopeModeFlag();
-					_enemy[i]->JumpMove(_island[j]->GetPosX(), _island[j]->GetPosY());
+					//_enemy[i]->JumpMove(_island[j]->GetPosX(), _island[j]->GetPosY());
+					//_enemy[i]->JumpStart(_island[j]->GetPosX(), _island[j]->GetPosY() - 10);
 				}
 			}
 		}
 	}
 
 	int v_posX[EnemyInfo::Enemy_Num], v_posY[EnemyInfo::Enemy_Num];
+	int v_islandNumber[EnemyInfo::Enemy_Num];
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
 		v_posX[i] = _enemy[i]->GetPosX();
 		v_posY[i] = _enemy[i]->GetPosY();
+		v_islandNumber[i] = -1;
 	}
 	for (int j = 0; j < EnemyInfo::Enemy_Num; j++) {
 		if (!_enemy[j]->GetLiveFlag())continue;
@@ -437,6 +537,7 @@ void GameController::GamePlay()
 
 		int v_dx = 1000, v_dy = 1000;
 		int v_x = 0, v_y = 0;
+		int v_n = -1;
 		bool distanceFlag = false; // 範囲内に島があったらtrue
 		for (int i = 0; i < IslandInfo::Island_Num; i++) {
 			if (i == num_e[j])continue;
@@ -504,6 +605,7 @@ void GameController::GamePlay()
 						if (k == EnemyInfo::Enemy_Num) {
 							v_posX[j] = vx;
 							v_posY[j] = vy;
+							v_islandNumber[j] = i;
 						}
 					}
 				}
@@ -524,12 +626,14 @@ void GameController::GamePlay()
 					v_dy = y;
 					v_x = _island[i]->GetPosX();
 					v_y = _island[i]->GetPosY();
+					v_n = i;
 				}
 			}
 		}
 		if (!distanceFlag) {
 			v_posX[j] = v_x;
 			v_posY[j] = v_y;
+			v_islandNumber[j] = v_n;
 		}
 		if (_enemy[j]->_dis_number != 0)continue;
 		if (count > 0) {
@@ -558,22 +662,30 @@ void GameController::GamePlay()
 		}
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
-		if (_enemy[i]->GetJumpMoveFlag() && !_enemy[i]->_atackModeFlag) {
+		if (_enemy[i]->GetJumpMoveFlag() && !_enemy[i]->_atackModeFlag && !_enemy[i]->GetJumpNowFlag()) {
 				int j;
 				for (j = 0; j < EnemyInfo::Enemy_Num; j++) {
-					if (v_posX[i] == _enemy[j]->GetPosX() && v_posY[i] == _enemy[j]->GetPosY())
+					if (v_posX[i] == _enemy[j]->GetJumpPosX() && v_posY[i] == _enemy[j]->GetJumpPosY())
 						break;
 				}
 				if (j != EnemyInfo::Enemy_Num)continue;
-				_enemy[i]->JumpMove(v_posX[i], v_posY[i]);
+				if (_island[v_islandNumber[i]]->StateCheck_FIRE())
+					continue;
+				_enemy[i]->JumpStart(v_posX[i], v_posY[i]);
+				//_enemy[i]->JumpMove(v_posX[i], v_posY[i]);
 				_enemy[i]->OffJumpMoveFlag();
 				_enemy[i]->SetLastTouchIslandNumber(num_e[i]);
 		}
-		if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && _enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
+		//if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && _enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
+		//	_enemy[i]->Attack();
+		//	_player.Damage();
+		//	_enemy[i]->Deth();
+		//}
+		if (_enemy[i]->GetPosX() <= IslandInfo::Base_Island_PosX + 2 && _enemy[i]->GetPosX() >= IslandInfo::Base_Island_PosX - 2
+			&& _enemy[i]->GetPosY() <= IslandInfo::Base_Island_PosY + 2 && _enemy[i]->GetPosY() >= IslandInfo::Base_Island_PosY - 2) {
 			_enemy[i]->Attack();
 			_player.Damage();
 			_enemy[i]->Deth();
-			continue;
 		}
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
@@ -629,6 +741,7 @@ void GameController::GamePlay()
 
 	if (CheckHitKey(KEY_INPUT_R)) {
 		Init();
+		StopSoundMem(_sh_gameplay);
 	}
 	if (!_player.GetLive()) {
 		_sceneState = RESULT;
@@ -644,6 +757,7 @@ void GameController::Result()
 		PlaySoundMem(_sh_result, DX_PLAYTYPE_BACK);
 	}
 	if (_mouseCount_Left == -1) {
+		PlaySoundMem(_sh_click, DX_PLAYTYPE_BACK);
 		_sceneState = TITLE;
 		Init();
 	}
@@ -662,6 +776,15 @@ void GameController::Draw()
 	//DrawGraph(_cloud_posX, _cloud_posY, _gh_cloud, TRUE);
 	//DrawGraph(_cloud_posX - _cloud_width, _cloud_posY, _gh_cloud, TRUE);
 	//DrawFormatString(10, 610, GetColor(0, 0, 0), "hp : %d", _player.GetHP());
+	if (_mouseCount_Left > 1) {
+		int i;
+		for (i = 0; i < IslandInfo::Island_Num; i++) {
+			if (_rope.GetConnectFlag(_nowIsland, i) != 0)break;
+		}
+		if (i != IslandInfo::Island_Num && _rope.GetRopeLife() > 0) {
+			MyDrawTurn::Instance().SetDrawBrightItem(_island[_nowIsland]->GetPosX(), _island[_nowIsland]->GetPosY(), 0, 0.5, 100, 255, 100, BLENDMODE_NOBLEND, 0, DRAWTYPE_DRAWLINE, 0, _mousePosX_Left, _mousePosY_Left);
+		}
+	}
 	int playerHP = 0;
 	for (int i = 0; i < PlayerInfo::Player_HP; i++) {
 		if (playerHP < _player.GetHP()) {
@@ -727,63 +850,81 @@ void GameController::Draw()
 				if (_rope._moveCount[i][j] == 0) {
 					_rope._posX[i][j] = _island[i]->GetPosX();
 					_rope._posY[i][j] = _island[i]->GetPosY();
+					_animPos_tuta[i][j] = 0;
 				}
 				_rope._moveCount[i][j]++;
+				if (_rope._moveCount[i][j] % 2 == 0) {
+					_animPos_tuta[i][j]++;
+				}
 				auto x = _island[j]->GetPosX() - _island[i]->GetPosX();
 				auto y = _island[j]->GetPosY() - _island[i]->GetPosY();
 				auto angle = atan2(y, x);
-				_rope._posX[i][j] += cos(angle) * 5;
-				_rope._posY[i][j] += sin(angle) * 5;
-				auto dx = _rope._posX[i][j] - _island[i]->GetPosX();
-				auto dy = _rope._posY[i][j] - _island[i]->GetPosY();
+				double exRate = 1;
+				auto xy = sqrt(abs(x * x + y * y));
+				//if (abs(x + y) >= 100) {
+				//	exRate = 1.2;
+				//}
+				exRate = xy / 100;
+				//_rope._posX[i][j] += cos(angle) * 5;
+				//_rope._posY[i][j] += sin(angle) * 5;
+				//_rope._posX[i][j] = x / 2;
+				//_rope._posY[i][j] = y / 2;
+				//auto dx = _rope._posX[i][j] - _island[i]->GetPosX();
+				//auto dy = _rope._posY[i][j] - _island[i]->GetPosY();
 				//if (abs(_island[j]->GetPosX() - _rope._posX[i][j]) <= 3 && abs(_island[j]->GetPosY() - _rope._posY[i][j]) <= 3) {
 				//	_rope._posX[i][j] = _island[j]->GetPosX();
 				//	_rope._posY[i][j] = _island[j]->GetPosY();
 				//	_rope.ConnectFinished(i, j);
 				//}
-				if (abs(dx) > abs(x) || abs(dy) > abs(y)) {
-					_rope._posX[i][j] = _island[j]->GetPosX();
-					_rope._posY[i][j] = _island[j]->GetPosY();
-					_rope.ConnectFinished(i, j);
-				}
-				auto tmdistance = (_tuta_middle_height / 2.0) + (_tuta_top_height / 2.0);
-				auto mmdistance = (_tuta_middle_height / 2.0) + (_tuta_middle_height / 2.0);
-				auto mx = (int)_rope._posX[i][j] - (int)(tmdistance * cos(angle));
-				auto my = (int)_rope._posY[i][j] - (int)(tmdistance * sin(angle));
+				//if (abs(dx) > abs(x) || abs(dy) > abs(y)) {
+				//	_rope._posX[i][j] = _island[j]->GetPosX();
+				//	_rope._posY[i][j] = _island[j]->GetPosY();
+				//	_rope.ConnectFinished(i, j);
+				//}
+				//auto tmdistance = (_tuta_middle_height / 2.0) + (_tuta_top_height / 2.0);
+				//auto mmdistance = (_tuta_middle_height / 2.0) + (_tuta_middle_height / 2.0);
+				//auto mx = (int)_rope._posX[i][j] - (int)(tmdistance * cos(angle));
+				//auto my = (int)_rope._posY[i][j] - (int)(tmdistance * sin(angle));
 
 				float priority = 0.3f;
-				if (_island[i]->GetWidth() / 2 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
-					&& _island[i]->GetHeight() / 2 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
-					priority = 0.19f;
-
+				//if (_island[i]->GetWidth() / 2 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
+				//	&& _island[i]->GetHeight() / 2 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
+				//	priority = 0.19f;
+				if (_rope.GetFireFlag(i, j) == 0) {
+					MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + x / 2, _rope._posY[i][j] + y / 2, _gh_tuta_anim[_animPos_tuta[i][j]], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
+				}
 				if (_rope.GetFireFlag(i, j)) {
 					//DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 0, 0), 3);
 				}
 				else {
+					//MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + x / 2, _rope._posY[i][j] + y / 2, _gh_tuta_anim[_animPos_tuta[i][j]], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
 					//DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
 					//DrawRotaGraph(_island[i]->GetPosX() + x / 2, _island[i]->GetPosY() + y / 2, 1.0, angle, _gh_tuta, TRUE);
 					//MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + (x / 2), _rope._posY[i][j] + (y / 2), _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle);
-					float priority = 0.3f;
-					if (_island[i]->GetWidth() / 2 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
-						&& _island[i]->GetHeight() / 2 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
-						priority = 0.19f;
-					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-					priority = 0.3f;
-					if (dx >= abs((int)_rope._posX[i][j] - mx) || dy >= abs((int)_rope._posY[i][j] - my)) {
-						if (_island[i]->GetWidth() / 2 > abs(mx - _island[i]->GetPosX())
-							&& _island[i]->GetHeight() / 2 > abs(my - _island[i]->GetPosY()))
-							priority = 0.19f;
-						MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-						while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
-							priority = 0.3f;
-							mx -= (int)mmdistance * cos(angle);
-							my -= (int)mmdistance * sin(angle);
-							if (_island[i]->GetWidth() / 2 > abs(mx - _island[i]->GetPosX())
-								&& _island[i]->GetHeight() / 2 > abs(my - _island[i]->GetPosY()))
-								priority = 0.19f;
-							MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-						}
-					}
+					//float priority = 0.3f;
+					//if (_island[i]->GetWidth() / 2 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
+					//	&& _island[i]->GetHeight() / 2 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
+					//	priority = 0.19f;
+					//MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					//priority = 0.3f;
+					//if (dx >= abs((int)_rope._posX[i][j] - mx) || dy >= abs((int)_rope._posY[i][j] - my)) {
+					//	if (_island[i]->GetWidth() / 2 > abs(mx - _island[i]->GetPosX())
+					//		&& _island[i]->GetHeight() / 2 > abs(my - _island[i]->GetPosY()))
+					//		priority = 0.19f;
+					//	MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					//	while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
+					//		priority = 0.3f;
+					//		mx -= (int)mmdistance * cos(angle);
+					//		my -= (int)mmdistance * sin(angle);
+					//		if (_island[i]->GetWidth() / 2 > abs(mx - _island[i]->GetPosX())
+					//			&& _island[i]->GetHeight() / 2 > abs(my - _island[i]->GetPosY()))
+					//			priority = 0.19f;
+					//		MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					//	}
+					//}
+				}
+				if (_animPos_tuta[i][j] >= 9) {
+					_rope.ConnectFinished(i, j);
 				}
 			}
 			if (_rope.GetConnectFlag(i, j) == 3) {
@@ -791,59 +932,86 @@ void GameController::Draw()
 				auto x = _island[j]->GetPosX() - _island[i]->GetPosX();
 				auto y = _island[j]->GetPosY() - _island[i]->GetPosY();
 				auto angle = atan2(y, x);
-				auto tmdistance = (_tuta_middle_height / 2.0) + (_tuta_top_height / 2.0);
-				auto mmdistance = (_tuta_middle_height / 2.0) + (_tuta_middle_height / 2.0);
-				auto mx = (int)_rope._posX[i][j] - (int)(tmdistance * cos(angle));
-				auto my = (int)_rope._posY[i][j] - (int)(tmdistance * sin(angle));
+				double exRate = 1;
+				auto xy = sqrt(abs(x * x + y * y));
+				//if (abs(x + y) >= 100) {
+				//	exRate = 1.2;
+				//}
+				exRate = xy / 100;
+				//auto tmdistance = (_tuta_middle_height / 2.0) + (_tuta_top_height / 2.0);
+				//auto mmdistance = (_tuta_middle_height / 2.0) + (_tuta_middle_height / 2.0);
+				//auto mx = (int)_rope._posX[i][j] - (int)(tmdistance * cos(angle));
+				//auto my = (int)_rope._posY[i][j] - (int)(tmdistance * sin(angle));
 
 				float priority = 0.3f;
-				if (_island[i]->GetWidth() * 3 / 7 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
-					&& _island[i]->GetHeight() * 3 / 7 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
-					priority = 0.19f;
-				
-				if (_rope.GetFireFlag(i, j)) {
-					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 0, 0), 3);
-
-					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_fire_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-					priority = 0.3f;
-					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) || abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
-						if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
-							&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
-							priority = 0.19f;
-						MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_fire_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-						while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
-							priority = 0.3f;
-							mx -= (int)mmdistance * cos(angle);
-							my -= (int)mmdistance * sin(angle);
-							if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
-								&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
-								priority = 0.19f;
-							MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_fire_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-						}
-					}
+				//if (_island[i]->GetWidth() * 3 / 7 > abs(_rope._posX[i][j] - _island[i]->GetPosX())
+				//	&& _island[i]->GetHeight() * 3 / 7 > abs(_rope._posY[i][j] - _island[i]->GetPosY()))
+				//	priority = 0.19f;
+				if (_rope.GetFireStartFlag(i, j) == 1) {
+					_animCount_tuta_fire1[i][j]++;
+					if (_animCount_tuta_fire1[i][j] % 2 == 0)_animPos_tuta_fire1[i][j]++;
+					if (_animCount_tuta_fire1[i][j] <= 2)_animPos_tuta_fire1[i][j] = 0;
+					MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + x / 2, _rope._posY[i][j] + y / 2, _gh_tuta_fire1_anim[_animPos_tuta_fire1[i][j]], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
 				}
-				else {
+				if (_rope.GetFireStartFlag(i, j) == 2) {
+					_animCount_tuta_fire2[i][j]++;
+					if (_animCount_tuta_fire2[i][j] % 2 == 0)_animPos_tuta_fire2[i][j]++;
+					if (_animCount_tuta_fire2[i][j] <= 2)_animPos_tuta_fire2[i][j] = 0;
+					MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + x / 2, _rope._posY[i][j] + y / 2, _gh_tuta_fire2_anim[_animPos_tuta_fire2[i][j]], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
+				}
+				if (_rope.GetFireStartFlag(i, j) == 0) {
+					_animCount_tuta_fire1[i][j] = 0;
+					_animCount_tuta_fire2[i][j] = 0;
+					_animPos_tuta_fire1[i][j] = 0;
+					_animPos_tuta_fire2[i][j] = 0;
+				}
+				if (_rope.GetFireFlag(i, j) == 2) {
+					//DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 0, 0), 3);
+					MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + x / 2, _rope._posY[i][j] + y / 2, _gh_tuta_fire1_anim[5], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
+					//MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_fire_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					//priority = 0.3f;
+					//if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) || abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
+					//	if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
+					//		&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
+					//		priority = 0.19f;
+					//	MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_fire_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					//	while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
+					//		priority = 0.3f;
+					//		mx -= (int)mmdistance * cos(angle);
+					//		my -= (int)mmdistance * sin(angle);
+					//		if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
+					//			&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
+					//			priority = 0.19f;
+					//		MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_fire_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					//	}
+					//}
+				}
+				else if (_rope.GetFireFlag(i, j) == 1) {
+					MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + x / 2, _rope._posY[i][j] + y / 2, _gh_tuta_fire2_anim[5], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
+				}
+				else if(_rope.GetFireStartFlag(i, j) == 0) {
 					DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
 					//DrawRotaGraph(_island[i]->GetPosX() + x / 2, _island[i]->GetPosY() + y / 2, 1.0, angle, _gh_tuta, TRUE);
 					//MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + (x / 2), _rope._posY[i][j] + (y / 2), _gh_tuta_top, 0.3f, DRAWTYPE_DRAWROTAGRAPH, angle);
 			
-					MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-					priority = 0.3f;
-					if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) || abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
-						if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
-							&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
-							priority = 0.19f;
-						MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-						while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
-							priority = 0.3f;
-							mx -= (int)mmdistance * cos(angle);
-							my -= (int)mmdistance * sin(angle);
-							if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
-								&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
-								priority = 0.19f;
-							MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
-						}
-					}
+					//MyDrawTurn::Instance().SetDrawItem((int)_rope._posX[i][j], (int)_rope._posY[i][j], _gh_tuta_top, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					//priority = 0.3f;
+					//if (abs((int)_rope._posX[i][j] - _island[i]->GetPosX()) >= abs((int)_rope._posX[i][j] - mx) || abs((int)_rope._posY[i][j] - _island[i]->GetPosY()) >= abs((int)_rope._posY[i][j] - my)) {
+					//	if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
+					//		&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
+					//		priority = 0.19f;
+					//	MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					//	while (abs(mx - _island[i]->GetPosX()) >= abs(mmdistance * cos(angle)) && abs(my - _island[i]->GetPosY()) >= abs(mmdistance * sin(angle))) {
+					//		priority = 0.3f;
+					//		mx -= (int)mmdistance * cos(angle);
+					//		my -= (int)mmdistance * sin(angle);
+					//		if (_island[i]->GetWidth() * 3 / 7 > abs(mx - _island[i]->GetPosX())
+					//			&& _island[i]->GetHeight() * 3 / 7 > abs(my - _island[i]->GetPosY()))
+					//			priority = 0.19f;
+					//		MyDrawTurn::Instance().SetDrawItem(mx, my, _gh_tuta_middle, priority, DRAWTYPE_DRAWROTAGRAPH, angle + 90.0 * (M_PI / 180.0));
+					//	}
+					//}
+					MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + x / 2, _rope._posY[i][j] + y / 2, _gh_tuta_anim[_animPos_tuta[i][j]], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
 				}
 			}
 			DrawFormatString(_island[i]->GetPosX(), _island[i]->GetPosY(), GetColor(0, 0, 0), "%d", i);

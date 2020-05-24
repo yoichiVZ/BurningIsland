@@ -6,6 +6,10 @@ private:
 	double _movementX, _movementY;
 	bool _liveFlag;
 
+	int _gh_demonBullet;
+	int _demonBullet_width;
+	int _demonBullet_height;
+
 public:
 	Bullet();
 	void Init();

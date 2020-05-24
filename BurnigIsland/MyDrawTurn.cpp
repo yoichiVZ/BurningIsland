@@ -17,10 +17,10 @@ void MyDrawTurn::Init()
 	}
 }
 
-void MyDrawTurn::SetDrawItem(int x1, int y1, int graphicHandle, float priority, int DrawType, double angle, int BlendMode, int BlendParam, int x2, int y2)
+void MyDrawTurn::SetDrawItem(int x1, int y1, int graphicHandle, float priority, int DrawType, double ExRate, double angle, int BlendMode, int BlendParam, int x2, int y2)
 {
 	DrawInfo assginment;
-	assginment.SetInfo(x1, y1, graphicHandle, priority, DrawType, angle, BlendMode, BlendParam, x2, y2);
+	assginment.SetInfo(x1, y1, graphicHandle, priority, DrawType, ExRate, angle, BlendMode, BlendParam, x2, y2);
 	draw_items.push_back(assginment);
 }
 
@@ -49,10 +49,10 @@ void MyDrawTurn::DrawAll()
 			DrawGraph(itr->_x1, itr->_y1, itr->_graphicHandle, TRUE);
 			break;
 		case DRAWTYPE_DRAWLINE:
-			DrawLine(itr->_x1, itr->_y1, itr->_x2, itr->_y2, GetColor(255, 0, 0), 3);
+			DrawLine(itr->_x1, itr->_y1, itr->_x2, itr->_y2, GetColor(255, 255, 255), 3);
 			break;
 		case DRAWTYPE_DRAWROTAGRAPH:
-			DrawRotaGraph(itr->_x1, itr->_y1, 1.0, itr->_angle, itr->_graphicHandle, TRUE);
+			DrawRotaGraph(itr->_x1, itr->_y1, itr->_ExRate, itr->_angle, itr->_graphicHandle, TRUE);
 			break;
 		case DRAWTYPE_DRAWEXTENDGRAPH:
 			DrawExtendGraph(itr->_x1, itr->_y1, itr->_x2, itr->_y2, itr->_graphicHandle, TRUE);

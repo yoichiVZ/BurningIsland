@@ -43,11 +43,14 @@ private:
 	int _gh_hp_damage;
 	int _gh_tuta_life_active;
 	int _gh_tuta_life_inactive;
-	int _gh_tuta;
-	int _gh_tuta_top;
-	int _gh_tuta_middle;
-	int _gh_tuta_fire_top;
-	int _gh_tuta_fire_middle;
+	//int _gh_tuta;
+	//int _gh_tuta_top;
+	//int _gh_tuta_middle;
+	//int _gh_tuta_fire_top;
+	//int _gh_tuta_fire_middle;
+	int _gh_tuta_anim[10];
+	int _gh_tuta_fire1_anim[6];
+	int _gh_tuta_fire2_anim[6];
 	int _background_width, _background_height;
 	int _cloud_posX, _cloud_posY;
 	int _cloud_width, _cloud_height;
@@ -56,6 +59,11 @@ private:
 	int _thunder_count[IslandInfo::Island_Num];
 	int _animPos_thunder[IslandInfo::Island_Num];
 	int _animPos_thunderUI;
+	int _animPos_tuta[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	int _animPos_tuta_fire1[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	int _animPos_tuta_fire2[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	int _animCount_tuta_fire1[IslandInfo::Island_Num][IslandInfo::Island_Num];
+	int _animCount_tuta_fire2[IslandInfo::Island_Num][IslandInfo::Island_Num];
 	int _tuta_width, _tuta_height;
 	int _tuta_top_posX, _tuta_top_posY;
 	int _tuta_top_width, _tuta_top_height;
@@ -71,6 +79,9 @@ private:
 	int _sh_gameplay;
 	int _sh_result;
 	int _sh_thunder;
+	int _sh_thunderCharge;
+	int _sh_click;
+	int _sh_tuta_imposible;
 
 	int s_count;
 	int right_count;

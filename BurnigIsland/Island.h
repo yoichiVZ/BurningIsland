@@ -89,6 +89,7 @@ public:
 	int GetPosY();
 	int GetWidth();
 	int GetHeight();
+	int GetFireStartflag();
 
 	void MoveX(int num);
 	void MoveY(int num);
