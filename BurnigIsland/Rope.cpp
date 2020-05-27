@@ -28,7 +28,7 @@ void Rope::Init()
 		}
 	}
 	_maxRopeLife = RopeInfo::Rope_Life;
-	AllRecovery();
+	AllRecovery(0);
 }
 
 void Rope::Update()
@@ -104,9 +104,9 @@ void Rope::Minus()
 	}
 }
 
-void Rope::AllRecovery()
+void Rope::AllRecovery(int ropeNum)
 {
-	_ropeLife = _maxRopeLife;
+	_ropeLife = _maxRopeLife - ropeNum;
 }
 
 void Rope::Recovery()
@@ -188,4 +188,9 @@ int Rope::GetFireStartFlag(int island1, int island2)
 int Rope::GetRopeLife()
 {
 	return _ropeLife;
+}
+
+int Rope::GetMaxRopeLife()
+{
+	return _maxRopeLife;
 }

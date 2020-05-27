@@ -50,10 +50,10 @@ void YugudorasiruParticle::Draw()
 	_greenBright -= _deleteSpeed;
 	int size = (_width + _width_offset);
 	int minusSize = (_width + _width_offset) * 7 / 10;
-	MyDrawTurn::Instance().SetDrawBrightItem(_posX - size, _posY - size, _gh_rightEfect01, 0.4f,
+	MyDrawTurn::Instance().SetDrawBrightItem(_posX - size, _posY - size, _gh_rightEfect01, 0.82f,
 		_greenBright - _brightDistance, _greenBright, _greenBright - _brightDistance,
 		BLENDMODE_ADD, 180, DRAWTYPE_DRAWEXTENDGRAPH, 0, _posX + size, _posY + size);
-	MyDrawTurn::Instance().SetDrawBrightItem(_posX - minusSize, _posY - minusSize, _gh_rightEfect02, 0.4f,
+	MyDrawTurn::Instance().SetDrawBrightItem(_posX - minusSize, _posY - minusSize, _gh_rightEfect02, 0.82f,
 		_greenBright - _brightDistance, _greenBright, _greenBright - _brightDistance,
 		BLENDMODE_ADD, 180, DRAWTYPE_DRAWEXTENDGRAPH, 0, _posX + minusSize, _posY + minusSize);
 

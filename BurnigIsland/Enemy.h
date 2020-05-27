@@ -27,10 +27,14 @@ private:
 	bool _dethDelayFlag;
 	bool _ropeModeFlag;
 	bool _firstMoveFlag;
+	bool _perceiveFlag;
 	int _ropeMoveCount;
 	int _lastTouchIslandNumber;
 	int _atackChargeCount;
 	int _dethDelayCount;
+
+	int _nextJumpPosX, _nextJumpPosY;
+	int _nextJumpIslandNumber;
 
 	int _gh_suraimu;
 	int _gh_suraimu_anim_idle[10];
@@ -44,6 +48,7 @@ private:
 	int _gh_akuma_anim_move[6];
 	int _gh_akuma_anim_attack[20];
 	int _gh_akuma_anim_deth[9];
+	int _gh_perceive;
 	int _animPos_suraimu_idle;
 	int _animPos_suraimu_jump;
 	int _animPos_suraimu_deth;
@@ -86,6 +91,7 @@ private:
 
 public:
 	int _dis_number;
+	int _onthThinkFlag;
 	bool _atackModeFlag;
 	bool _atackChargeflag;
 	Enemy();
@@ -100,7 +106,7 @@ public:
 	// 焼死
 	void Deth_Fire();
 	// 生成
-	void Instantiate(int px, int py);
+	void Instantiate(int px, int py, int dis_number);
 	// 初期位置セット
 	void SetFirstPosition(int px, int py);
 	// ジャンプ開始
@@ -123,6 +129,8 @@ public:
 	void Shot(Bullet* bullet,int targetPosX, int targetPosY);
 	// 攻撃
 	void Attack();
+	void SetPerceiveFlag(bool perceiveFlag);
+	void SetNextJumpInfo(int px, int py, int islandNum);
 
 	// 判定関数
 
@@ -150,6 +158,10 @@ public:
 	bool GetJumpNowFlag();
 	int GetJumpPosX();
 	int GetJumpPosY();
+	int GetNextJumpPosX();
+	int GetNextJumpPosY();
+	int GetNextJumpIslandNumber();
+	int GetFirstMoveFlag();
 
 private:
 	// ロープ移動

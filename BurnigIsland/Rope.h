@@ -36,7 +36,7 @@ public:
 	// ロープ消費
 	void Minus();
 	// ロープ全回復
-	void AllRecovery();
+	void AllRecovery(int ropeNum);
 	// ロープ回復
 	void Recovery();
 	// ロープ最大値UP
@@ -56,4 +56,6 @@ public:
 	int GetFireStartFlag(int island1, int island2);
 	// ロープライフ取得
 	int GetRopeLife();
+	// マックスロープライフ取得
+	int GetMaxRopeLife();
 };

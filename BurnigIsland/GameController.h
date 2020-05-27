@@ -7,6 +7,9 @@
 #include "Time.h"
 #include "Bullet.h"
 #include "KillCountUI.h"
+#include "RopeLifeUpEffect.h"
+#include "ThunderChargeUI.h"
+#include "DrawNumber.h"
 
 #include "IslandInfo.h"
 #include "EnemyInfo.h"
@@ -32,14 +35,25 @@ private:
 	int _wave;
 	int _remainingEnemyCount;
 	int _onth_flag[4];
+	int _tutorialCount;
 
 	int _gh_background;
 	int _gh_background2;
 	int _gh_cloud;
+	int _gh_tutorial[4];
+	int _gh_title;
+	int _gh_title_background;
+	int _gh_title_start;
+	int _gh_title_tutorial;
+	int _gh_title_cloud[4];
+	int _pos_cloud[4];
+	int _posCount;
 	int _gh_thunder[5];
 	int _gh_thunderUI[6];
 	int _gh_UIbar;
-	int _gh_hp;
+	int _gh_UIStart;
+	int _UIstartCount;
+	int _gh_hp[3];
 	int _gh_hp_damage;
 	int _gh_tuta_life_active;
 	int _gh_tuta_life_inactive;
@@ -51,6 +65,7 @@ private:
 	int _gh_tuta_anim[10];
 	int _gh_tuta_fire1_anim[6];
 	int _gh_tuta_fire2_anim[6];
+	int _gh_wave;
 	int _background_width, _background_height;
 	int _cloud_posX, _cloud_posY;
 	int _cloud_width, _cloud_height;
@@ -68,6 +83,7 @@ private:
 	int _tuta_top_posX, _tuta_top_posY;
 	int _tuta_top_width, _tuta_top_height;
 	int _tuta_middle_width, _tuta_middle_height;
+	int _hp_width, _hp_height;
 
 	int _island_posX_data[IslandInfo::Island_Num];
 	int _island_posY_data[IslandInfo::Island_Num];
@@ -89,13 +105,19 @@ private:
 	int up_count;
 	int down_count;
 
-	Island* _island[IslandInfo::Island_Num];
-	Player _player;
-	Rope _rope;
-	Enemy* _enemy[EnemyInfo::Enemy_Num];
-	Time _time;
-	Bullet* _bullet[BulletInfo::Bullet_Num];
-	KillCountUI* _killCountUI[EnemyInfo::Enemy_Num];
+	int _enemySpawnCount;
+	int _enemySpawnNumber[158];
+
+	Island*				_island[IslandInfo::Island_Num];
+	Player				_player;
+	Rope				_rope;
+	Enemy*				_enemy[EnemyInfo::Enemy_Num];
+	Time				_time;
+	Bullet*				_bullet[BulletInfo::Bullet_Num];
+	KillCountUI*		_killCountUI[EnemyInfo::Enemy_Num];
+	RopeLifeUpEffect	_ropeLifeUpEffect;
+	ThunderChargeUI		_thunderChargeUI;
+	DrawNumber			_drawNumber;
 
 	enum Scenetate {
 		TITLE,
@@ -124,4 +146,5 @@ private:
 	void EnemySpawn();
 	void PositionSave();
 	void PositionLoad();
+	void EnemySpawnNumberInit();
 };

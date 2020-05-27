@@ -12,6 +12,13 @@ DrawNumber::DrawNumber()
 	for (int i = 0; i < 9; i++) {
 		_gh_killCount[i + 1] = _vgh_killCount[i];
 	}
+
+	int _vgh_wave[10];
+	LoadDivGraph("Resource\\Image\\WAVEnumber.png", 10, 10, 1, 42, 70, _vgh_wave);
+	_gh_wave[0] = _vgh_wave[9];
+	for (int i = 0; i < 9; i++) {
+		_gh_wave[i + 1] = _vgh_wave[i];
+	}
 }
 
 void DrawNumber::Draw(int posX, int posY, int vol, int drawNum)
@@ -34,6 +41,12 @@ void DrawNumber::JudgSetNumber(int draw_gh[10], int drawNum)
 	case SETDRAWNUM_KILLCOUNT:
 		for (int i = 0; i < 10; i++) {
 			draw_gh[i] = _gh_killCount[i];
+		}
+		_priority = 0.8f;
+		break;
+	case SETDRAWNUM_WAVE:
+		for (int i = 0; i < 10; i++) {
+			draw_gh[i] = _gh_wave[i];
 		}
 		_priority = 0.8f;
 		break;

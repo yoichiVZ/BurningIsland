@@ -22,6 +22,7 @@ Enemy::Enemy()
 	LoadDivGraph("Resource\\Image\\AkumaIdou.png", 6, 3, 2, 70, 70, _gh_akuma_anim_move);
 	LoadDivGraph("Resource\\Image\\AkumaShot.png", 20, 5, 4, 70, 70, _gh_akuma_anim_attack);
 	LoadDivGraph("Resource\\Image\\MoeruAkuma.png", 9, 3, 3, 70, 70, _gh_akuma_anim_deth);
+	_gh_perceive = LoadGraph("Resource\\Image\\!.png");
 	_gh_akuma = LoadGraph("Resource\\Image\\akuma.png");
 	_gh_saru = LoadGraph("Resource\\Image\\saru.png");
 	_gh_suraimu_deth = LoadGraph("Resource\\Image\\suraimuD.png");
@@ -36,7 +37,6 @@ Enemy::Enemy()
 	ChangeVolumeSoundMem(255 * 40 / 100, _sh_attack_monkey);
 	_sh_attack_slime = LoadSoundMem("Resource\\Sound\\enemyattack_slime.mp3");
 	ChangeVolumeSoundMem(255 * 50 / 100, _sh_attack_slime);
-	_dis_number = GetRand(3 - 1);
 	_atackModeFlag = false;
 	Init();
 }
@@ -73,12 +73,18 @@ void Enemy::Init()
 	_atackChargeCount = 0;
 	_atackChargeflag = false;
 	_atackModeFlag = false;
+	_perceiveFlag = false;
 	_resPosX = 0, _resPosY = 0;
 	_dis_number = GetRand(3 - 1);
 	_dethDelayCount = 0;
 	_dethDelayFlag = false;
 	_jumpFinishCount = 0;
 	_jumpVPosX = 0, _jumpVPosY = 0;
+	_onthThinkFlag = 0;
+
+	_nextJumpPosX = 0;
+	_nextJumpPosY = 0;
+	_nextJumpIslandNumber = 0;
 
 	_animPos_suraimu_idle = 0;
 	_animPos_suraimu_jump = 0;
@@ -232,6 +238,9 @@ void Enemy::Draw()
 	case ENEMYTYPE_MONKEY:
 		//DrawCircle((int)_posX, (int)_posY, EnemyInfo::Enemy_Rotation, GetColor(255, 255, 55), TRUE);
 		//DrawGraph(_posX - _saru_width / 2, _posY - _saru_height / 2 - 10, _gh_saru, TRUE);
+		if (_perceiveFlag) {
+			MyDrawTurn::Instance().SetDrawItem(_posX - 5, _posY - 80, _gh_perceive, 0.4f);
+		}
 		if (_dethDelayFlag) {
 			MyDrawTurn::Instance().SetDrawItem(_posX - _saru_width / 2, _posY - _saru_height / 2 - 30, _gh_saru_anim_deth[_animPos_saru_deth], 0.4f);
 			break;
@@ -306,12 +315,16 @@ void Enemy::Deth_Fire()
 	_dethDelayFlag = true;
 }
 
-void Enemy::Instantiate(int px, int py)
+void Enemy::Instantiate(int px, int py, int dis_number)
 {
 	_posX = _resPosX = px;
 	_posY = _resPosY = py;
+	_dis_number = dis_number;
 	_liveFlag = true;
 	_firstMoveFlag = true;
+	_nextJumpPosX = _posX;
+	_nextJumpPosY = _posY;
+	_nextJumpIslandNumber = 0;
 }
 
 void Enemy::SetFirstPosition(int px, int py)
@@ -353,6 +366,7 @@ void Enemy::JumpStart(int posX, int posY)
 
 void Enemy::JumpMove()
 {
+	_onthThinkFlag = false;
 	switch (_dis_number) {
 	case ENEMYTYPE_SLIME:
 		_animCount_suraimu_jump++;
@@ -377,6 +391,7 @@ void Enemy::JumpMove()
 		if (_animPos_suraimu_jump < 10)return;
 		break;
 	case ENEMYTYPE_MONKEY:
+		SetPerceiveFlag(false);
 		_animCount_saru_jump++;
 		if (_animPos_saru_jump < 6) {
 			if (_animCount_saru_jump % 2 == 0) {
@@ -536,6 +551,18 @@ void Enemy::Attack()
 	if (_dis_number == 1)PlaySoundMem(_sh_attack_monkey, DX_PLAYTYPE_BACK);
 }
 
+void Enemy::SetPerceiveFlag(bool perceiveFlag)
+{
+	_perceiveFlag = perceiveFlag;
+}
+
+void Enemy::SetNextJumpInfo(int px, int py, int islandNum)
+{
+	_nextJumpPosX = px;
+	_nextJumpPosY = py;
+	_nextJumpIslandNumber = islandNum;
+}
+
 bool Enemy::RangeCheck()
 {
 	auto x = abs(IslandInfo::Base_Island_PosX - _posX);
@@ -603,8 +630,29 @@ int Enemy::GetJumpPosY()
 	return _jumpPosY;
 }
 
+int Enemy::GetNextJumpPosX()
+{
+	return _nextJumpPosX;
+}
+
+int Enemy::GetNextJumpPosY()
+{
+	return _nextJumpPosY;
+}
+
+int Enemy::GetNextJumpIslandNumber()
+{
+	return _nextJumpIslandNumber;
+}
+
+int Enemy::GetFirstMoveFlag()
+{
+	return _firstMoveFlag;
+}
+
 void Enemy::RopeMove()
 {
+	_onthThinkFlag = 0;
 	_ropeMoveCount++;
 	if (_ropeMoveCount > 0) {
 		_vertualPosX += _speedX + _deletePosX;

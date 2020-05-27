@@ -9,5 +9,5 @@ public:
 	static const int Player_Rope_Distance = 100;
 
 	// ‰ŠúHP
-	static const int Player_HP = 3;
+	static const int Player_HP = 4;
 };
