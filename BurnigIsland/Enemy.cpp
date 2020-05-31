@@ -141,9 +141,26 @@ void Enemy::Update()
 		return;
 	}
 	if (!_ropeModeFlag && !_firstMoveFlag && !_jumpMoveFlag)_jumpMoveCount++;
-	if (_jumpMoveCount >= EnemyInfo::Enemy_Move_Count) {
-		_jumpMoveFlag = true;
-		_jumpMoveCount = 0;
+	//if (_jumpMoveCount >= EnemyInfo::Enemy_Move_Count) {
+	//	_jumpMoveFlag = true;
+	//	_jumpMoveCount = 0;
+	//	_onthThinkFlag = 0;
+	//}
+	switch (_dis_number) {
+	case ENEMYTYPE_DEMON:
+		if (_jumpMoveCount >= EnemyInfo::Enemy_Move_Count_Demon) {
+			_jumpMoveFlag = true;
+			_jumpMoveCount = 0;
+			_onthThinkFlag = 0;
+		}
+		break;
+	default:
+		if (_jumpMoveCount >= EnemyInfo::Enemy_Move_Count) {
+			_jumpMoveFlag = true;
+			_jumpMoveCount = 0;
+			_onthThinkFlag = 0;
+		}
+		break;
 	}
 	if (_jumpNowFlag) {
 		JumpMove();
@@ -209,6 +226,37 @@ void Enemy::Update()
 	//	&& _posY <= IslandInfo::Base_Island_PosY + 1 && _posY >= IslandInfo::Base_Island_PosY - 1) {
 	//	Deth();
 	//}
+	switch (_dis_number) {
+	case ENEMYTYPE_SLIME:
+		_animCount_suraimu_idle++;
+		if (_animCount_suraimu_idle % 6 == 0) {
+			_animPos_suraimu_idle++;
+		}
+		if (_animPos_suraimu_idle >= 10) {
+			_animPos_suraimu_idle = 0;
+		}
+		break;
+	case ENEMYTYPE_MONKEY:
+		_animCount_saru_idle++;
+		if (_animCount_saru_idle % 6 == 0) {
+			_animPos_saru_idle++;
+		}
+		if (_animPos_saru_idle >= 7) {
+			_animPos_saru_idle = 0;
+		}
+		break;
+	case ENEMYTYPE_DEMON:
+		_animCount_akuma_idle++;
+		if (_animCount_akuma_idle % 6 == 0) {
+			_animPos_akuma_idle++;
+		}
+		if (_animPos_akuma_idle >= 7) {
+			_animPos_akuma_idle = 0;
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 void Enemy::Draw()
@@ -226,13 +274,13 @@ void Enemy::Draw()
 			MyDrawTurn::Instance().SetDrawItem(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_suraimu_anim_jump[_animPos_suraimu_jump], 0.4f);
 			break;
 		}
-		_animCount_suraimu_idle++;
-		if (_animCount_suraimu_idle % 6 == 0) {
-			_animPos_suraimu_idle++;
-		}
-		if (_animPos_suraimu_idle >= 10) {
-			_animPos_suraimu_idle = 0;
-		}
+		//_animCount_suraimu_idle++;
+		//if (_animCount_suraimu_idle % 6 == 0) {
+		//	_animPos_suraimu_idle++;
+		//}
+		//if (_animPos_suraimu_idle >= 10) {
+		//	_animPos_suraimu_idle = 0;
+		//}
 		MyDrawTurn::Instance().SetDrawItem(_posX - _suraimu_width / 2, _posY - _suraimu_height / 2 - 10, _gh_suraimu_anim_idle[_animPos_suraimu_idle], 0.4f);
 		break;
 	case ENEMYTYPE_MONKEY:
@@ -253,13 +301,13 @@ void Enemy::Draw()
 			MyDrawTurn::Instance().SetDrawItem(_posX - _saru_width / 2, _posY - _saru_height / 2 - 40, _gh_saru_anim_walk[_animPos_saru_walk], 0.4f);
 			break;
 		}
-		_animCount_saru_idle++;
-		if (_animCount_saru_idle % 6 == 0) {
-			_animPos_saru_idle++;
-		}
-		if (_animPos_saru_idle >= 7) {
-			_animPos_saru_idle = 0;
-		}
+		//_animCount_saru_idle++;
+		//if (_animCount_saru_idle % 6 == 0) {
+		//	_animPos_saru_idle++;
+		//}
+		//if (_animPos_saru_idle >= 7) {
+		//	_animPos_saru_idle = 0;
+		//}
 		MyDrawTurn::Instance().SetDrawItem(_posX - _saru_width / 2, _posY - _saru_height / 2 - 20, _gh_saru_anim_idle[_animPos_saru_idle], 0.4f);
 		break;
 	case ENEMYTYPE_DEMON:
@@ -284,13 +332,13 @@ void Enemy::Draw()
 			MyDrawTurn::Instance().SetDrawItem(_posX - _akuma_width / 2, _posY - _akuma_height / 2 - 30, _gh_akuma_anim_attack[_animPos_akuma_attackDelay], 0.4f);
 			break;
 		}
-		_animCount_akuma_idle++;
-		if (_animCount_akuma_idle % 6 == 0) {
-			_animPos_akuma_idle++;
-		}
-		if (_animPos_akuma_idle >= 7) {
-			_animPos_akuma_idle = 0;
-		}
+		//_animCount_akuma_idle++;
+		//if (_animCount_akuma_idle % 6 == 0) {
+		//	_animPos_akuma_idle++;
+		//}
+		//if (_animPos_akuma_idle >= 7) {
+		//	_animPos_akuma_idle = 0;
+		//}
 		MyDrawTurn::Instance().SetDrawItem(_posX - _akuma_width / 2, _posY - _akuma_height / 2 - 30, _gh_akuma_anim_idle[_animPos_akuma_idle], 0.4f);
 		break;
 	default:

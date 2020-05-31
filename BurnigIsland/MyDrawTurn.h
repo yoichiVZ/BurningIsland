@@ -9,6 +9,7 @@
 #define DRAWTYPE_DRAWLINE 1
 #define DRAWTYPE_DRAWROTAGRAPH 2
 #define DRAWTYPE_DRAWEXTENDGRAPH 3
+#define DRAWTYPE_DRAWBOX 4
 
 class MyDrawTurn final {
 private:

@@ -10,6 +10,8 @@
 #include "RopeLifeUpEffect.h"
 #include "ThunderChargeUI.h"
 #include "DrawNumber.h"
+#include "CircleEfect.h"
+#include "RopeLifeDownEfect.h"
 
 #include "IslandInfo.h"
 #include "EnemyInfo.h"
@@ -36,6 +38,8 @@ private:
 	int _remainingEnemyCount;
 	int _onth_flag[4];
 	int _tutorialCount;
+	int _gameOverFlag;
+	int _gameClearFlag;
 
 	int _gh_background;
 	int _gh_background2;
@@ -87,13 +91,15 @@ private:
 
 	int _island_posX_data[IslandInfo::Island_Num];
 	int _island_posY_data[IslandInfo::Island_Num];
-	int _nowIsland;
+	//int _nowIsland;
 	int _now_player_num;
+	int _touchIslandFlag;
 
 	int _sh_title;
 	int _sh_tutorial;
 	int _sh_gameplay;
-	int _sh_result;
+	int _sh_gameClear;
+	int _sh_gameOver;
 	int _sh_thunder;
 	int _sh_thunderCharge;
 	int _sh_click;
@@ -108,6 +114,23 @@ private:
 	int _enemySpawnCount;
 	int _enemySpawnNumber[158];
 
+	int _gh_black;
+	int _gh_next;
+	int _gh_gameover;
+	int _gh_result;
+	int _gh_resultWave;
+	int _gh_white;
+	int _gh_gameclear;
+	int _gh_thanks;
+
+	int _white_paramVol;
+	int _black_paramVol;
+	int _nextCount;
+	int _nextPosCount;
+	int _gameoverAlphaCount;
+	int _gameclearAlphaCount;
+	int _gameclear_thanksAlphaCount;
+
 	Island*				_island[IslandInfo::Island_Num];
 	Player				_player;
 	Rope				_rope;
@@ -115,9 +138,11 @@ private:
 	Time				_time;
 	Bullet*				_bullet[BulletInfo::Bullet_Num];
 	KillCountUI*		_killCountUI[EnemyInfo::Enemy_Num];
-	RopeLifeUpEffect	_ropeLifeUpEffect;
+	RopeLifeUpEffect*	_ropeLifeUpEffect[5];
 	ThunderChargeUI		_thunderChargeUI;
 	DrawNumber			_drawNumber;
+	//CircleEfect*		_circleEfect[RopeInfo::Rope_MaxLife]; 
+	RopeLifeDownEfect*	_ropeLifeDownEffect[RopeInfo::Rope_MaxLife];
 
 	enum Scenetate {
 		TITLE,
@@ -138,6 +163,11 @@ private:
 	void Tutorial();
 	void GamePlay();
 	void Result();
+	void Update();
+	void GameClearUpdate();
+	void GameClearDraw();
+	void GameOverUpdate();
+	void GameOverDraw();
 	void Draw();
 	int OnMouseButtonLeft();
 	int OnMouseButtonRight();

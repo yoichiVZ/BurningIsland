@@ -120,12 +120,6 @@ void Island::Update()
 	default:
 		break;
 	}
-}
-
-void Island::Draw()
-{
-	//if (_islandState == GRASS)DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
-	//int nowChoice_distance = 0;
 	if (_playerStayFlag) {
 		_nowChoiceDistanceCount++;
 		if (_nowChoiceDistanceCount % 6 == 0) {
@@ -143,6 +137,12 @@ void Island::Draw()
 		_nowChoiceDistanceCount = 0;
 		_nowChoiceFlag = false;
 	}
+}
+
+void Island::Draw()
+{
+	//if (_islandState == GRASS)DrawCircle(_posX, _posY, _rotation, GetColor(255, 255, 255), TRUE);
+	//int nowChoice_distance = 0;
 	int distance = 0;
 	if (_nowChoiceDistance > 4) {
 		_nowChoiceFlag = true;
@@ -248,7 +248,7 @@ bool Island::EnemyStayCheck(int ex, int ey)
 
 void Island::CrossCheck(Island* island)
 {
-	DrawLine(_posX, _posY, island->_posX, island->_posY, GetColor(150, 150, 150), 3);
+	//DrawLine(_posX, _posY, island->_posX, island->_posY, GetColor(150, 150, 150), 3);
 
 }
 

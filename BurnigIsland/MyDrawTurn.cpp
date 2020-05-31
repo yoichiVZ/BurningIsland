@@ -57,6 +57,8 @@ void MyDrawTurn::DrawAll()
 		case DRAWTYPE_DRAWEXTENDGRAPH:
 			DrawExtendGraph(itr->_x1, itr->_y1, itr->_x2, itr->_y2, itr->_graphicHandle, TRUE);
 			break;
+		case DRAWTYPE_DRAWBOX:
+			DrawBox(itr->_x1, itr->_y1, itr->_x2, itr->_y2, GetColor(255, 255, 255), FALSE);
 		default:
 			break;
 		}

@@ -14,6 +14,8 @@ public:
 	// ƒWƒƒƒ“ƒv‚·‚é‚Ü‚Å‚Ì—­‚ß‚éŠÔ
 	static const int Enemy_Move_Count = 120;
 
+	static const int Enemy_Move_Count_Demon = 180;
+
 	// ËŒ‚ŠÔŠu
 	static const int Attack_Charge_Count = 300;
 
