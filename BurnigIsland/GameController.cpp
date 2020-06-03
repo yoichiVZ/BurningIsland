@@ -99,6 +99,12 @@ GameController::GameController()
 	for (i = 0; i < 5; i++) {
 		_ropeLifeUpEffect[i] = new RopeLifeUpEffect();
 	}
+	for (i = 0; i < SHIELDBREAKEFFECT_NUM; i++) {
+		_shieldBreakEffect[i] = new ShieldBreakEffect();
+	}
+	for (i = 0; i < 4; i++) {
+		_island_tutorial[i] = new Island();
+	}
 	_sceneState = TITLE;
 	_spaceKeyCount = 0;
 	//for (i = 0; i < IslandInfo::Island_Num; i++) {
@@ -131,6 +137,12 @@ GameController::~GameController()
 	for (i = 0; i < 5; i++) {
 		delete _ropeLifeUpEffect[i];
 	}
+	for (i = 0; i < SHIELDBREAKEFFECT_NUM; i++) {
+		delete _shieldBreakEffect[i];
+	}
+	for (i = 0; i < 4; i++) {
+		delete _island_tutorial[i];
+	}
 }
 
 void GameController::Init()
@@ -150,6 +162,9 @@ void GameController::Init()
 	}
 	for (int i = 0; i < 5; i++) {
 		_ropeLifeUpEffect[i]->Init();
+	}
+	for (int i = 0; i < SHIELDBREAKEFFECT_NUM; i++) {
+		_shieldBreakEffect[i]->Init();
 	}
 	_player.Init();
 	_rope.Init();
@@ -211,6 +226,7 @@ void GameController::Init()
 	_black_paramVol = 0;
 	_nextCount = 0;
 	_nextPosCount = 0;
+	_nextVecCount = 0;
 	_gameoverAlphaCount = 0;
 	_gameclearAlphaCount = 0;
 	_gameclear_thanksAlphaCount = 0;
@@ -301,14 +317,46 @@ void GameController::Title()
 void GameController::Tutorial()
 {
 	_nextPosCount++;
+
 	if (_onth_flag[_sceneState] == 0) {
 		_onth_flag[_sceneState]++;
 		_tutorialCount = 0;
+		_nextVecCount = 0;
 		StopSoundMem(_sh_title);
 		PlaySoundMem(_sh_tutorial, DX_PLAYTYPE_LOOP);
+
+		for (int i = 0; i < 4; i++) {
+			_island_tutorial[i]->Init();
+			for (int j = 0; j < 4; j++) {
+				_animPos_tuta_tutorial[i][j] = 0;
+				_animPos_tuta_fire1_tutorial[i][j] = 0;
+				_animPos_tuta_fire2_tutorial[i][j] = 0;
+				_animCount_tuta_fire1_tutorial[i][j] = 0;
+				_animCount_tuta_fire2_tutorial[i][j] = 0;
+			}
+		}
+		_rope_tutorial.Init();
+		_tutorialFlag = 0;
+		_island_tutorial[0]->SetPosition(230, 300);
+		_island_tutorial[1]->SetPosition(230, 200);
+		_island_tutorial[2]->SetPosition(600, 270);
+		_island_tutorial[3]->SetPosition(700, 270);
+
+		_animPos_tuta_tutorial[2][3] = 9;
+		_rope_tutorial._posX[2][3] = _island_tutorial[2]->GetPosX();
+		_rope_tutorial._posY[2][3] = _island_tutorial[2]->GetPosY();
+
+		_rope_tutorial.ConnectFinished(2, 3);
+
+		_now_player_num = 0;
 	}
 	if (_mouseCount_Left == -1) {
-		_tutorialCount++;
+		if (_tutorialCount == 1) {
+			if (_tutorialFlag >= 3)
+				_tutorialCount++;
+		}
+		else
+			_tutorialCount++;
 	}
 	if (_tutorialCount >= 4) {
 		_onth_flag[_sceneState] = 0;
@@ -316,10 +364,214 @@ void GameController::Tutorial()
 		_sceneState = TITLE;
 	}
 	else {
-		MyDrawTurn::Instance().SetDrawItem(0, 0, _gh_title_background, 0.1f);
-		MyDrawTurn::Instance().SetDrawItem(0, 0, _gh_cloud, 0.4f);
-		MyDrawTurn::Instance().SetDrawItem(0, 0, _gh_tutorial[_tutorialCount], 0.5f);
-		MyDrawTurn::Instance().SetDrawItem(WindowInfo::Screen_Width - 100, WindowInfo::Screen_Height - 100 + sin(_nextPosCount / 6) * 3, _gh_next, 0.51f);
+		MyDrawTurn::Instance().SetDrawItem(0, 0, _gh_title_background, 0.01f);
+		MyDrawTurn::Instance().SetDrawItem(0, 0, _gh_cloud, 0.02f);
+		MyDrawTurn::Instance().SetDrawItem(0, 0, _gh_tutorial[_tutorialCount], 0.03f);
+		if (_tutorialCount == 1) {
+			if (_tutorialFlag >= 3)
+				MyDrawTurn::Instance().SetDrawItem(WindowInfo::Screen_Width - 100, WindowInfo::Screen_Height - 100 + sin(_nextPosCount / 6) * 3, _gh_next, 0.51f);
+		}
+		else
+			MyDrawTurn::Instance().SetDrawItem(WindowInfo::Screen_Width - 100, WindowInfo::Screen_Height - 100 + sin(_nextPosCount / 6) * 3, _gh_next, 0.51f);
+	}
+
+	if (_tutorialCount != 1)return;
+
+	for (int i = 0; i < 4; i++) {
+		if (_island_tutorial[i]->PlayerStayCheck(_player.GetPosX(), _player.GetPosY())) {
+			_now_player_num = i;
+		}
+	}
+	for (int i = 0; i < 4; i++) {
+		if (i == _now_player_num)continue;
+		if (_island_tutorial[i]->DistanseCheck(_player.GetPosX(), _player.GetPosY())) {
+			//if (_island[_now_player_num]->StateCheck_BURN())continue;
+			if (_touchIslandFlag == 1) { // 左クリックしてる間
+				if (_island_tutorial[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island_tutorial[i]->GetPosX() + IslandInfo::Island_Rotation &&
+					_island_tutorial[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island_tutorial[i]->GetPosY() + IslandInfo::Island_Rotation &&
+					_rope_tutorial.GetConnectFlag(_now_player_num, i) == 0)
+				{
+					if (_island_tutorial[i]->StateCheck_BURN()) {
+						_island_tutorial[i]->Revival();
+					}
+					_rope_tutorial.Connect(_now_player_num, i);
+					if (_tutorialFlag == 1)_tutorialFlag++;
+				}
+			}
+		}
+	}
+	if (_mouseCount_Left >= 1) { // 左クリックしてる間
+		for (int i = 0; i < 4; i++) {
+			if (_island_tutorial[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Left && _mousePosX_Left < _island_tutorial[i]->GetPosX() + IslandInfo::Island_Rotation &&
+				_island_tutorial[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Left && _mousePosY_Left < _island_tutorial[i]->GetPosY() + IslandInfo::Island_Rotation)
+			{
+				_player.Move(_island_tutorial[i]->GetPosX(), _island_tutorial[i]->GetPosY());
+				_touchIslandFlag = 1;
+				_island_tutorial[i]->Revival();
+				if (_tutorialFlag == 0)_tutorialFlag++;
+				//_nowIsland = i;
+			}
+		}
+	}
+	else {
+		_touchIslandFlag = 0;
+	}
+
+	for (int i = 0; i < 4; i++) {
+		if (_thunder_count[i] > 0) {
+			_thunder_count[i]--;
+		}
+	}
+	if (_fireReloadFlag) {
+		_fireReloadCount++;
+	}
+	if (_fireReloadCount > 60) {
+		_fireReloadCount = 0;
+		_fireReloadFlag = false;
+	}
+	if (_mouseCount_Right == 1 && _tutorialFlag > 1) { // 右クリックした瞬間
+		for (int i = 0; i < 4; i++) {
+			if (_island_tutorial[i]->GetPosX() - IslandInfo::Island_Rotation < _mousePosX_Right && _mousePosX_Right < _island_tutorial[i]->GetPosX() + IslandInfo::Island_Rotation &&
+				_island_tutorial[i]->GetPosY() - IslandInfo::Island_Rotation < _mousePosY_Right && _mousePosY_Right < _island_tutorial[i]->GetPosY() + IslandInfo::Island_Rotation)
+			{
+				if (!_fireReloadFlag) {
+					_island_tutorial[i]->Burning();
+					_fireReloadFlag = true;
+					_thunder_count[i] = 25;
+					PlaySoundMem(_sh_thunder, DX_PLAYTYPE_BACK);
+					_tutorialFlag++;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (_rope_tutorial.GetConnectFlag(i, j) >= 1) {
+				if (_island_tutorial[i]->StateCheck_FIRE() && (_rope_tutorial.GetFireFlag(i, j) == 0 && _rope_tutorial.GetFireStartFlag(i, j) == 0)) {
+					_rope_tutorial.Ignition(i, j);
+				}
+				if (_island_tutorial[j]->StateCheck_FIRE() && (_rope_tutorial.GetFireFlag(i, j) == 0 && _rope_tutorial.GetFireStartFlag(i, j) == 0)) {
+					_rope_tutorial.Ignition(j, i);
+				}
+				if (_rope_tutorial.GetFireFlag(i, j) != 0 && _island_tutorial[i]->StateCheck_GRASS() && _island_tutorial[i]->GetFireStartflag() == 0) {
+					_island_tutorial[i]->Ignition();
+				}
+				if (_rope_tutorial.GetFireFlag(i, j) != 0 && _island_tutorial[j]->StateCheck_GRASS() && _island_tutorial[j]->GetFireStartflag() == 0) {
+
+					_island_tutorial[j]->Ignition();
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < 4; i++) {
+		_island_tutorial[i]->Update();
+	}
+	_rope_tutorial.Update();
+
+	if (_tutorialFlag == 0) {
+		MyDrawTurn::Instance().SetDrawItem(300 + cos(_nextPosCount / 6) * 3, 300, _gh_next, 0.6f,DRAWTYPE_DRAWROTAGRAPH,0.3,90 * (3.1415 / 180));
+	}
+	if (_tutorialFlag == 1) {
+		//if (_nextPosCount % 2) 
+		_nextVecCount++;
+		if (_nextVecCount <= 100)
+			MyDrawTurn::Instance().SetDrawItem(300, 300 - _nextVecCount, _gh_next, 0.6f, DRAWTYPE_DRAWROTAGRAPH, 0.3, 90 * (3.1415 / 180));
+		else
+			MyDrawTurn::Instance().SetDrawItem(300, 300 - 100, _gh_next, 0.6f, DRAWTYPE_DRAWROTAGRAPH, 0.3, 90 * (3.1415 / 180));
+		if (_nextVecCount > 120)
+			_nextVecCount = 0;
+	}
+	if (_tutorialFlag == 2) {
+		MyDrawTurn::Instance().SetDrawItem(600, 240 + sin(_nextPosCount / 6) * 3, _gh_next, 0.6f, DRAWTYPE_DRAWROTAGRAPH, 0.3);
+	}
+	//if (_tutorialFlag == 3) {
+	//	MyDrawTurn::Instance().SetDrawItem(WindowInfo::Screen_Width - 100, WindowInfo::Screen_Height - 100 + sin(_nextPosCount / 6) * 3, _gh_next, 0.51f);
+	//}
+	
+	for (int i = 0; i < 4; i++) {
+		_island_tutorial[i]->Draw();
+	}
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (_rope_tutorial.GetConnectFlag(i, j) == 1) {
+				if (_rope_tutorial._moveCount[i][j] == 0) {
+					_rope_tutorial._posX[i][j] = _island_tutorial[i]->GetPosX();
+					_rope_tutorial._posY[i][j] = _island_tutorial[i]->GetPosY();
+					_animPos_tuta_tutorial[i][j] = 0;
+				}
+				_rope_tutorial._moveCount[i][j]++;
+				if (_rope_tutorial._moveCount[i][j] % 2 == 0) {
+					_animPos_tuta_tutorial[i][j]++;
+				}
+				auto x = _island_tutorial[j]->GetPosX() - _island_tutorial[i]->GetPosX();
+				auto y = _island_tutorial[j]->GetPosY() - _island_tutorial[i]->GetPosY();
+				auto angle = atan2(y, x);
+				double exRate = 1;
+				auto xy = sqrt(abs(x * x + y * y));
+				exRate = xy / 100;
+				float priority = 0.3f;
+				if (_rope_tutorial.GetFireFlag(i, j) == 0) {
+					MyDrawTurn::Instance().SetDrawItem(_rope_tutorial._posX[i][j] + x / 2, _rope_tutorial._posY[i][j] + y / 2, _gh_tuta_anim[_animPos_tuta_tutorial[i][j]], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
+				}
+				if (_animPos_tuta_tutorial[i][j] >= 9) {
+					_rope_tutorial.ConnectFinished(i, j);
+				}
+			}
+			if (_rope_tutorial.GetConnectFlag(i, j) == 3) {
+				_rope_tutorial._moveCount[i][j] = 0;
+				auto x = _island_tutorial[j]->GetPosX() - _island_tutorial[i]->GetPosX();
+				auto y = _island_tutorial[j]->GetPosY() - _island_tutorial[i]->GetPosY();
+				auto angle = atan2(y, x);
+				double exRate = 1;
+				auto xy = sqrt(abs(x * x + y * y));
+				exRate = xy / 100;
+				float priority = 0.52f;
+				if (_rope_tutorial.GetFireStartFlag(i, j) == 1) {
+					_animCount_tuta_fire1_tutorial[i][j]++;
+					if (_animCount_tuta_fire1_tutorial[i][j] % 2 == 0)_animPos_tuta_fire1_tutorial[i][j]++;
+					if (_animCount_tuta_fire1_tutorial[i][j] <= 2)_animPos_tuta_fire1_tutorial[i][j] = 0;
+					MyDrawTurn::Instance().SetDrawItem(_rope_tutorial._posX[i][j] + x / 2, _rope_tutorial._posY[i][j] + y / 2, _gh_tuta_fire1_anim[_animPos_tuta_fire1_tutorial[i][j]], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
+				}
+				if (_rope_tutorial.GetFireStartFlag(i, j) == 2) {
+					_animCount_tuta_fire2_tutorial[i][j]++;
+					if (_animCount_tuta_fire2_tutorial[i][j] % 2 == 0)_animPos_tuta_fire2_tutorial[i][j]++;
+					if (_animCount_tuta_fire2_tutorial[i][j] <= 2)_animPos_tuta_fire2_tutorial[i][j] = 0;
+					MyDrawTurn::Instance().SetDrawItem(_rope_tutorial._posX[i][j] + x / 2, _rope_tutorial._posY[i][j] + y / 2, _gh_tuta_fire2_anim[_animPos_tuta_fire2_tutorial[i][j]], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
+				}
+				if (_rope_tutorial.GetFireStartFlag(i, j) == 0) {
+					_animCount_tuta_fire1_tutorial[i][j] = 0;
+					_animCount_tuta_fire2_tutorial[i][j] = 0;
+					_animPos_tuta_fire1_tutorial[i][j] = 0;
+					_animPos_tuta_fire2_tutorial[i][j] = 0;
+				}
+				if (_rope_tutorial.GetFireFlag(i, j) == 2) {
+					MyDrawTurn::Instance().SetDrawItem(_rope_tutorial._posX[i][j] + x / 2, _rope_tutorial._posY[i][j] + y / 2, _gh_tuta_fire1_anim[5], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
+				}
+				else if (_rope_tutorial.GetFireFlag(i, j) == 1) {
+					MyDrawTurn::Instance().SetDrawItem(_rope_tutorial._posX[i][j] + x / 2, _rope_tutorial._posY[i][j] + y / 2, _gh_tuta_fire2_anim[5], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
+				}
+				else if (_rope_tutorial.GetFireStartFlag(i, j) == 0) {
+					//DrawLine(_island[i]->GetPosX(), _island[i]->GetPosY(), _island[j]->GetPosX(), _island[j]->GetPosY(), GetColor(255, 255, 255), 3);
+					MyDrawTurn::Instance().SetDrawItem(_rope_tutorial._posX[i][j] + x / 2, _rope_tutorial._posY[i][j] + y / 2, _gh_tuta_anim[_animPos_tuta_tutorial[i][j]], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
+				}
+			}
+		}
+	}
+	if (_touchIslandFlag == 1) {
+		
+		MyDrawTurn::Instance().SetDrawBrightItem(_island_tutorial[_now_player_num]->GetPosX(), _island_tutorial[_now_player_num]->GetPosY(), 0, 0.7, 100, 255, 100, BLENDMODE_NOBLEND, 0, DRAWTYPE_DRAWLINE, 0, _mousePosX_Left, _mousePosY_Left);
+		
+	}
+	for (int i = 0; i < 4; i++) {
+		if (_thunder_count[i] > 0) {
+			if (_thunder_count[i] % 5 == 0)_animPos_thunder[i]++;
+			MyDrawTurn::Instance().SetDrawItem(_island_tutorial[i]->GetPosX() - _thunder_width / 2, _island_tutorial[i]->GetPosY() - _thunder_height + 10, _gh_thunder[_animPos_thunder[i]], 0.5f);
+		}
+		else {
+			_animPos_thunder[i] = 0;
+		}
 	}
 	//DrawString(300, 300, "tutorial", GetColor(255, 255, 255));
 	//DrawString(300, 330, "Left Click : 島移動、ロープをかける", GetColor(255, 255, 255));
@@ -333,6 +585,8 @@ void GameController::GamePlay()
 		_onth_flag[_sceneState]++;
 		StopSoundMem(_sh_title);
 		PlaySoundMem(_sh_gameplay, DX_PLAYTYPE_LOOP);
+
+		_player.Init();
 	}
 	if (_gameOverFlag == 0 && _gameClearFlag == 0) {
 		Update();
@@ -423,19 +677,19 @@ void GameController::Update()
 			//_remainingEnemyCount = _wave + 2;
 			switch (_wave) {
 			case 1:
-				_remainingEnemyCount = 3;
+				_remainingEnemyCount = 5;
 				break;
 			case 2:
-				_remainingEnemyCount = 14;
+				_remainingEnemyCount = 12;
 				break;
 			case 3:
-				_remainingEnemyCount = 10;
+				_remainingEnemyCount = 11;
 				break;
 			case 4:
-				_remainingEnemyCount = 17;
+				_remainingEnemyCount = 14;
 				break;
 			case 5:
-				_remainingEnemyCount = 15;
+				_remainingEnemyCount = 17;
 				break;
 			case 6:
 				_remainingEnemyCount = 15;
@@ -503,15 +757,16 @@ void GameController::Update()
 			//break;
 		}
 	}
-	int num_e[EnemyInfo::Enemy_Num];
-	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
-		num_e[i] = 0;
-	}
+	//int num_e[EnemyInfo::Enemy_Num];
+	//for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
+	//	num_e[i] = 0;
+	//}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
 		if (!_enemy[i]->GetLiveFlag() || _enemy[i]->GetDethDelayFlag())continue;
 		for (int j = 0; j < IslandInfo::Island_Num; j++) {
 			if (_island[j]->EnemyStayCheck(_enemy[i]->GetPosX(), _enemy[i]->GetPosY())) {
-				num_e[i] = j;
+				//num_e[i] = j;
+				_enemy[i]->_stayIsland = j;
 				if (_island[j]->StateCheck_FIRE()) {
 					_enemy[i]->Deth_Fire();
 					//_rope.Recovery();
@@ -526,6 +781,44 @@ void GameController::Update()
 							if (!_ropeLifeUpEffect[k]->GetActiveFlag()) {
 								_ropeLifeUpEffect[k]->SetEffect(_enemy[i]->GetPosX(), _enemy[i]->GetPosY(), 240 + (40 * (_rope.GetMaxRopeLife() + lifeCount)), 766);
 								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
+		if (!_enemy[i]->GetLiveFlag() || _enemy[i]->GetDethDelayFlag())continue;
+		if (_enemy[i]->_dis_number != ENEMYTYPE_SLIME)continue;
+		if (!_enemy[i]->GetRopeModeFlag())continue;
+		for (int j = 0; j < IslandInfo::Island_Num; j++) {
+			if (!_enemy[i]->GetLiveFlag() || _enemy[i]->GetDethDelayFlag())continue;
+			for (int k = 0; k < IslandInfo::Island_Num; k++) {
+				if (!_enemy[i]->GetLiveFlag() || _enemy[i]->GetDethDelayFlag())continue;
+				if (_rope.GetFireFlag(j, k) >= 1) {
+					//auto rdx = _island[j]->GetPosX() - _island[k]->GetPosX();
+					//auto rdy = _island[j]->GetPosY() - _island[k]->GetPosY();
+
+					//auto dx = _island[k]->GetPosX() + rdx / 2 - _enemy[i]->GetPosX();
+					//auto dy = _island[k]->GetPosY() + rdy / 2 - _enemy[i]->GetPosY();
+
+					//if (dx < _enemy[i]->GetSuraimuWidth() / 2 && dy < _enemy[i]->GetSuraimuHeight() / 2) {
+					if(_enemy[i]->_stayIsland == j || _enemy[i]->_stayIsland == k){
+						_enemy[i]->Deth_Fire();
+						//_rope.Recovery();
+						_killCount++;
+						_killCountUI[i]->SetActive(_enemy[i]->GetPosX(), _enemy[i]->GetPosY(), _killCount);
+						int lifeCount = 0;
+						for (int k = 0; k < 5; k++) {
+							if (_ropeLifeUpEffect[k]->GetActiveFlag())lifeCount++;
+						}
+						if (_killCount % 3 == 0 && _rope.GetMaxRopeLife() + lifeCount < RopeInfo::Rope_MaxLife) {
+							for (int k = 0; k < 5; k++) {
+								if (!_ropeLifeUpEffect[k]->GetActiveFlag()) {
+									_ropeLifeUpEffect[k]->SetEffect(_enemy[i]->GetPosX(), _enemy[i]->GetPosY(), 240 + (40 * (_rope.GetMaxRopeLife() + lifeCount)), 766);
+									break;
+								}
 							}
 						}
 					}
@@ -776,7 +1069,8 @@ void GameController::Update()
 					PlaySoundMem(_sh_thunder, DX_PLAYTYPE_BACK);
 					//_rope.AllRecovery();
 					for (int j = 0; j < EnemyInfo::Enemy_Num; j++) {
-						//if (num_e[j] == i && !_enemy[j]->GetJumpNowFlag() && !_enemy[j]->GetRopeModeFlag()) {
+						//if (_enemy[j]->_stayIsland == i && !_enemy[j]->GetJumpNowFlag() && !_enemy[j]->GetRopeModeFlag()) {
+						//if (!_enemy[i]->GetLiveFlag() || _enemy[i]->GetDethDelayFlag())continue;
 						if (_island[i]->EnemyStayCheck(_enemy[j]->GetPosX(), _enemy[j]->GetPosY()) && !_enemy[j]->GetRopeModeFlag()) {
 							_enemy[j]->Deth_Fire();
 							_killCount++;
@@ -848,6 +1142,7 @@ void GameController::Update()
 		if (_enemy[j]->GetFirstMoveFlag())continue;
 		if (_enemy[j]->GetJumpNowFlag())continue;
 		//if (!_enemy[j]->GetJumpMoveFlag())continue;
+		//if (_enemy[j]->GetNextDecisionFlag() == 1)continue;
 
 		int max_degree = 0;
 		double max_angle = 0;
@@ -876,22 +1171,23 @@ void GameController::Update()
 		}
 
 		for (int i = 0; i < IslandInfo::Island_Num; i++) {
-			if (i == num_e[j])continue;
+			//if (i == num_e[j])continue;
+			//if (i == _enemy[j]->_stayIsland) continue;
 
 			if (_island[i]->EnemyDistanseCheck(_enemy[j]->GetPosX(), _enemy[j]->GetPosY())) {
 				//distanceFlag = true;
-				if (_rope.GetConnectFlag(num_e[j], i) >= 3 && !_enemy[j]->GetRopeModeFlag() && _enemy[j]->_dis_number == ENEMYTYPE_SLIME) {
+				if (_rope.GetConnectFlag(_enemy[j]->_stayIsland, i) >= 3 && !_enemy[j]->GetRopeModeFlag() && _enemy[j]->_dis_number == ENEMYTYPE_SLIME) {
 					if (i == _enemy[j]->GetLastTouchIslandNumber())continue;
 					//if (_enemy[j]->_dis_number != ENEMYTYPE_SLIME)continue;
 
-					_enemy[j]->SetAngle(atan2(_island[i]->GetPosY() - _island[num_e[j]]->GetPosY(), _island[i]->GetPosX() - _island[num_e[j]]->GetPosX()));
+					_enemy[j]->SetAngle(atan2(_island[i]->GetPosY() - _island[_enemy[j]->_stayIsland]->GetPosY(), _island[i]->GetPosX() - _island[_enemy[j]->_stayIsland]->GetPosX()));
 
 					//double x1, y1, x2, y2, xy1, xy2, n_x1, n_y1, n_x2, n_y2;
 
-					auto x1 = _island[_enemy[j]->GetLastTouchIslandNumber()]->GetPosX() - _island[num_e[j]]->GetPosX();
-					auto y1 = _island[_enemy[j]->GetLastTouchIslandNumber()]->GetPosY() - _island[num_e[j]]->GetPosY();
-					auto x2 = _island[i]->GetPosX() - _island[num_e[j]]->GetPosX();
-					auto y2 = _island[i]->GetPosY() - _island[num_e[j]]->GetPosY();
+					auto x1 = _island[_enemy[j]->GetLastTouchIslandNumber()]->GetPosX() - _island[_enemy[j]->_stayIsland]->GetPosX();
+					auto y1 = _island[_enemy[j]->GetLastTouchIslandNumber()]->GetPosY() - _island[_enemy[j]->_stayIsland]->GetPosY();
+					auto x2 = _island[i]->GetPosX() - _island[_enemy[j]->_stayIsland]->GetPosX();
+					auto y2 = _island[i]->GetPosY() - _island[_enemy[j]->_stayIsland]->GetPosY();
 
 					auto xy1 = sqrt(x1 * x1 + y1 * y1);
 					auto xy2 = sqrt(x2 * x2 + y2 * y2);
@@ -920,6 +1216,17 @@ void GameController::Update()
 				}
 				else
 				{
+					//if (_enemy[j]->GetNextDecisionFlag() == 1)continue;
+					if (_enemy[j]->GetNextDecisionFlag() == 1 && _enemy[j]->_dis_number == ENEMYTYPE_MONKEY && i != 0) {
+						int k;
+						for (k = 0; k < IslandInfo::Island_Num; k++) {
+							if (_rope.GetConnectFlag(_enemy[j]->GetNextJumpIslandNumber(), k) >= 1) break;
+						}
+						if (k == IslandInfo::Island_Num) {
+							continue;
+							//_enemy[j]->SetNextDecisionFlag(0);
+						}
+					}
 					if (i == _enemy[j]->GetLastTouchIslandNumber())continue;
 					//if (_enemy[j]->_onthThinkFlag == 1)continue;
 					//if (!_enemy[j]->GetJumpMoveFlag())continue;
@@ -928,8 +1235,10 @@ void GameController::Update()
 					int y = abs(_island[0]->GetPosY() - _island[i]->GetPosY());
 					//int xx = abs(_island[0]->GetPosX() - v_posX[j]);
 					//int yy = abs(_island[0]->GetPosY() - v_posY[j]);
-					int xx = abs(_island[0]->GetPosX() - _enemy[j]->GetNextJumpPosX());
-					int yy = abs(_island[0]->GetPosY() - _enemy[j]->GetNextJumpPosY());
+					//int xx = abs(_island[0]->GetPosX() - _enemy[j]->GetNextJumpPosX());
+					//int yy = abs(_island[0]->GetPosY() - _enemy[j]->GetNextJumpPosY());
+					int xx = abs(_island[0]->GetPosX() - v_x);
+					int yy = abs(_island[0]->GetPosY() - v_y);
 					//int vx, vy;
 					if (x * x + y * y < xx * xx + yy * yy || !jumpPosibleFlag) {
 						if (_enemy[j]->_dis_number == ENEMYTYPE_MONKEY && i != 0) { // サルだったら
@@ -946,7 +1255,7 @@ void GameController::Update()
 							}
 							jumpImposibleFlag = false;
 						}
-						if (!_enemy[j]->GetJumpMoveFlag())continue;
+						//if (!_enemy[j]->GetJumpMoveFlag())continue;
 						//vx = _island[i]->GetPosX();
 						//vy = _island[i]->GetPosY();
 						int k;
@@ -957,9 +1266,9 @@ void GameController::Update()
 							if (_island[i]->GetPosX() == _enemy[k]->GetPosX() && _island[i]->GetPosY() == _enemy[k]->GetPosY()) {
 								if (!_enemy[k]->GetJumpNowFlag()) {
 									//_enemy[j]->OffJumpMoveFlag();
-									//jumpImposibleFlag = true;
-									rialJumpFlag = true;
-									if (vertualJumpFlag)jumpImposibleFlag = true;
+									jumpImposibleFlag = true;
+									//rialJumpFlag = true;
+									//if (vertualJumpFlag)jumpImposibleFlag = true;
 									break;
 								}
 								//rialJumpFlag = true;
@@ -967,9 +1276,9 @@ void GameController::Update()
 								//break;
 							}
 							if (_island[i]->GetPosX() == _enemy[k]->GetNextJumpPosX() && _island[i]->GetPosY() == _enemy[k]->GetNextJumpPosY()) {
-								//jumpImposibleFlag = true;
-								vertualJumpFlag = true;
-								if (rialJumpFlag)jumpImposibleFlag = true;
+								jumpImposibleFlag = true;
+								//vertualJumpFlag = true;
+								//if (rialJumpFlag)jumpImposibleFlag = true;
 								break;
 							}
 						}
@@ -977,8 +1286,12 @@ void GameController::Update()
 							//v_posX[j] = vx;
 							//v_posY[j] = vy;
 							//v_islandNumber[j] = i;
-							_enemy[j]->SetNextJumpInfo(_island[i]->GetPosX(), _island[i]->GetPosY(), i);
+							//_enemy[j]->SetNextJumpInfo(_island[i]->GetPosX(), _island[i]->GetPosY(), i);
+							v_x = _island[i]->GetPosX();
+							v_y = _island[i]->GetPosY();
+							v_n = i;
 							jumpPosibleFlag = true;
+							jumpImposibleFlag = false;
 						}
 					}
 				}
@@ -986,13 +1299,24 @@ void GameController::Update()
 			else if (!distanceFlag) {
 				//if (_enemy[j]->_onthThinkFlag == 1)continue;
 				//if (!_enemy[j]->GetJumpMoveFlag())continue;
+				//if (_enemy[j]->GetNextDecisionFlag() == 1)continue;
+				if (_enemy[j]->GetNextDecisionFlag() == 1 && _enemy[j]->_dis_number == ENEMYTYPE_MONKEY && i != 0) {
+					int k;
+					for (k = 0; k < IslandInfo::Island_Num; k++) {
+						if (_rope.GetConnectFlag(_enemy[j]->GetNextJumpIslandNumber(), k) >= 1) break;
+					}
+					if (k == IslandInfo::Island_Num) {
+						continue;
+						//_enemy[j]->SetNextDecisionFlag(0);
+					}
+				}
 
 				//auto x = abs(_island[i]->GetPosX() - v_posX[j]);
 				//auto y = abs(_island[i]->GetPosY() - v_posY[j]);
 				auto x = abs(_island[i]->GetPosX() - _enemy[j]->GetPosX());
 				auto y = abs(_island[i]->GetPosY() - _enemy[j]->GetPosY());
-				auto xy = sqrt(x * x + y * y);
-				if (xy < sqrt(v_dx * v_dx + v_dy * v_dy)) {
+				//auto xy = sqrt(x * x + y * y);
+				if (x * x + y * y < v_dx * v_dx + v_dy * v_dy || !jumpPosibleFlag) {
 					if (_enemy[j]->_dis_number == ENEMYTYPE_MONKEY && i != 0) { // サルだったら
 						int k;
 						for (k = 0; k < IslandInfo::Island_Num; k++) {
@@ -1006,7 +1330,7 @@ void GameController::Update()
 						}
 						jumpImposibleFlag = false;
 					}
-					if (!_enemy[j]->GetJumpMoveFlag())continue;
+					//if (!_enemy[j]->GetJumpMoveFlag())continue;
 					int k;
 					for (k = 0; k < EnemyInfo::Enemy_Num; k++) {
 						if (j == k)continue;
@@ -1014,8 +1338,9 @@ void GameController::Update()
 						if (_enemy[k]->GetRopeModeFlag())continue;
 						if (_island[i]->GetPosX() == _enemy[k]->GetPosX() && _island[i]->GetPosY() == _enemy[k]->GetPosY()) {
 							if (!_enemy[k]->GetJumpNowFlag()) {
-								rialJumpFlag = true;
-								if (vertualJumpFlag)jumpImposibleFlag = true;
+								//rialJumpFlag = true;
+								//if (vertualJumpFlag)jumpImposibleFlag = true;
+								jumpImposibleFlag = true;
 								break;
 							}
 							//jumpImposibleFlag = true;
@@ -1025,8 +1350,9 @@ void GameController::Update()
 						}
 						if (_island[i]->GetPosX() == _enemy[k]->GetNextJumpPosX() && _island[i]->GetPosY() == _enemy[k]->GetNextJumpPosY()) {
 							//jumpImposibleFlag = true;
-							vertualJumpFlag = true;
-							if (rialJumpFlag)jumpImposibleFlag = true;
+							//vertualJumpFlag = true;
+							//if (rialJumpFlag)jumpImposibleFlag = true;
+							jumpImposibleFlag = true;
 							break;
 						}
 					}
@@ -1037,51 +1363,62 @@ void GameController::Update()
 					v_y = _island[i]->GetPosY();
 					v_n = i;
 					jumpPosibleFlag = true;
+					jumpImposibleFlag = false;
 				}
 			}
 		}
 		//if (jumpImposibleFlag && !jumpPosibleFlag)
 		if (jumpImposibleFlag)
+		//if(!jumpPosibleFlag)
 			_enemy[j]->OffJumpMoveFlag();
 		//_enemy[j]->_onthThinkFlag = true;
-		if (!distanceFlag) {
-			//_enemy[j]->SetPerceiveFlag(true);
-			//v_posX[j] = v_x;
-			//v_posY[j] = v_y;
-			//if (v_n != -1)
-			//	v_islandNumber[j] = v_n;
-			_enemy[j]->SetNextJumpInfo(v_x, v_y, v_n);
+		//if (!distanceFlag) {
+		//	//_enemy[j]->SetPerceiveFlag(true);
+		//	//v_posX[j] = v_x;
+		//	//v_posY[j] = v_y;
+		//	//if (v_n != -1)
+		//	//	v_islandNumber[j] = v_n;
+		//	_enemy[j]->SetNextJumpInfo(v_x, v_y, v_n);
+		//}
+		if (jumpPosibleFlag) {
+			//if (v_n == _enemy[j]->_stayIsland)
+			//	_enemy[j]->OffJumpMoveFlag();
+			//else
+			if (v_n != _enemy[j]->_stayIsland)
+				_enemy[j]->SetNextJumpInfo(v_x, v_y, v_n);
 		}
 		if (_enemy[j]->_dis_number != ENEMYTYPE_SLIME)continue;
 		if (count > 0) {
 			_enemy[j]->OnRopeModeFlag();
 			_enemy[j]->SetAngle(max_angle);
 			_enemy[j]->SetSpeed(cos(_enemy[j]->GetAngle()), sin(_enemy[j]->GetAngle()));
-			_enemy[j]->SetLastTouchIslandNumber(num_e[j]);
+			_enemy[j]->SetLastTouchIslandNumber(_enemy[j]->_stayIsland);
 		}
 		else { // 折り返し移動処理
 			bool lastCheck = 0;
 			for (int k = 0; k < IslandInfo::Island_Num; k++) {
 				if (k == _enemy[j]->GetLastTouchIslandNumber())continue;
-				if (_rope.GetConnectFlag(num_e[j], k) >= 3) {
+				if (_rope.GetConnectFlag(_enemy[j]->_stayIsland, k) >= 3) {
 					lastCheck = 1;
 					break;
 				}
 			}
-			if (lastCheck == 0 && _rope.GetConnectFlag(num_e[j], _enemy[j]->GetLastTouchIslandNumber()) >= 3 && !_enemy[j]->GetRopeModeFlag()) {
+			if (lastCheck == 0 && _rope.GetConnectFlag(_enemy[j]->_stayIsland, _enemy[j]->GetLastTouchIslandNumber()) >= 3 && !_enemy[j]->GetRopeModeFlag()) {
 				_enemy[j]->SetAngle(atan2(
-					_island[_enemy[j]->GetLastTouchIslandNumber()]->GetPosY() - _island[num_e[j]]->GetPosY(),
-					_island[_enemy[j]->GetLastTouchIslandNumber()]->GetPosX() - _island[num_e[j]]->GetPosX()));
+					_island[_enemy[j]->GetLastTouchIslandNumber()]->GetPosY() - _island[_enemy[j]->_stayIsland]->GetPosY(),
+					_island[_enemy[j]->GetLastTouchIslandNumber()]->GetPosX() - _island[_enemy[j]->_stayIsland]->GetPosX()));
 				_enemy[j]->SetSpeed(cos(_enemy[j]->GetAngle()), sin(_enemy[j]->GetAngle()));
 				_enemy[j]->OnRopeModeFlag();
-				_enemy[j]->SetLastTouchIslandNumber(num_e[j]);
+				_enemy[j]->SetLastTouchIslandNumber(_enemy[j]->_stayIsland);
 			}
 		}
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
+		if (!_enemy[i]->GetLiveFlag() || _enemy[i]->GetDethDelayFlag())continue;
 		int ii = _enemy[i]->GetJumpMoveFlag();
 		int iii = _enemy[i]->_atackModeFlag;
 		int iiii = _enemy[i]->GetJumpNowFlag();
+		if (_enemy[i]->GetNextDecisionFlag() == 0)continue;
 		if (_enemy[i]->GetJumpMoveFlag() && !_enemy[i]->_atackModeFlag && !_enemy[i]->GetJumpNowFlag()) {
 			//int j;
 			//for (j = 0; j < EnemyInfo::Enemy_Num; j++) {
@@ -1107,18 +1444,48 @@ void GameController::Update()
 			_enemy[i]->JumpStart(_enemy[i]->GetNextJumpPosX(), _enemy[i]->GetNextJumpPosY());
 			//_enemy[i]->JumpMove(v_posX[i], v_posY[i]);
 			_enemy[i]->OffJumpMoveFlag();
-			_enemy[i]->SetLastTouchIslandNumber(num_e[i]);
+			_enemy[i]->SetLastTouchIslandNumber(_enemy[i]->_stayIsland);
 		}
 		//if (_enemy[i]->GetPosX() == IslandInfo::Base_Island_PosX && _enemy[i]->GetPosY() == IslandInfo::Base_Island_PosY) {
 		//	_enemy[i]->Attack();
 		//	_player.Damage();
 		//	_enemy[i]->Deth();
 		//}
+		
+	}
+	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
+		if (!_enemy[i]->GetLiveFlag() || _enemy[i]->GetDethDelayFlag())continue;
 		if (_enemy[i]->GetPosX() <= IslandInfo::Base_Island_PosX + 2 && _enemy[i]->GetPosX() >= IslandInfo::Base_Island_PosX - 2
 			&& _enemy[i]->GetPosY() <= IslandInfo::Base_Island_PosY + 2 && _enemy[i]->GetPosY() >= IslandInfo::Base_Island_PosY - 2) {
 			_enemy[i]->Attack();
 			_player.Damage();
 			_enemy[i]->Deth();
+
+			int shieldCount = 0;
+			if (_player.GetHP() == 3) {
+				for (int j = 0; j < SHIELDBREAKEFFECT_NUM; j++) {
+					if (_shieldBreakEffect[j]->GetActiveFlag())continue;
+					_shieldBreakEffect[j]->Instantiate(IslandInfo::Base_Island_PosX + 60, IslandInfo::Base_Island_PosY + 10);
+					shieldCount++;
+					if (shieldCount >= 30)break;
+				}
+			}
+			if (_player.GetHP() == 2) {
+				for (int j = 0; j < SHIELDBREAKEFFECT_NUM; j++) {
+					if (_shieldBreakEffect[j]->GetActiveFlag())continue;
+					_shieldBreakEffect[j]->Instantiate(IslandInfo::Base_Island_PosX - 60, IslandInfo::Base_Island_PosY + 10);
+					shieldCount++;
+					if (shieldCount >= 30)break;
+				}
+			}
+			if (_player.GetHP() == 1) {
+				for (int j = 0; j < SHIELDBREAKEFFECT_NUM; j++) {
+					if (_shieldBreakEffect[j]->GetActiveFlag())continue;
+					_shieldBreakEffect[j]->Instantiate(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY + 10);
+					shieldCount++;
+					if (shieldCount >= 30)break;
+				}
+			}
 		}
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
@@ -1136,6 +1503,32 @@ void GameController::Update()
 		if (_bullet[i]->BaseHitCheck()) {
 			_player.Damage();
 			_bullet[i]->Deth();
+
+			int shieldCount = 0;
+			if (_player.GetHP() == 3) {
+				for (int j = 0; j < SHIELDBREAKEFFECT_NUM; j++) {
+					if (_shieldBreakEffect[j]->GetActiveFlag())continue;
+					_shieldBreakEffect[j]->Instantiate(IslandInfo::Base_Island_PosX + 60, IslandInfo::Base_Island_PosY + 10);
+					shieldCount++;
+					if (shieldCount >= 30)break;
+				}
+			}
+			if (_player.GetHP() == 2) {
+				for (int j = 0; j < SHIELDBREAKEFFECT_NUM; j++) {
+					if (_shieldBreakEffect[j]->GetActiveFlag())continue;
+					_shieldBreakEffect[j]->Instantiate(IslandInfo::Base_Island_PosX - 60, IslandInfo::Base_Island_PosY + 10);
+					shieldCount++;
+					if (shieldCount >= 30)break;
+				}
+			}
+			if (_player.GetHP() == 1) {
+				for (int j = 0; j < SHIELDBREAKEFFECT_NUM; j++) {
+					if (_shieldBreakEffect[j]->GetActiveFlag())continue;
+					_shieldBreakEffect[j]->Instantiate(IslandInfo::Base_Island_PosX, IslandInfo::Base_Island_PosY + 10);
+					shieldCount++;
+					if (shieldCount >= 30)break;
+				}
+			}
 		}
 	}
 
@@ -1188,12 +1581,15 @@ void GameController::Update()
 		if (!_ropeLifeUpEffect[i]->GetActiveFlag())continue;
 		_ropeLifeUpEffect[i]->Update();
 	}
+	for (int i = 0; i < SHIELDBREAKEFFECT_NUM; i++) {
+		_shieldBreakEffect[i]->Update();
+	}
 	_thunderChargeUI.Update();
 
 	if (CheckHitKey(KEY_INPUT_R)) {
 		//Init();
-		_gameOverFlag = 1;
-		//_gameClearFlag = 1;
+		//_gameOverFlag = 1;
+		_gameClearFlag = 1;
 		//StopSoundMem(_sh_gameplay);
 	}
 	if (!_player.GetLive()) {
@@ -1351,7 +1747,12 @@ void GameController::Draw()
 	MyDrawTurn::Instance().SetDrawItem(42, 670, _gh_thunderUI[_animPos_thunderUI], 0.81f);
 	//DrawFormatString(10, 570, GetColor(0, 0, 0), "WAVE : %d", _wave);
 	MyDrawTurn::Instance().SetDrawItem(10, 20, _gh_wave, 0.8f);
-	_drawNumber.Draw(230, 10, _wave, SETDRAWNUM_WAVE);
+	if (_wave > 10) {
+		_drawNumber.Draw(230, 10, _wave - 1, SETDRAWNUM_WAVE);
+	}
+	else {
+		_drawNumber.Draw(230, 10, _wave, SETDRAWNUM_WAVE);
+	}
 	int ropeLife = 0;
 	for (int i = 0; i < RopeInfo::Rope_MaxLife; i++) {
 		if (ropeLife < _rope.GetRopeLife()) {
@@ -1596,6 +1997,9 @@ void GameController::Draw()
 		if (!_ropeLifeUpEffect[i]->GetActiveFlag())continue;
 			_ropeLifeUpEffect[i]->Draw();
 	}
+	for (int i = 0; i < SHIELDBREAKEFFECT_NUM; i++) {
+		_shieldBreakEffect[i]->Draw();
+	}
 	int color = GetColor(255, 0, 0);
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		if (_thunder_count[i] > 0) {
@@ -1714,23 +2118,20 @@ void GameController::EnemySpawn()
 	case 1:
 		maximum = 1;
 		break;
-	case 2:
-		maximum = 1;
-		break;
-	case 6:
+	case 17:
 		maximum = 2;
 		break;
-	case 17:
-		maximum = 1;
-		break;
-	case 33:
-		maximum = 6;
+	case 34:
+		maximum = 5;
 		break;
 	case 42:
 		maximum = 2;
 		break;
-	case 50:
+	case 48:
 		maximum = 6;
+		break;
+	case 57:
+		maximum = 2;
 		break;
 	case 65:
 		maximum = 6;
@@ -1890,72 +2291,72 @@ void GameController::EnemySpawnNumberInit()
 
 	_enemySpawnNumber[0] = ENEMYTYPE_SLIME; //1
 	_enemySpawnNumber[1] = ENEMYTYPE_SLIME; //1
-	_enemySpawnNumber[2] = ENEMYTYPE_SLIME; //1
-
+	_enemySpawnNumber[2] = ENEMYTYPE_SLIME; //3
 	_enemySpawnNumber[3] = ENEMYTYPE_SLIME; 
 	_enemySpawnNumber[4] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[5] = ENEMYTYPE_SLIME;  
-	_enemySpawnNumber[6] = ENEMYTYPE_DEMON; //2
-	_enemySpawnNumber[7] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[8] = ENEMYTYPE_SLIME; 
+
+	_enemySpawnNumber[5] = ENEMYTYPE_SLIME; //3  
+	_enemySpawnNumber[6] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[7] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[8] = ENEMYTYPE_SLIME; //3
 	_enemySpawnNumber[9] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[10] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[11] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[12] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[13] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[14] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[15] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[16] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[10] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[11] = ENEMYTYPE_SLIME; //3
+	_enemySpawnNumber[12] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[13] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[14] = ENEMYTYPE_SLIME; //3
+	_enemySpawnNumber[15] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[16] = ENEMYTYPE_DEMON;
 
-	_enemySpawnNumber[17] = ENEMYTYPE_MONKEY; // 1
-	_enemySpawnNumber[18] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[19] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[20] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[17] = ENEMYTYPE_MONKEY; //2
+	_enemySpawnNumber[18] = ENEMYTYPE_MONKEY;
+	_enemySpawnNumber[19] = ENEMYTYPE_SLIME; //3
+	_enemySpawnNumber[20] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[21] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[22] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[23] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[24] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[25] = ENEMYTYPE_MONKEY;
-	_enemySpawnNumber[26] = ENEMYTYPE_SLIME;
-
+	_enemySpawnNumber[22] = ENEMYTYPE_SLIME; //3
+	_enemySpawnNumber[23] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[24] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[25] = ENEMYTYPE_MONKEY; //3
+	_enemySpawnNumber[26] = ENEMYTYPE_MONKEY;
 	_enemySpawnNumber[27] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[28] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[29] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[30] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[31] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[32] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[33] = ENEMYTYPE_DEMON; //6
-	_enemySpawnNumber[34] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[35] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[36] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[37] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[38] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[39] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[40] = ENEMYTYPE_MONKEY;
-	_enemySpawnNumber[41] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[42] = ENEMYTYPE_MONKEY; //2
-	_enemySpawnNumber[43] = ENEMYTYPE_MONKEY;
 
+	_enemySpawnNumber[28] = ENEMYTYPE_SLIME; //3
+	_enemySpawnNumber[29] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[30] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[31] = ENEMYTYPE_SLIME; //3
+	_enemySpawnNumber[32] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[33] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[34] = ENEMYTYPE_SLIME; //5
+	_enemySpawnNumber[35] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[36] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[37] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[38] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[39] = ENEMYTYPE_DEMON; //3
+	_enemySpawnNumber[40] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[41] = ENEMYTYPE_MONKEY;
+	
+	_enemySpawnNumber[42] = ENEMYTYPE_SLIME; //3
+	_enemySpawnNumber[43] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[44] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[45] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[45] = ENEMYTYPE_SLIME; //3
 	_enemySpawnNumber[46] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[47] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[48] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[47] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[48] = ENEMYTYPE_DEMON; //6
 	_enemySpawnNumber[49] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[50] = ENEMYTYPE_SLIME; //6
-	_enemySpawnNumber[51] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[50] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[51] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[52] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[53] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[54] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[54] = ENEMYTYPE_SLIME; //3
 	_enemySpawnNumber[55] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[56] = ENEMYTYPE_MONKEY;
-	_enemySpawnNumber[57] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[57] = ENEMYTYPE_MONKEY; //2
 	_enemySpawnNumber[58] = ENEMYTYPE_MONKEY;
 
-	_enemySpawnNumber[59] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[59] = ENEMYTYPE_SLIME; //3
 	_enemySpawnNumber[60] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[61] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[62] = ENEMYTYPE_MONKEY;
+	_enemySpawnNumber[62] = ENEMYTYPE_MONKEY; //3
 	_enemySpawnNumber[63] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[64] = ENEMYTYPE_MONKEY;
 	_enemySpawnNumber[65] = ENEMYTYPE_SLIME; //6
@@ -1964,11 +2365,11 @@ void GameController::EnemySpawnNumberInit()
 	_enemySpawnNumber[68] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[69] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[70] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[71] = ENEMYTYPE_MONKEY;
+	_enemySpawnNumber[71] = ENEMYTYPE_MONKEY; //3
 	_enemySpawnNumber[72] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[73] = ENEMYTYPE_MONKEY;
 
-	_enemySpawnNumber[74] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[74] = ENEMYTYPE_SLIME; //3
 	_enemySpawnNumber[75] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[76] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[77] = ENEMYTYPE_SLIME; //6
@@ -1977,33 +2378,33 @@ void GameController::EnemySpawnNumberInit()
 	_enemySpawnNumber[80] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[81] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[82] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[83] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[83] = ENEMYTYPE_DEMON; //3
 	_enemySpawnNumber[84] = ENEMYTYPE_MONKEY;
 	_enemySpawnNumber[85] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[86] = ENEMYTYPE_MONKEY;
+	_enemySpawnNumber[86] = ENEMYTYPE_MONKEY; //3
 	_enemySpawnNumber[87] = ENEMYTYPE_MONKEY;
 	_enemySpawnNumber[88] = ENEMYTYPE_MONKEY;
 
-	_enemySpawnNumber[89] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[89] = ENEMYTYPE_DEMON; //3
 	_enemySpawnNumber[90] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[91] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[92] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[92] = ENEMYTYPE_DEMON; //3
 	_enemySpawnNumber[93] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[94] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[95] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[95] = ENEMYTYPE_SLIME; //3
 	_enemySpawnNumber[96] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[97] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[98] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[98] = ENEMYTYPE_SLIME; //3
 	_enemySpawnNumber[99] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[100] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[101] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[101] = ENEMYTYPE_DEMON; //3
 	_enemySpawnNumber[102] = ENEMYTYPE_MONKEY;
 	_enemySpawnNumber[103] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[104] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[104] = ENEMYTYPE_SLIME; //3
 	_enemySpawnNumber[105] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[106] = ENEMYTYPE_SLIME;
 
-	_enemySpawnNumber[107] = ENEMYTYPE_SLIME;
+	_enemySpawnNumber[107] = ENEMYTYPE_SLIME; //3
 	_enemySpawnNumber[108] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[109] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[110] = ENEMYTYPE_SLIME; //6
@@ -2012,7 +2413,7 @@ void GameController::EnemySpawnNumberInit()
 	_enemySpawnNumber[113] = ENEMYTYPE_MONKEY;
 	_enemySpawnNumber[114] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[115] = ENEMYTYPE_MONKEY;
-	_enemySpawnNumber[116] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[116] = ENEMYTYPE_DEMON; //3
 	_enemySpawnNumber[117] = ENEMYTYPE_MONKEY;
 	_enemySpawnNumber[118] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[119] = ENEMYTYPE_SLIME; //6
@@ -2021,7 +2422,7 @@ void GameController::EnemySpawnNumberInit()
 	_enemySpawnNumber[122] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[123] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[124] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[125] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[125] = ENEMYTYPE_DEMON; //3
 	_enemySpawnNumber[126] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[127] = ENEMYTYPE_DEMON;
 
@@ -2031,10 +2432,10 @@ void GameController::EnemySpawnNumberInit()
 	_enemySpawnNumber[131] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[132] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[133] = ENEMYTYPE_DEMON;
-	_enemySpawnNumber[134] = ENEMYTYPE_MONKEY;
+	_enemySpawnNumber[134] = ENEMYTYPE_MONKEY; //3
 	_enemySpawnNumber[135] = ENEMYTYPE_MONKEY;
 	_enemySpawnNumber[136] = ENEMYTYPE_MONKEY;
-	_enemySpawnNumber[137] = ENEMYTYPE_MONKEY;
+	_enemySpawnNumber[137] = ENEMYTYPE_MONKEY; //3
 	_enemySpawnNumber[138] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[139] = ENEMYTYPE_MONKEY;
 	_enemySpawnNumber[140] = ENEMYTYPE_SLIME; //6
@@ -2043,10 +2444,10 @@ void GameController::EnemySpawnNumberInit()
 	_enemySpawnNumber[143] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[144] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[145] = ENEMYTYPE_SLIME;
-	_enemySpawnNumber[146] = ENEMYTYPE_MONKEY;
+	_enemySpawnNumber[146] = ENEMYTYPE_MONKEY; //3
 	_enemySpawnNumber[147] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[148] = ENEMYTYPE_MONKEY;
-	_enemySpawnNumber[149] = ENEMYTYPE_DEMON;
+	_enemySpawnNumber[149] = ENEMYTYPE_DEMON; //3
 	_enemySpawnNumber[150] = ENEMYTYPE_SLIME;
 	_enemySpawnNumber[151] = ENEMYTYPE_DEMON;
 	_enemySpawnNumber[152] = ENEMYTYPE_MONKEY; //6

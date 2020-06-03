@@ -12,6 +12,7 @@
 #include "DrawNumber.h"
 #include "CircleEfect.h"
 #include "RopeLifeDownEfect.h"
+#include "ShieldBreakEffect.h"
 
 #include "IslandInfo.h"
 #include "EnemyInfo.h"
@@ -127,6 +128,7 @@ private:
 	int _black_paramVol;
 	int _nextCount;
 	int _nextPosCount;
+	int _nextVecCount;
 	int _gameoverAlphaCount;
 	int _gameclearAlphaCount;
 	int _gameclear_thanksAlphaCount;
@@ -143,6 +145,16 @@ private:
 	DrawNumber			_drawNumber;
 	//CircleEfect*		_circleEfect[RopeInfo::Rope_MaxLife]; 
 	RopeLifeDownEfect*	_ropeLifeDownEffect[RopeInfo::Rope_MaxLife];
+	ShieldBreakEffect*	_shieldBreakEffect[SHIELDBREAKEFFECT_NUM];
+
+	Island*				_island_tutorial[4];
+	Rope				_rope_tutorial;
+	int _tutorialFlag;
+	int _animPos_tuta_tutorial[4][4];
+	int _animPos_tuta_fire1_tutorial[4][4];
+	int _animPos_tuta_fire2_tutorial[4][4];
+	int _animCount_tuta_fire1_tutorial[4][4];
+	int _animCount_tuta_fire2_tutorial[4][4];
 
 	enum Scenetate {
 		TITLE,

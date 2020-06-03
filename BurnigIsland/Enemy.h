@@ -35,6 +35,7 @@ private:
 
 	int _nextJumpPosX, _nextJumpPosY;
 	int _nextJumpIslandNumber;
+	int _nextDecisionFlag;
 
 	int _gh_suraimu;
 	int _gh_suraimu_anim_idle[10];
@@ -90,6 +91,7 @@ private:
 	int _sh_attack_slime;
 
 public:
+	int _stayIsland;
 	int _dis_number;
 	int _onthThinkFlag;
 	bool _atackModeFlag;
@@ -131,6 +133,7 @@ public:
 	void Attack();
 	void SetPerceiveFlag(bool perceiveFlag);
 	void SetNextJumpInfo(int px, int py, int islandNum);
+	void SetNextDecisionFlag(int nextDecitionflag);
 
 	// îªíËä÷êî
 
@@ -162,6 +165,9 @@ public:
 	int GetNextJumpPosY();
 	int GetNextJumpIslandNumber();
 	int GetFirstMoveFlag();
+	int GetNextDecisionFlag();
+	int GetSuraimuWidth();
+	int GetSuraimuHeight();
 
 private:
 	// ÉçÅ[Évà⁄ìÆ

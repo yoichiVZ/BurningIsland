@@ -81,10 +81,12 @@ void Enemy::Init()
 	_jumpFinishCount = 0;
 	_jumpVPosX = 0, _jumpVPosY = 0;
 	_onthThinkFlag = 0;
+	_stayIsland = 0;
 
 	_nextJumpPosX = 0;
 	_nextJumpPosY = 0;
 	_nextJumpIslandNumber = 0;
+	_nextDecisionFlag = 0;
 
 	_animPos_suraimu_idle = 0;
 	_animPos_suraimu_jump = 0;
@@ -370,8 +372,8 @@ void Enemy::Instantiate(int px, int py, int dis_number)
 	_dis_number = dis_number;
 	_liveFlag = true;
 	_firstMoveFlag = true;
-	_nextJumpPosX = _posX;
-	_nextJumpPosY = _posY;
+	_nextJumpPosX = 0;
+	_nextJumpPosY = -1000;
 	_nextJumpIslandNumber = 0;
 }
 
@@ -410,6 +412,7 @@ void Enemy::JumpStart(int posX, int posY)
 	}
 
 	_jumpNowFlag = true;
+	_nextDecisionFlag = 0;
 }
 
 void Enemy::JumpMove()
@@ -609,6 +612,12 @@ void Enemy::SetNextJumpInfo(int px, int py, int islandNum)
 	_nextJumpPosX = px;
 	_nextJumpPosY = py;
 	_nextJumpIslandNumber = islandNum;
+	_nextDecisionFlag = 1;
+}
+
+void Enemy::SetNextDecisionFlag(int nextDecitionflag)
+{
+	_nextDecisionFlag = nextDecitionflag;
 }
 
 bool Enemy::RangeCheck()
@@ -696,6 +705,21 @@ int Enemy::GetNextJumpIslandNumber()
 int Enemy::GetFirstMoveFlag()
 {
 	return _firstMoveFlag;
+}
+
+int Enemy::GetNextDecisionFlag()
+{
+	return _nextDecisionFlag;
+}
+
+int Enemy::GetSuraimuWidth()
+{
+	return _suraimu_width;
+}
+
+int Enemy::GetSuraimuHeight()
+{
+	return _suraimu_height;
 }
 
 void Enemy::RopeMove()
