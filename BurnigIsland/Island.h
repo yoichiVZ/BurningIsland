@@ -49,6 +49,7 @@ private:
 	YugudorasiruParticle* _yugudorasiruParticle[YUGUDORASIRU_PARITCLE_NUM];
 
 public:
+	int _gameOverFlag;
 
 	Island();
 	~Island();

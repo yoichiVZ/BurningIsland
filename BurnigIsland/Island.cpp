@@ -55,6 +55,7 @@ void Island::Init()
 	_nowChoiceFlag = false;
 	_particle_activeCount = 0;
 	_particle_firstActiveCount = GetRand(90) + 30;
+	_gameOverFlag = false;
 }
 
 void Island::Update()
@@ -159,7 +160,8 @@ void Island::Draw()
 	if (_posX == IslandInfo::Base_Island_PosX && _posY == IslandInfo::Base_Island_PosY) {
 		//DrawGraph(_posX - _base_width / 2, _posY - _base_height / 2, _gh_base, TRUE);
 		MyDrawTurn::Instance().SetDrawItem(_posX - _base_width / 2, _posY - _base_height / 2 + _nowChoiceDistance + distance + 40, _gh_base, 0.31f);
-		MyDrawTurn::Instance().SetDrawItem(_posX - 15, _posY - 24 + _nowChoiceDistance + distance + 40, _gh_base_crystal, 0.32f);
+		if (!_gameOverFlag)
+			MyDrawTurn::Instance().SetDrawItem(_posX - 26, _posY - 34 + _nowChoiceDistance + distance + 40, _gh_base_crystal, 0.32f);
 		MyDrawTurn::Instance().SetDrawBrightItem(_posX - 60, _posY - 60 + _nowChoiceDistance + distance + 40, _gh_rightEfect01, 0.311f, 100, 255, 100,
 			BLENDMODE_ADD, 180, DRAWTYPE_DRAWEXTENDGRAPH, 0, _posX + 60, _posY + 60 + _nowChoiceDistance + distance + 40);
 		for (int i = 0; i < YUGUDORASIRU_PARITCLE_NUM; i++) {

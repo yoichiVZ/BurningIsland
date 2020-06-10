@@ -84,7 +84,7 @@ void RopeLifeUpEffect::Update()
 
 void RopeLifeUpEffect::Draw()
 {
-	MyDrawTurn::Instance().SetDrawBrightItem(_posX - _width / 3, _posY - _height / 3, _gh_rightEfect01, 0.82f, _greenAlpha - 130, _greenAlpha, _greenAlpha - 130, BLENDMODE_ADD, 255,DRAWTYPE_DRAWEXTENDGRAPH,0,_posX + _width / 3,_posY + _height / 3);
+	MyDrawTurn::Instance().SetDrawBrightItem(_posX - _width / 3, _posY - _height / 3, _gh_rightEfect01, 0.84f, _greenAlpha - 130, _greenAlpha, _greenAlpha - 130, BLENDMODE_ADD, 255,DRAWTYPE_DRAWEXTENDGRAPH,0,_posX + _width / 3,_posY + _height / 3);
 	for (int i = 0; i < CHILDPARRICLE_NUM; i++) {
 		if (!_childParticle[i]->GetActiveFlag())continue;
 		_childParticle[i]->Draw();

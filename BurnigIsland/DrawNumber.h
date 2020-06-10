@@ -3,12 +3,14 @@
 #define SETDRAWNUM_KILLCOUNT 0
 #define SETDRAWNUM_WAVE 1
 #define SETDRAWNUM_RESULTWAVE 2
+#define SETDRAWNUM_WAVEUP 3
 
 class DrawNumber {
 private:
 	int _gh_killCount[10];
 	int _gh_wave[10];
 	int _gh_resultWave[10];
+	int _gh_waveUp[10];
 	float _priority;
 
 public:

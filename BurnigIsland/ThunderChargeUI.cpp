@@ -13,8 +13,8 @@ ThunderChargeUI::ThunderChargeUI()
 
 void ThunderChargeUI::Init()
 {
-	_posX = 90;
-	_posY = 715;
+	_posX = 98;
+	_posY = 713;
 	_angle = 0;
 	_activeFlag = true;
 }
@@ -28,7 +28,7 @@ void ThunderChargeUI::Update()
 void ThunderChargeUI::Draw()
 {
 	if (!_activeFlag)return;
-	MyDrawTurn::Instance().SetDrawItem(_posX, _posY, _gh_thunderChargeUI, 0.82f, DRAWTYPE_DRAWROTAGRAPH, 1.1, _angle,BLENDMODE_ALPHA,255);
+	MyDrawTurn::Instance().SetDrawItem(_posX, _posY, _gh_thunderChargeUI, 0.84f, DRAWTYPE_DRAWROTAGRAPH, 1.1, _angle,BLENDMODE_ALPHA,255);
 }
 
 void ThunderChargeUI::SetActive(bool activeFlag)

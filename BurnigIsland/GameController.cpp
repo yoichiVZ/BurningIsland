@@ -26,6 +26,7 @@ GameController::GameController()
 	_gh_title_cloud[3] = LoadGraph("Resource\\Image\\Cloud2Revers.png");
 	LoadDivGraph("Resource\\Image\\kaminari.png", 5, 5, 1, 180, 700, _gh_thunder);
 	LoadDivGraph("Resource\\Image\\kaminariUI.png", 6, 6, 1, 96, 96, _gh_thunderUI);
+	LoadDivGraph("Resource\\Image\\yugudorasiru3.png", 14, 5, 3, 50, 60, _gh_crystal);
 	_gh_UIbar = LoadGraph("Resource\\Image\\UI.png");
 	_gh_UIStart = LoadGraph("Resource\\Image\\Start.png");
 	//_gh_hp = LoadGraph("Resource\\Image\\Life1.png");
@@ -69,7 +70,7 @@ GameController::GameController()
 	ChangeVolumeSoundMem(255 * 50 / 100, _sh_thunderCharge);
 	_sh_click = LoadSoundMem("Resource\\Sound\\Click.mp3");
 	ChangeVolumeSoundMem(255 * 50 / 100, _sh_click);
-	_sh_tuta_imposible = LoadSoundMem("Resource\\Sound\\tuta_imposible.mp3");
+	_sh_tuta_imposible = LoadSoundMem("Resource\\Sound\\tuta_imposible.wav");
 	ChangeVolumeSoundMem(255 * 50 / 100, _sh_tuta_imposible);
 	GetGraphSize(_gh_background, &_background_width, &_background_height);
 	GetGraphSize(_gh_cloud, &_cloud_width, &_cloud_height);
@@ -170,6 +171,7 @@ void GameController::Init()
 	_rope.Init();
 	_time.Init();
 	_thunderChargeUI.Init();
+	_waveUpEffect.Init();
 
 	_fireReloadCount = 0;
 	_fireReloadFlag = false;
@@ -187,6 +189,7 @@ void GameController::Init()
 	_killCount = 0;
 	_totalKillCount = 0;
 	_wave = 0;
+	_wavePreparationCount = 0;
 	_remainingEnemyCount = 0;
 	_UIstartCount = 0;
 	_tutorialCount = 0;
@@ -231,6 +234,9 @@ void GameController::Init()
 	_gameclearAlphaCount = 0;
 	_gameclear_thanksAlphaCount = 0;
 
+	_animPos_crystal = 0;
+	_animCount_crystal = 0;
+
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		_island[i]->SetPosition(_island_posX_data[i], _island_posY_data[i]);
 	}
@@ -269,8 +275,8 @@ void GameController::Title()
 	int tutorialWidth = 412;
 	int tutorialHeight = 89;
 	if (480 < mousePosX && 480 + tutorialWidth > mousePosX &&
-		550 < mousePosY && 550 + tutorialHeight > mousePosY) {
-		MyDrawTurn::Instance().SetDrawItem(480 + tutorialWidth / 2, 550 + tutorialHeight / 2, _gh_title_tutorial, 0.5f, DRAWTYPE_DRAWROTAGRAPH, 1.2);
+		557 < mousePosY && 557 + tutorialHeight > mousePosY) {
+		MyDrawTurn::Instance().SetDrawItem(480 + tutorialWidth / 2, 557 + tutorialHeight / 2, _gh_title_tutorial, 0.5f, DRAWTYPE_DRAWROTAGRAPH, 1.2);
 		if (_mouseCount_Left == -1) {
 			_onth_flag[_sceneState] = 0;
 			PlaySoundMem(_sh_click, DX_PLAYTYPE_BACK);
@@ -278,7 +284,7 @@ void GameController::Title()
 		}
 	}
 	else {
-		MyDrawTurn::Instance().SetDrawItem(480 + tutorialWidth / 2, 550 + tutorialHeight / 2, _gh_title_tutorial, 0.5f, DRAWTYPE_DRAWROTAGRAPH, 1);
+		MyDrawTurn::Instance().SetDrawItem(480 + tutorialWidth / 2, 557 + tutorialHeight / 2, _gh_title_tutorial, 0.5f, DRAWTYPE_DRAWROTAGRAPH, 1);
 	}
 	
 	_posCount++;
@@ -362,6 +368,9 @@ void GameController::Tutorial()
 		_onth_flag[_sceneState] = 0;
 		PlaySoundMem(_sh_click, DX_PLAYTYPE_BACK);
 		_sceneState = TITLE;
+		_fireReloadCount = 0;
+		_fireReloadFlag = false;
+		//Init();
 	}
 	else {
 		MyDrawTurn::Instance().SetDrawItem(0, 0, _gh_title_background, 0.01f);
@@ -471,20 +480,20 @@ void GameController::Tutorial()
 	_rope_tutorial.Update();
 
 	if (_tutorialFlag == 0) {
-		MyDrawTurn::Instance().SetDrawItem(300 + cos(_nextPosCount / 6) * 3, 300, _gh_next, 0.6f,DRAWTYPE_DRAWROTAGRAPH,0.3,90 * (3.1415 / 180));
+		MyDrawTurn::Instance().SetDrawItem(300 + cos(_nextPosCount / 6) * 3, 300, _gh_next, 0.6f,DRAWTYPE_DRAWROTAGRAPH,0.5,90 * (3.1415 / 180));
 	}
 	if (_tutorialFlag == 1) {
 		//if (_nextPosCount % 2) 
 		_nextVecCount++;
 		if (_nextVecCount <= 100)
-			MyDrawTurn::Instance().SetDrawItem(300, 300 - _nextVecCount, _gh_next, 0.6f, DRAWTYPE_DRAWROTAGRAPH, 0.3, 90 * (3.1415 / 180));
+			MyDrawTurn::Instance().SetDrawItem(300, 300 - _nextVecCount, _gh_next, 0.6f, DRAWTYPE_DRAWROTAGRAPH, 0.5, 90 * (3.1415 / 180));
 		else
-			MyDrawTurn::Instance().SetDrawItem(300, 300 - 100, _gh_next, 0.6f, DRAWTYPE_DRAWROTAGRAPH, 0.3, 90 * (3.1415 / 180));
+			MyDrawTurn::Instance().SetDrawItem(300, 300 - 100, _gh_next, 0.6f, DRAWTYPE_DRAWROTAGRAPH, 0.5, 90 * (3.1415 / 180));
 		if (_nextVecCount > 120)
 			_nextVecCount = 0;
 	}
 	if (_tutorialFlag == 2) {
-		MyDrawTurn::Instance().SetDrawItem(600, 240 + sin(_nextPosCount / 6) * 3, _gh_next, 0.6f, DRAWTYPE_DRAWROTAGRAPH, 0.3);
+		MyDrawTurn::Instance().SetDrawItem(600, 240 + sin(_nextPosCount / 6) * 3, _gh_next, 0.6f, DRAWTYPE_DRAWROTAGRAPH, 0.5);
 	}
 	//if (_tutorialFlag == 3) {
 	//	MyDrawTurn::Instance().SetDrawItem(WindowInfo::Screen_Width - 100, WindowInfo::Screen_Height - 100 + sin(_nextPosCount / 6) * 3, _gh_next, 0.51f);
@@ -712,7 +721,13 @@ void GameController::Update()
 				break;
 			}
 			_enemyResponCount += 1000;
+			_wavePreparationCount = 60;
+			if (_wave != 11)
+				_waveUpEffect.Instantiate(_wave);
 		}
+	}
+	if (_wavePreparationCount > 0) {
+		_wavePreparationCount--;
 	}
 
 	if (_fireReloadFlag) {
@@ -741,7 +756,7 @@ void GameController::Update()
 		levelCheck = 360;
 	}
 
-	if (_enemyResponCount > levelCheck) {
+	if (_enemyResponCount > levelCheck && _wavePreparationCount <= 0) {
 		_enemyResponCount = 0;
 		_enemyResponFlag = true;
 	}
@@ -779,7 +794,7 @@ void GameController::Update()
 					if (_killCount % 3 == 0 && _rope.GetMaxRopeLife() + lifeCount < RopeInfo::Rope_MaxLife) {
 						for (int k = 0; k < 5; k++) {
 							if (!_ropeLifeUpEffect[k]->GetActiveFlag()) {
-								_ropeLifeUpEffect[k]->SetEffect(_enemy[i]->GetPosX(), _enemy[i]->GetPosY(), 240 + (40 * (_rope.GetMaxRopeLife() + lifeCount)), 766);
+								_ropeLifeUpEffect[k]->SetEffect(_enemy[i]->GetPosX(), _enemy[i]->GetPosY(), 240 + (40 * (_rope.GetMaxRopeLife() + lifeCount)) + 8, 766 - 5);
 								break;
 							}
 						}
@@ -816,7 +831,7 @@ void GameController::Update()
 						if (_killCount % 3 == 0 && _rope.GetMaxRopeLife() + lifeCount < RopeInfo::Rope_MaxLife) {
 							for (int k = 0; k < 5; k++) {
 								if (!_ropeLifeUpEffect[k]->GetActiveFlag()) {
-									_ropeLifeUpEffect[k]->SetEffect(_enemy[i]->GetPosX(), _enemy[i]->GetPosY(), 240 + (40 * (_rope.GetMaxRopeLife() + lifeCount)), 766);
+									_ropeLifeUpEffect[k]->SetEffect(_enemy[i]->GetPosX(), _enemy[i]->GetPosY(), 240 + (40 * (_rope.GetMaxRopeLife() + lifeCount)) + 8, 766 - 5);
 									break;
 								}
 							}
@@ -946,7 +961,7 @@ void GameController::Update()
 							continue;
 						}
 						else {
-							if (CheckSoundMem(_sh_tuta_imposible) == 0)
+							//if (CheckSoundMem(_sh_tuta_imposible) == 0)
 								PlaySoundMem(_sh_tuta_imposible, DX_PLAYTYPE_BACK);
 						}
 					}
@@ -960,7 +975,8 @@ void GameController::Update()
 							_island[i]->Revival();
 							for (int j = 0; j < RopeInfo::Rope_MaxLife; j++) {
 								if (_ropeLifeDownEffect[j]->GetActiveFlag())continue;
-								_ropeLifeDownEffect[j]->SetEffect(240 + (40 * _rope.GetRopeLife()) - 42, 766 - 1);
+								_ropeLifeDownEffect[j]->SetEffect(240 + (40 * _rope.GetRopeLife()) - 42 + 8, 766 - 1 - 5);
+								//240 + (40 * i) - 42, 766 - 55
 								break;
 							}
 							_rope.Minus();
@@ -968,13 +984,13 @@ void GameController::Update()
 						_rope.Connect(_now_player_num, i);
 						for (int j = 0; j < RopeInfo::Rope_MaxLife; j++) {
 							if (_ropeLifeDownEffect[j]->GetActiveFlag())continue;
-							_ropeLifeDownEffect[j]->SetEffect(240 + (40 * _rope.GetRopeLife()) - 42, 766 - 1);
+							_ropeLifeDownEffect[j]->SetEffect(240 + (40 * _rope.GetRopeLife()) - 42 + 8, 766 - 1 - 5);
 							break;
 						}
 						_rope.Minus();
 					}
 					else {
-						if (CheckSoundMem(_sh_tuta_imposible) == 0)
+						//if (CheckSoundMem(_sh_tuta_imposible) == 0)
 							PlaySoundMem(_sh_tuta_imposible, DX_PLAYTYPE_BACK);
 					}
 				}
@@ -1082,7 +1098,7 @@ void GameController::Update()
 							if (_killCount % 3 == 0 && _rope.GetMaxRopeLife() + lifeCount < RopeInfo::Rope_MaxLife) {
 								for (int k = 0; k < 5; k++) {
 									if (!_ropeLifeUpEffect[k]->GetActiveFlag()) {
-										_ropeLifeUpEffect[k]->SetEffect(_enemy[j]->GetPosX(), _enemy[j]->GetPosY(), 240 + (40 * (_rope.GetMaxRopeLife() + lifeCount)), 766);
+										_ropeLifeUpEffect[k]->SetEffect(_enemy[j]->GetPosX(), _enemy[j]->GetPosY(), 240 + (40 * (_rope.GetMaxRopeLife() + lifeCount)) + 8, 766 - 5);
 										break;
 									}
 								}
@@ -1562,6 +1578,19 @@ void GameController::Update()
 		}
 	}
 
+	//if (CheckHitKey(KEY_INPUT_R)) {
+	//	//Init();
+	//	_gameOverFlag = 1;
+	//	//_gameClearFlag = 1;
+	//	//StopSoundMem(_sh_gameplay);
+	//}
+
+	//if (!_player.GetLive()) {
+	//	//_sceneState = RESULT;
+	//	_gameOverFlag = 1;
+	//	_island[0]->_gameOverFlag = true;
+	//}
+
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		_island[i]->Update();
 	}
@@ -1585,16 +1614,19 @@ void GameController::Update()
 		_shieldBreakEffect[i]->Update();
 	}
 	_thunderChargeUI.Update();
+	_waveUpEffect.Update();
 
 	if (CheckHitKey(KEY_INPUT_R)) {
 		//Init();
-		//_gameOverFlag = 1;
-		_gameClearFlag = 1;
+		_gameOverFlag = 1;
+		_island[0]->_gameOverFlag = true;
+		//_gameClearFlag = 1;
 		//StopSoundMem(_sh_gameplay);
 	}
 	if (!_player.GetLive()) {
 		//_sceneState = RESULT;
 		_gameOverFlag = 1;
+		_island[0]->_gameOverFlag = true;
 	}
 }
 
@@ -1603,11 +1635,11 @@ void GameController::GameClearUpdate()
 	if (_white_paramVol == 0) {
 		StopSoundMem(_sh_gameplay);
 	}
-	if (_white_paramVol == 195) {
+	if (_white_paramVol == 198) {
 		PlaySoundMem(_sh_gameClear, DX_PLAYTYPE_BACK);
 	}
 	if (_white_paramVol < 200) {
-		_white_paramVol += 5;
+		_white_paramVol += 3;
 	}
 	else {
 		_nextCount++;
@@ -1651,18 +1683,30 @@ void GameController::GameOverUpdate()
 	if (_black_paramVol == 0) {
 		StopSoundMem(_sh_gameplay);
 	}
-	if (_black_paramVol == 195) {
-		PlaySoundMem(_sh_gameOver, DX_PLAYTYPE_BACK);
+	if (_black_paramVol == 198) {
 
 	}
 	if (_black_paramVol < 200) {
-		_black_paramVol += 5;
+		_black_paramVol += 3;
 	}
 	else {
+		_animCount_crystal++;
+		if (_animCount_crystal % 10 == 0 && _animPos_crystal < 13) {
+			_animPos_crystal++;
+			if (_animPos_crystal == 13) {
+				_animCount_crystal = 0;
+			}
+			return;
+		}
+		if (_animCount_crystal < 30 && _animPos_crystal == 13) return;
+	
+		if(_animCount_crystal == 30 && _animPos_crystal == 13)
+			PlaySoundMem(_sh_gameOver, DX_PLAYTYPE_BACK);
+
 		_nextCount++;
 		_nextPosCount++;
 		if (_gameoverAlphaCount < 255) {
-			_gameoverAlphaCount += 5;
+			_gameoverAlphaCount += 1;
 		}
 		
 		int posX = 450;
@@ -1685,8 +1729,10 @@ void GameController::GameOverUpdate()
 void GameController::GameOverDraw()
 {
 	MyDrawTurn::Instance().SetDrawBrightItem(0, 0, _gh_black, 0.9f, 0, 0, 0, BLENDMODE_ALPHA, _black_paramVol);
+	MyDrawTurn::Instance().SetDrawItem(_island[0]->GetPosX() - 26, _island[0]->GetPosY() - 34 + 40, _gh_crystal[_animPos_crystal], 0.91f);
 	
-	if (_black_paramVol >= 200) {
+	//if (_black_paramVol >= 200) {
+	if(_animCount_crystal > 30 && _animPos_crystal == 13){
 		MyDrawTurn::Instance().SetDrawBrightItem(0, 0, _gh_gameover, 0.91f, _gameoverAlphaCount, _gameoverAlphaCount, _gameoverAlphaCount,BLENDMODE_ALPHA, 255);
 		MyDrawTurn::Instance().SetDrawBrightItem(0, 0, _gh_result, 0.91f, _gameoverAlphaCount, _gameoverAlphaCount, _gameoverAlphaCount, BLENDMODE_ALPHA, 255);
 		MyDrawTurn::Instance().SetDrawBrightItem(250, 500, _gh_resultWave, 0.91f, _gameoverAlphaCount, _gameoverAlphaCount, _gameoverAlphaCount, BLENDMODE_ALPHA, 255);
@@ -1702,7 +1748,7 @@ void GameController::Draw()
 	DrawExtendGraph(_cloud_posX, _cloud_posY, _cloud_posX + WindowInfo::Screen_Width, _cloud_posY + WindowInfo::Screen_Height, _gh_cloud, TRUE);
 	DrawExtendGraph(_cloud_posX - WindowInfo::Screen_Width, _cloud_posY, _cloud_posX, _cloud_posY + WindowInfo::Screen_Height, _gh_cloud, TRUE);
 	DrawGraph(0, 0, _gh_background2, TRUE);
-	MyDrawTurn::Instance().SetDrawItem(0, 0, _gh_UIbar, 0.8f);
+	MyDrawTurn::Instance().SetDrawItem(0, 0, _gh_UIbar, 0.82f);
 	int count;
 	for (count = 0; count < IslandInfo::Island_Num; count++) {
 		int j;
@@ -1744,23 +1790,27 @@ void GameController::Draw()
 	//}
 	//DrawFormatString(10, 550, GetColor(0, 0, 0), "KILL : %d", _killCount);
 	//DrawFormatString(10, 720, GetColor(0, 0, 0), "”­ŽË‰Â”\‚Ü‚Å : %d", FIRE_RELOAD_NUM - _fireReloadCount);
-	MyDrawTurn::Instance().SetDrawItem(42, 670, _gh_thunderUI[_animPos_thunderUI], 0.81f);
+	MyDrawTurn::Instance().SetDrawItem(42 + 7, 670 - 4, _gh_thunderUI[_animPos_thunderUI], 0.83f);
 	//DrawFormatString(10, 570, GetColor(0, 0, 0), "WAVE : %d", _wave);
-	MyDrawTurn::Instance().SetDrawItem(10, 20, _gh_wave, 0.8f);
-	if (_wave > 10) {
-		_drawNumber.Draw(230, 10, _wave - 1, SETDRAWNUM_WAVE);
+
+	if (!_waveUpEffect.GetActiveFlag()) {
+		MyDrawTurn::Instance().SetDrawItem(10, 20, _gh_wave, 0.8f);
+		if (_wave > 10) {
+			_drawNumber.Draw(230, 10, _wave - 1, SETDRAWNUM_WAVE);
+		}
+		else {
+			_drawNumber.Draw(230, 10, _wave, SETDRAWNUM_WAVE);
+		}
 	}
-	else {
-		_drawNumber.Draw(230, 10, _wave, SETDRAWNUM_WAVE);
-	}
+
 	int ropeLife = 0;
 	for (int i = 0; i < RopeInfo::Rope_MaxLife; i++) {
 		if (ropeLife < _rope.GetRopeLife()) {
-			MyDrawTurn::Instance().SetDrawItem(240 + (40 * i) - 50, 766 - 50, _gh_tuta_life_active, 0.81f);
+			MyDrawTurn::Instance().SetDrawItem(240 + (40 * i) - 42, 766 - 55, _gh_tuta_life_active, 0.83f);
 		}
 		//else{
 		else if(ropeLife < _rope.GetMaxRopeLife()){
-			MyDrawTurn::Instance().SetDrawItem(240 + (40 * i) - 50, 766 - 50, _gh_tuta_life_inactive, 0.81f);
+			MyDrawTurn::Instance().SetDrawItem(240 + (40 * i) - 42, 766 - 55, _gh_tuta_life_inactive, 0.83f);
 		}
 		ropeLife++;
 	}
@@ -1771,7 +1821,7 @@ void GameController::Draw()
 	//DrawFormatString(50, 200, GetColor(255, 255, 255), "%d", _time.GetGameTime());
 	for (int i = 1; i < IslandInfo::Island_Num; i++) {
 		_island[i]->Draw();
-		DrawFormatString(_island[i]->GetPosX() + 30, _island[i]->GetPosY() - 30, GetColor(0, 0, 255), "%d", i);
+		//DrawFormatString(_island[i]->GetPosX() + 30, _island[i]->GetPosY() - 30, GetColor(0, 0, 255), "%d", i);
 	}
 	_island[0]->Draw();
 	for (int i = 0; i < RopeInfo::Rope_MaxLife; i++) {
@@ -1981,7 +2031,7 @@ void GameController::Draw()
 					MyDrawTurn::Instance().SetDrawItem(_rope._posX[i][j] + x / 2, _rope._posY[i][j] + y / 2, _gh_tuta_anim[_animPos_tuta[i][j]], priority, DRAWTYPE_DRAWROTAGRAPH, exRate, angle + 90.0 * (M_PI / 180.0));
 				}
 			}
-			DrawFormatString(_island[i]->GetPosX(), _island[i]->GetPosY(), GetColor(0, 0, 0), "%d", i);
+			//DrawFormatString(_island[i]->GetPosX(), _island[i]->GetPosY(), GetColor(0, 0, 0), "%d", i);
 		}
 	}
 	for (int i = 0; i < EnemyInfo::Enemy_Num; i++) {
@@ -2000,6 +2050,7 @@ void GameController::Draw()
 	for (int i = 0; i < SHIELDBREAKEFFECT_NUM; i++) {
 		_shieldBreakEffect[i]->Draw();
 	}
+	_waveUpEffect.Draw();
 	int color = GetColor(255, 0, 0);
 	for (int i = 0; i < IslandInfo::Island_Num; i++) {
 		if (_thunder_count[i] > 0) {

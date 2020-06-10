@@ -13,6 +13,7 @@
 #include "CircleEfect.h"
 #include "RopeLifeDownEfect.h"
 #include "ShieldBreakEffect.h"
+#include "WaveUpEffect.h"
 
 #include "IslandInfo.h"
 #include "EnemyInfo.h"
@@ -36,6 +37,7 @@ private:
 	int _killCount;
 	int _totalKillCount;
 	int _wave;
+	int _wavePreparationCount;
 	int _remainingEnemyCount;
 	int _onth_flag[4];
 	int _tutorialCount;
@@ -133,6 +135,10 @@ private:
 	int _gameclearAlphaCount;
 	int _gameclear_thanksAlphaCount;
 
+	int _gh_crystal[13];
+	int _animPos_crystal;
+	int _animCount_crystal;
+
 	Island*				_island[IslandInfo::Island_Num];
 	Player				_player;
 	Rope				_rope;
@@ -146,6 +152,7 @@ private:
 	//CircleEfect*		_circleEfect[RopeInfo::Rope_MaxLife]; 
 	RopeLifeDownEfect*	_ropeLifeDownEffect[RopeInfo::Rope_MaxLife];
 	ShieldBreakEffect*	_shieldBreakEffect[SHIELDBREAKEFFECT_NUM];
+	WaveUpEffect		_waveUpEffect;
 
 	Island*				_island_tutorial[4];
 	Rope				_rope_tutorial;
